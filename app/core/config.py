@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 
 __all__ = [
     'server_config',
-    'uvicorn_config'
+    'uvicorn_config',
+    'sqlalchemy_connection_string'
 ]
 
 
@@ -40,6 +41,21 @@ class UvicornConfig:
         }
 
 
+@dataclass
+class DBConfig:
+    HOST: str
+    PORT: int
+    NAME: str
+    USER: str
+    PASSWORD: str
+    ENGINE: str = 'postgresql'
+    DRIVER: str = 'asyncpg'
+
+    @property
+    def sqlalchemy_connection_string(self) -> str:
+        return f'{self.ENGINE}+{self.DRIVER}://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}'
+
+
 server_config = ServerConfig(
     getenv('SERVER_HOST'),
     int(getenv('SERVER_PORT'))
@@ -48,3 +64,10 @@ uvicorn_config = UvicornConfig(
     server_config,
     LOGGING_CONFIG_PATH
 ).get_config()
+sqlalchemy_connection_string = DBConfig(
+    getenv('DB_HOST'),
+    int(getenv('DB_PORT')),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASSWORD'),
+).sqlalchemy_connection_string

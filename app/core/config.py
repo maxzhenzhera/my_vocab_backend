@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from os import getenv
 
@@ -24,7 +24,7 @@ LOGGING_CONFIG_PATH = APP_DIR / 'utils' / 'logging_' / 'logging_config.yaml'
 class ServerConfig:
     HOST: str
     PORT: int
-    API_PREFIX: str = '/api'
+    API_PREFIX: str
 
 
 @dataclass
@@ -60,7 +60,7 @@ class DBConfig:
 server_config = ServerConfig(
     getenv('SERVER_HOST'),
     int(getenv('SERVER_PORT')),
-    getenv('API_PREFIX')
+    getenv('API_PREFIX', '/api')
 )
 uvicorn_config = UvicornConfig(
     server_config,

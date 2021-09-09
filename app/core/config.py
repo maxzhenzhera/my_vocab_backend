@@ -24,6 +24,7 @@ LOGGING_CONFIG_PATH = APP_DIR / 'utils' / 'logging_' / 'logging_config.yaml'
 class ServerConfig:
     HOST: str
     PORT: int
+    API_PREFIX: str = '/api'
 
 
 @dataclass
@@ -58,7 +59,8 @@ class DBConfig:
 
 server_config = ServerConfig(
     getenv('SERVER_HOST'),
-    int(getenv('SERVER_PORT'))
+    int(getenv('SERVER_PORT')),
+    getenv('API_PREFIX')
 )
 uvicorn_config = UvicornConfig(
     server_config,

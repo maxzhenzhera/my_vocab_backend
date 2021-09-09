@@ -13,6 +13,7 @@ sqlalchemy = "*"
 pydantic = {extras = ["email"], version = "*"}
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
+python-freedictionaryapi = {extras = ["async-client"], version = "*"}
 
 [dev-packages]
 

@@ -1,8 +1,7 @@
-from dataclasses import dataclass
-
 import bcrypt
 from passlib.context import CryptContext
 
+from .base import BaseUserService
 from ..db.models import User
 
 
@@ -12,10 +11,7 @@ __all__ = ['UserPasswordService']
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
-@dataclass
-class UserPasswordService:
-    user: User
-
+class UserPasswordService(BaseUserService):
     def change_password(self, password: str) -> User:
         self.user.password_salt = self._generate_salt()
         self.user.hashed_password = self._get_password_hash(self._combine_password_with_salt(password=password))

@@ -1,8 +1,13 @@
-from dataclasses import dataclass, field
+from dataclasses import (
+    dataclass,
+    field
+)
+from datetime import timedelta
 from pathlib import Path
 from os import getenv
 
 from dotenv import load_dotenv
+from jose import jwt
 
 
 __all__ = [
@@ -30,8 +35,8 @@ class ServerConfig:
 @dataclass
 class UvicornConfig:
     SERVER_CONFIG: ServerConfig
-    LOGGING_CONFIG_PATH: str = str(LOGGING_CONFIG_PATH)
-    RELOAD: bool = True
+    LOGGING_CONFIG_PATH: str = field(default=str(LOGGING_CONFIG_PATH), init=False)
+    RELOAD: bool = field(default=True, init=False)
 
     def get_config(self) -> dict:
         return {
@@ -57,12 +62,25 @@ class DBConfig:
         return f'{self.ENGINE}+{self.DRIVER}://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}'
 
 
+@dataclass
+class JWTConfig:
+    ACCESS_TOKEN_SECRET_KEY: str
+    REFRESH_TOKEN_SECRET_KEY: str
+    ACCESS_TOKEN_SUBJECT: str = field(default='access', init=False)
+    REFRESH_TOKEN_SUBJECT: str = field(default='refresh', init=False)
+    ACCESS_TOKEN_EXPIRE_IN: timedelta = field(default=timedelta(minutes=30), init=False)
+    REFRESH_TOKEN_EXPIRE_IN_MINUTES: timedelta = field(default=timedelta(weeks=1), init=False)
+    ALGORITHM: str = field(default=jwt.ALGORITHMS.HS256, init=False)
+
+
 server_config = ServerConfig(
     getenv('SERVER_HOST'),
     int(getenv('SERVER_PORT')),
     getenv('API_PREFIX', '/api')
 )
-uvicorn_config = UvicornConfig(server_config).get_config()
+uvicorn_config = UvicornConfig(
+    server_config
+).get_config()
 sqlalchemy_connection_string = DBConfig(
     getenv('DB_HOST'),
     int(getenv('DB_PORT')),
@@ -70,3 +88,7 @@ sqlalchemy_connection_string = DBConfig(
     getenv('DB_USER'),
     getenv('DB_PASSWORD'),
 ).sqlalchemy_connection_string
+jwt_config = JWTConfig(
+    ACCESS_TOKEN_SECRET_KEY=getenv('JWT_ACCESS_TOKEN_SECRET_KEY'),
+    REFRESH_TOKEN_SECRET_KEY=getenv('JWT_REFRESH_TOKEN_SECRET_KEY')
+)

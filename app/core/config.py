@@ -13,7 +13,8 @@ from jose import jwt
 __all__ = [
     'server_config',
     'uvicorn_config',
-    'sqlalchemy_connection_string'
+    'sqlalchemy_connection_string',
+    'jwt_config'
 ]
 
 

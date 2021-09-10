@@ -69,8 +69,8 @@ class JWTConfig:
     REFRESH_TOKEN_SECRET_KEY: str
     ACCESS_TOKEN_SUBJECT: str = field(default='access', init=False)
     REFRESH_TOKEN_SUBJECT: str = field(default='refresh', init=False)
-    ACCESS_TOKEN_EXPIRE_IN: timedelta = field(default=timedelta(minutes=30), init=False)
-    REFRESH_TOKEN_EXPIRE_IN_MINUTES: timedelta = field(default=timedelta(weeks=1), init=False)
+    ACCESS_TOKEN_EXPIRE_TIMEDELTA: timedelta = field(default=timedelta(minutes=30), init=False)
+    REFRESH_TOKEN_EXPIRE_TIMEDELTA: timedelta = field(default=timedelta(weeks=1), init=False)
     ALGORITHM: str = field(default=jwt.ALGORITHMS.HS256, init=False)
 
 

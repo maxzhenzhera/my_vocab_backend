@@ -14,7 +14,7 @@ pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 class UserPasswordService(BaseUserService):
     def change_password(self, password: str) -> User:
         self.user.password_salt = self._generate_salt()
-        self.user.hashed_password = self._get_password_hash(self._combine_password_with_salt(password=password))
+        self.user.hashed_password = self._hash_password(self._combine_password_with_salt(password=password))
         return self.user
 
     def verify_password(self, password: str) -> bool:
@@ -28,7 +28,7 @@ class UserPasswordService(BaseUserService):
         return bcrypt.gensalt().decode()
 
     @staticmethod
-    def _get_password_hash(password: str) -> str:
+    def _hash_password(password: str) -> str:
         return pwd_context.hash(password)
 
     @staticmethod

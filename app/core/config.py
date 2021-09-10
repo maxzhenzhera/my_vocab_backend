@@ -30,14 +30,14 @@ class ServerConfig:
 @dataclass
 class UvicornConfig:
     SERVER_CONFIG: ServerConfig
-    LOGGING_CONFIG_PATH: str
+    LOGGING_CONFIG_PATH: str = str(LOGGING_CONFIG_PATH)
     RELOAD: bool = True
 
     def get_config(self) -> dict:
         return {
             'host': self.SERVER_CONFIG.HOST,
             'port': self.SERVER_CONFIG.PORT,
-            'log_config': str(self.LOGGING_CONFIG_PATH),
+            'log_config': self.LOGGING_CONFIG_PATH,
             'reload': self.RELOAD
         }
 
@@ -62,10 +62,7 @@ server_config = ServerConfig(
     int(getenv('SERVER_PORT')),
     getenv('API_PREFIX', '/api')
 )
-uvicorn_config = UvicornConfig(
-    server_config,
-    LOGGING_CONFIG_PATH
-).get_config()
+uvicorn_config = UvicornConfig(server_config).get_config()
 sqlalchemy_connection_string = DBConfig(
     getenv('DB_HOST'),
     int(getenv('DB_PORT')),

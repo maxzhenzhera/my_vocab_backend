@@ -4,7 +4,14 @@ from pydantic import (
 )
 
 
-__all__ = ['ModelWithOrmMode']
+__all__ = [
+    'IDModelMixin',
+    'ModelWithOrmMode'
+]
+
+
+class IDModelMixin(BaseModel):
+    id: int
 
 
 class ModelWithOrmMode(BaseModel):

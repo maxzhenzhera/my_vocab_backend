@@ -9,6 +9,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select as sa_select
+from sqlalchemy.sql.dml import Update
 
 from ._types import (
     ModelType,
@@ -47,10 +48,18 @@ class BaseRepository(abc.ABC):
         await self._session.refresh(entity)
         return entity
 
-    async def update_by_id(self, id_: int, schema_in_update: UpdateSchemaType) -> ModelType:
-        update_data = schema_in_update.dict(exclude_unset=True)
+    async def update(self, id_: int, schema_in_update: UpdateSchemaType) -> ModelType:
+        update_data = self._exclude_unset_from_schema(schema_in_update)
+        stmt = sa_update(self.model).where(self.model.id == id_).values(**update_data)
+        return await self._return_from_update(stmt)
+
+    @staticmethod
+    def _exclude_unset_from_schema(schema_in_update: UpdateSchemaType) -> dict:
+        return schema_in_update.dict(exclude_unset=True)
+
+    async def _return_from_update(self, update_statement: Update) -> ModelType:
         async with self._session.begin_nested():
-            stmt = sa_update(self.model).where(self.model.id == id_).values(**update_data).returning(self.model)
+            stmt = update_statement.returning(self.model)
             orm_stmt = sa_select(self.model).from_statement(stmt).execution_options(populate_existing=True)
             result: Result = await self._session.execute(orm_stmt)
         return result.scalar()

@@ -6,6 +6,7 @@ from sqlalchemy import (
     update as sa_update,
 )
 from sqlalchemy.engine import Result
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select as sa_select
 
@@ -14,6 +15,7 @@ from ._types import (
     CreateSchemaType,
     UpdateSchemaType
 )
+from ..errors import EntityDoesNotExistError
 
 
 __all__ = ['BaseRepository']
@@ -45,11 +47,6 @@ class BaseRepository(abc.ABC):
         await self._session.refresh(entity)
         return entity
 
-    async def fetch_by_id(self, id_: int) -> ModelType:
-        stmt = sa_select(self.model).where(self.model.id == id_)
-        result: Result = await self._session.execute(stmt)
-        return result.scalar()
-
     async def update_by_id(self, id_: int, schema_in_update: UpdateSchemaType) -> ModelType:
         update_data = schema_in_update.dict(exclude_unset=True)
         async with self._session.begin_nested():
@@ -62,3 +59,17 @@ class BaseRepository(abc.ABC):
         async with self._session.begin_nested():
             stmt = sa_delete(self.model).where(self.model.id == id_)
             await self._session.execute(stmt)
+
+    async def fetch_by_id(self, id_: int) -> ModelType:
+        stmt = sa_select(self.model).where(self.model.id == id_)
+        result: Result = await self._session.execute(stmt)
+        return self._get_entity_from_result_or_raise(result)
+
+    @staticmethod
+    def _get_entity_from_result_or_raise(result: Result) -> ModelType:
+        try:
+            entity = result.scalar_one()
+        except NoResultFound:
+            raise EntityDoesNotExistError
+        else:
+            return entity

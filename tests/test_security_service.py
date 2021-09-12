@@ -1,7 +1,7 @@
 import pytest
 
-from app.services.security import UserPasswordService
 from app.db.models import User
+from app.services.security import UserPasswordService
 
 
 class TestUserPasswordService:

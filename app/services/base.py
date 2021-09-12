@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 
-from ..db.models import User
+from app.db.models import User
 
 
 __all__ = ['BaseUserService']

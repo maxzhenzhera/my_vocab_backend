@@ -2,7 +2,7 @@ import bcrypt
 from passlib.context import CryptContext
 
 from .base import BaseUserService
-from ..db.models import User
+from app.db.models import User
 
 
 __all__ = ['UserPasswordService']

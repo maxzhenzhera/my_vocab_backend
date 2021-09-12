@@ -28,7 +28,7 @@ class TokenDataForEncoding:
 @dataclass
 class Token:
     token: str
-    expire: datetime
+    expires_at: datetime
 
 
 @dataclass

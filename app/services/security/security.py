@@ -1,14 +1,11 @@
 import bcrypt
-from passlib.context import CryptContext
 
-from .base import BaseUserService
-from app.db.models import User
+from .context import pwd_context
+from ..base import BaseUserService
+from ...db.models import User
 
 
 __all__ = ['UserPasswordService']
-
-
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 class UserPasswordService(BaseUserService):

@@ -8,7 +8,8 @@ from .base import ModelWithOrmMode
 __all__ = [
     'JWTMeta',
     'JWTUser',
-    'Tokens'
+    'TokenInResponse',
+    'TokensInResponse'
 ]
 
 
@@ -22,6 +23,11 @@ class JWTUser(ModelWithOrmMode):
     is_superuser: bool
 
 
-class Tokens:
-    access_token: str
-    refresh_token: str
+class TokenInResponse(BaseModel):
+    token: str
+    token_type: str = 'bearer'
+
+
+class TokensInResponse(BaseModel):
+    access_token: TokenInResponse
+    refresh_token: TokenInResponse

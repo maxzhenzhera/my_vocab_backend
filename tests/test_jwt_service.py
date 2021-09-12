@@ -41,10 +41,14 @@ class TestUserJWTService:
 
     def test_generate_token(self, service: UserJWTService):
         test_payload = service._prepare_payload(self.TEST_META_CLAIMS)
+        expires_at = test_payload['exp']
         manual_token = Token(
-            jwt.encode(test_payload, self.TEST_TOKEN_SECRET, jwt_config.ALGORITHM), test_payload['exp']
+            jwt.encode(test_payload, self.TEST_TOKEN_SECRET, jwt_config.ALGORITHM), expires_at
         )
+
         service_token = service._generate_token(TokenDataForEncoding(self.TEST_META_CLAIMS, self.TEST_TOKEN_SECRET))
+
+        assert isinstance(service_token.expires_at, datetime)
         assert manual_token == service_token
 
     def test_prepare_payload(self, service: UserJWTService):

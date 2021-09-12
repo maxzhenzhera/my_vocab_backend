@@ -56,8 +56,9 @@ class UserJWTService(BaseUserService):
 
     def _generate_token(self, token_data: TokenDataForEncoding) -> Token:
         payload = self._prepare_payload(token_data.meta_claims)
+        expires_at = payload['exp']
         token = jwt.encode(payload, token_data.secret, jwt_config.ALGORITHM)
-        return Token(token, payload['exp'])
+        return Token(token, expires_at)
 
     def _prepare_payload(self, meta_claims: TokenPayloadMetaClaims) -> dict:
         return self._make_user_payload() | self._make_meta_payload(meta_claims)

@@ -5,13 +5,13 @@ from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
-    String,
-    func
+    String
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from ..base import Base
+from ...functions import utcnow
 
 
 __all__ = ['User']
@@ -28,7 +28,7 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     is_email_confirmed = Column(Boolean, default=False, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, server_default=func.current_timestamp(), nullable=False)
+    created_at = Column(DateTime, server_default=utcnow(), nullable=False)
     email_confirmed_at = Column(DateTime)
 
     tags = relationship('Tag', back_populates='user')

@@ -4,12 +4,12 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
-    String,
-    func
+    String
 )
 from sqlalchemy.orm import relationship
 
 from ..base import Base
+from ...functions import utcnow
 
 
 __all__ = ['Word']
@@ -22,7 +22,7 @@ class Word(Base):
     word = Column(String, nullable=False)
     is_learned = Column(Boolean, default=False)
     is_marked = Column(Boolean, default=False)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
+    created_at = Column(DateTime, server_default=utcnow())
     user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
     vocab_id = Column(BigInteger, ForeignKey('vocabs.id'), nullable=False)
 

@@ -3,12 +3,12 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
-    String,
-    func
+    String
 )
 from sqlalchemy.orm import relationship
 
 from ..base import Base
+from ...functions import utcnow
 
 
 __all__ = ['Tag']
@@ -20,7 +20,7 @@ class Tag(Base):
     id = Column(BigInteger, primary_key=True)
     title = Column(String, nullable=False)
     description = Column(String)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
+    created_at = Column(DateTime, server_default=utcnow())
     user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
 
     user = relationship('User', back_populates='tags')

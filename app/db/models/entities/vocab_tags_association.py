@@ -2,12 +2,12 @@ from sqlalchemy import (
     BigInteger,
     Column,
     DateTime,
-    ForeignKey,
-    func
+    ForeignKey
 )
 from sqlalchemy.orm import relationship
 
 from ..base import Base
+from ...functions import utcnow
 
 
 __all__ = ['VocabTagsAssociation']
@@ -18,7 +18,7 @@ class VocabTagsAssociation(Base):
 
     vocab_id = Column(BigInteger, ForeignKey('vocabs.id'), primary_key=True)
     tag_id = Column(BigInteger, ForeignKey('tags.id'), primary_key=True)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
+    created_at = Column(DateTime, server_default=utcnow())
 
     vocab = relationship("Vocab", back_populates="tags")
     tag = relationship("Tag", back_populates="vocabs")

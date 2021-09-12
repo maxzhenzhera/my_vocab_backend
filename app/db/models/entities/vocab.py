@@ -5,13 +5,13 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
-    String,
-    func
+    String
 )
 from sqlalchemy.orm import relationship
 
 from .. import Base
 from ...enums import Language
+from ...functions import utcnow
 
 
 __all__ = ['Vocab']
@@ -29,7 +29,7 @@ class Vocab(Base):
     description = Column(String)
     language = Column(Enum(Language, name='language'))
     is_favourite = Column(Boolean, default=False)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
+    created_at = Column(DateTime, server_default=utcnow())
     user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
 
     user = relationship('User', back_populates='vocabs')

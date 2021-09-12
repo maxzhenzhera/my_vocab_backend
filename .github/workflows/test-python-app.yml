@@ -31,3 +31,24 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+      env:
+        SERVER_HOST: 0.0.0.0
+        SERVER_PORT: 8000
+
+        DB_HOST: temporary_plug
+        DB_PORT: 5432
+        DB_USER: temporary_plug
+        DB_PASSWORD: temporary_plug
+        DB_NAME: temporary_plug
+
+        MAIL_USERNAME: temporary_plug
+        MAIL_PASSWORD: temporary_plug
+        MAIL_PORT: temporary_plug
+        MAIL_SERVER: temporary_plug
+        MAIL_FROM: temporary_plug
+        MAIL_FROM_NAME: temporary_plug
+        MAIL_TLS: temporary_plug
+        MAIL_SSL: temporary_plug
+
+        JWT_ACCESS_TOKEN_SECRET_KEY: secret
+        JWT_REFRESH_TOKEN_SECRET_KEY: secret

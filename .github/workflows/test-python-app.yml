@@ -43,7 +43,7 @@ jobs:
 
         MAIL_USERNAME: temporary_plug
         MAIL_PASSWORD: temporary_plug
-        MAIL_PORT: temporary_plug
+        MAIL_PORT: 587
         MAIL_SERVER: temporary_plug
         MAIL_FROM: temporary_plug
         MAIL_FROM_NAME: temporary_plug

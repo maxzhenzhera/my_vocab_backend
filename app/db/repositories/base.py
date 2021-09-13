@@ -9,7 +9,10 @@ from sqlalchemy.engine import Result
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select as sa_select
-from sqlalchemy.sql.dml import Update
+from sqlalchemy.sql import (
+    Select,
+    Update
+)
 
 from ._types import (
     ModelType,
@@ -72,13 +75,25 @@ class BaseRepository(abc.ABC):
     async def fetch_by_id(self, id_: int) -> ModelType:
         stmt = sa_select(self.model).where(self.model.id == id_)
         result: Result = await self._session.execute(stmt)
-        return self._get_entity_from_result_or_raise(result)
+        return self._get_entity_or_raise(result)
 
     @staticmethod
-    def _get_entity_from_result_or_raise(result: Result) -> ModelType:
+    def _get_entity_or_raise(result: Result) -> ModelType:
         try:
             entity = result.scalar_one()
         except NoResultFound:
             raise EntityDoesNotExistError
         else:
             return entity
+
+    async def fetch_all(self) -> list[ModelType]:
+        stmt = sa_select(self.model)
+        return await self._fetch_entities(stmt)
+
+    async def fetch_with_limit_and_offset(self, limit: int, offset: int) -> list[ModelType]:
+        stmt = sa_select(self.model).limit(limit).offset(offset)
+        return await self._fetch_entities(stmt)
+
+    async def _fetch_entities(self, select_statement: Select) -> list[ModelType]:
+        result: Result = await self._session.execute(select_statement)
+        return result.scalars().all()

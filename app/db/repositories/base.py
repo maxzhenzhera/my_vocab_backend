@@ -74,7 +74,10 @@ class BaseRepository(abc.ABC):
 
     async def fetch_by_id(self, id_: int) -> ModelType:
         stmt = sa_select(self.model).where(self.model.id == id_)
-        result: Result = await self._session.execute(stmt)
+        return await self._fetch_entity(stmt)
+
+    async def _fetch_entity(self, select_statement: Select) -> ModelType:
+        result: Result = await self._session.execute(select_statement)
         return self._get_entity_or_raise(result)
 
     @staticmethod

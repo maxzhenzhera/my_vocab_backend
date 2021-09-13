@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from sqlalchemy import update as sa_update
-from sqlalchemy.engine import Result
 from sqlalchemy.future import select as sa_select
 
 from .base import BaseRepository
@@ -10,10 +9,7 @@ from ..errors import (
     EmailIsAlreadyTakenError
 )
 from ..models import User
-from ...schemas.user import (
-    UserInCreate,
-    UserInUpdate
-)
+from ...schemas.user import UserInUpdate
 from ...services.security import UserPasswordService
 
 
@@ -22,13 +18,6 @@ __all__ = ['UsersRepository']
 
 class UsersRepository(BaseRepository):
     model = User
-
-    async def create_by_schema(self, user_in_create: UserInCreate) -> User:
-        if await self.check_email_is_taken(user_in_create.email):
-            raise EmailIsAlreadyTakenError
-        user = User(email=user_in_create.email)
-        user_with_password = UserPasswordService(user).change_password(user_in_create.password)
-        return await self.create_by_entity(user_with_password)
 
     async def update(self, email: str, user_in_update: UserInUpdate) -> User:
         update_data = self._exclude_unset_from_schema(user_in_update)
@@ -59,8 +48,7 @@ class UsersRepository(BaseRepository):
 
     async def fetch_by_email(self, email: str) -> User:
         stmt = sa_select(User).where(User.email == email)
-        result: Result = await self._session.execute(stmt)
-        return self._get_entity_from_result_or_raise(result)
+        return await self._fetch_entity(stmt)
 
     async def check_email_is_taken(self, email: str) -> bool:
         try:

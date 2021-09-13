@@ -3,17 +3,21 @@ from dataclasses import (
     field
 )
 from datetime import timedelta
-from pathlib import Path
 from os import getenv
+from pathlib import Path
 
 from dotenv import load_dotenv
+from fastapi_mail import ConnectionConfig as MailConnectionConfig
 from jose import jwt
+
+from ..utils.casts import to_bool
 
 
 __all__ = [
     'server_config',
     'uvicorn_config',
     'sqlalchemy_connection_string',
+    'mail_connection_config',
     'jwt_config'
 ]
 
@@ -89,6 +93,16 @@ sqlalchemy_connection_string = DBConfig(
     getenv('DB_USER'),
     getenv('DB_PASSWORD'),
 ).sqlalchemy_connection_string
+mail_connection_config = MailConnectionConfig(
+    MAIL_USERNAME=getenv('MAIL_USERNAME'),
+    MAIL_PASSWORD=getenv('MAIL_PASSWORD'),
+    MAIL_SERVER=getenv('MAIL_SERVER'),
+    MAIL_PORT=int(getenv('MAIL_PORT')),
+    MAIL_FROM=getenv('MAIL_FROM'),      # noqa
+    MAIL_FROM_NAME=getenv('MAIL_FROM_NAME'),
+    MAIL_TLS=to_bool(getenv('MAIL_TLS')),
+    MAIL_SSL=to_bool(getenv('MAIL_SSL'))
+)
 jwt_config = JWTConfig(
     ACCESS_TOKEN_SECRET_KEY=getenv('JWT_ACCESS_TOKEN_SECRET_KEY'),
     REFRESH_TOKEN_SECRET_KEY=getenv('JWT_REFRESH_TOKEN_SECRET_KEY')

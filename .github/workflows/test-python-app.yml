@@ -45,7 +45,7 @@ jobs:
         MAIL_PASSWORD: temporary_plug
         MAIL_PORT: 587
         MAIL_SERVER: temporary_plug
-        MAIL_FROM: temporary_plug
+        MAIL_FROM: temporary_plug@gmail.com
         MAIL_FROM_NAME: temporary_plug
         MAIL_TLS: temporary_plug
         MAIL_SSL: temporary_plug

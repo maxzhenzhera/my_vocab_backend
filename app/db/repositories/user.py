@@ -35,7 +35,7 @@ class UsersRepository(BaseRepository):
         return {
             'is_email_confirmed': False,
             'email_confirmed_at': None,
-            'activation_link': uuid4()
+            'email_confirmation_link': uuid4()
         }
 
     @staticmethod

@@ -37,7 +37,7 @@ class UserInUpdate(BaseModel):
 
 class UserInResponse(IDModelMixin, ModelWithOrmMode):
     email: EmailStr
-    activation_link: UUID4
+    email_confirmation_link: UUID4
     is_active: bool
     is_email_confirmed: bool
     is_superuser: bool

@@ -24,7 +24,7 @@ class User(Base):
     email = Column(String, nullable=False, index=True, unique=True)
     hashed_password = Column(String, nullable=False)
     password_salt = Column(String, nullable=False)
-    activation_link = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
+    email_confirmation_link = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     is_email_confirmed = Column(Boolean, default=False, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)

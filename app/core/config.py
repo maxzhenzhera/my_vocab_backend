@@ -28,6 +28,7 @@ load_dotenv()
 APP_DIR = Path(__file__).parent.parent
 BASE_DIR = APP_DIR.parent
 LOGGING_CONFIG_PATH = APP_DIR / 'utils' / 'logging_' / 'logging_config.yaml'
+EMAIL_TEMPLATES_DIR = APP_DIR / 'email_templates'
 
 
 @dataclass
@@ -101,7 +102,8 @@ mail_connection_config = MailConnectionConfig(
     MAIL_FROM=getenv('MAIL_FROM'),      # noqa
     MAIL_FROM_NAME=getenv('MAIL_FROM_NAME'),
     MAIL_TLS=to_bool(getenv('MAIL_TLS')),
-    MAIL_SSL=to_bool(getenv('MAIL_SSL'))
+    MAIL_SSL=to_bool(getenv('MAIL_SSL')),
+    TEMPLATE_FOLDER=EMAIL_TEMPLATES_DIR
 )
 jwt_config = JWTConfig(
     ACCESS_TOKEN_SECRET_KEY=getenv('JWT_ACCESS_TOKEN_SECRET_KEY'),

@@ -13,15 +13,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-#      - name: Set up Python 3.9
-#        uses: actions/setup-python@v2
-#        with:
-#          python-version: 3.9
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
 
       - name: Install dependecies
-          uses: VaultVulp/action-pipenv@v2.0.1
-          with:
-            command: install -d
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: install -d
 
       - name: Lint with flake8
         run: |

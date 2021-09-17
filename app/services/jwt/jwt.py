@@ -5,9 +5,11 @@ from datetime import (
 
 from jose import jwt
 
+from .helpers import decode_token
 from .types import (
     TokenPayloadMetaClaims,
     TokenDataForEncoding,
+    TokenDataForDecoding,
     Token,
     Tokens
 )
@@ -29,11 +31,11 @@ class UserJWTService(BaseUserService):
 
     @staticmethod
     def verify_access_token(token: str) -> JWTUser:
-        raise NotImplementedError
+        return JWTUser(**decode_token(TokenDataForDecoding(token, jwt_config.ACCESS_TOKEN_SECRET_KEY)))
 
     @staticmethod
     def verify_refresh_token(token: str) -> JWTUser:
-        raise NotImplementedError
+        return JWTUser(**decode_token(TokenDataForDecoding(token, jwt_config.REFRESH_TOKEN_SECRET_KEY)))
 
     def generate_tokens(self) -> Tokens:
         return Tokens(self._generate_access_token(), self._generate_refresh_token())

@@ -8,6 +8,7 @@ from datetime import (
 __all__ = [
     'TokenPayloadMetaClaims',
     'TokenDataForEncoding',
+    'TokenDataForDecoding',
     'Token',
     'Tokens'
 ]
@@ -22,6 +23,12 @@ class TokenPayloadMetaClaims:
 @dataclass
 class TokenDataForEncoding:
     meta_claims: TokenPayloadMetaClaims
+    secret: str
+
+
+@dataclass
+class TokenDataForDecoding:
+    token: str
     secret: str
 
 

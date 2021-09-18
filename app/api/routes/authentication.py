@@ -38,5 +38,5 @@ async def register(
         raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
     else:
         cookie_service.set_refresh_token(authentication_result.tokens.refresh_token)
-        mail_service.send_activation_mail(authentication_result.user)
+        mail_service.send_confirmation_mail(authentication_result.user)
         return authentication_result

@@ -11,5 +11,5 @@ class InvalidTokenSignatureError(Exception):
     """
 
 
-class ExpiredTokenSignatureError:
+class ExpiredTokenSignatureError(InvalidTokenSignatureError):
     """ Raised if the token signature has expired. """

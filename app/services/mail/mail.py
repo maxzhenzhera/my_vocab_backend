@@ -53,7 +53,7 @@ class MailService:
     def _make_email_confirmation_link(link: UUID) -> str:
         warnings.warn(
             'Email confirmation link has created for the LOCAL DEVELOPMENT. '
-            'For production programmer have to make a new implementation!'
+            'For production programmer has to make a new implementation!'
         )
         return (
             f'http://{server_config.HOST}:{server_config.PORT}/'    # noqa

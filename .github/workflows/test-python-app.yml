@@ -10,6 +10,23 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      db_service:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
+          POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:${{ secrets.TEST_DB_PORT }}
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -45,14 +62,20 @@ jobs:
           DB_PASSWORD: temporary_plug
           DB_NAME: temporary_plug
 
-          MAIL_USERNAME: temporary_plug
-          MAIL_PASSWORD: temporary_plug
-          MAIL_PORT: 587
-          MAIL_SERVER: temporary_plug
-          MAIL_FROM: temporary_plug@gmail.com
-          MAIL_FROM_NAME: temporary_plug
-          MAIL_TLS: temporary_plug
-          MAIL_SSL: temporary_plug
-          
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }}
+          MAIL_TLS: ${{ secrets.MAIL_TLS }}
+          MAIL_SSL: ${{ secrets.MAIL_SSL }}
+
           JWT_ACCESS_TOKEN_SECRET_KEY: secret
           JWT_REFRESH_TOKEN_SECRET_KEY: secret
+
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: ${{ secrets.TEST_DB_PORT }}
+          TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
+          TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}

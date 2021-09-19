@@ -10,6 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .. import Base
+from ...constants import CASCADE
 from ...enums import Language
 from ...functions import utcnow
 
@@ -30,11 +31,11 @@ class Vocab(Base):
     language = Column(Enum(Language, name='language'))
     is_favourite = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=utcnow())
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
 
     user = relationship('User', back_populates='vocabs')
     tags = relationship('VocabTagsAssociation', back_populates='vocab')
-    words = relationship('Word', back_populates='vocab')
+    words = relationship('Word', back_populates='vocab', passive_deletes=True)
 
     def __repr__(self) -> str:
         return f'Vocab(id={self.id!r}, title={self.title!r}, language={self.language!r}, user_id={self.user_id!r})'

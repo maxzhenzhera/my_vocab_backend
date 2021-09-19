@@ -9,6 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from ..base import Base
+from ...constants import CASCADE
 from ...functions import utcnow
 
 
@@ -23,10 +24,8 @@ class Word(Base):
     is_learned = Column(Boolean, default=False)
     is_marked = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=utcnow())
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
-    vocab_id = Column(BigInteger, ForeignKey('vocabs.id'), nullable=False)
+    vocab_id = Column(BigInteger, ForeignKey('vocabs.id', ondelete=CASCADE), nullable=False)
 
-    user = relationship('User', back_populates='words')
     vocab = relationship('Vocab', back_populates='words')
 
     def __repr__(self) -> str:

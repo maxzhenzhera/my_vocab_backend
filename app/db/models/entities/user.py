@@ -31,10 +31,9 @@ class User(Base):
     created_at = Column(DateTime, server_default=utcnow(), nullable=False)
     email_confirmed_at = Column(DateTime)
 
-    tags = relationship('Tag', back_populates='user')
-    vocabs = relationship('Vocab', back_populates='user')
-    words = relationship('Word', back_populates='user')
-    refresh_sessions = relationship('RefreshSession', back_populates='user')
+    tags = relationship('Tag', back_populates='user', passive_deletes=True)
+    vocabs = relationship('Vocab', back_populates='user', passive_deletes=True)
+    refresh_sessions = relationship('RefreshSession', back_populates='user', passive_deletes=True)
 
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, email={self.email!r})'

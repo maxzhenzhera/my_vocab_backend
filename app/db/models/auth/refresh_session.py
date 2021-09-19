@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.orm import relationship
 
 from ..base import Base
+from ...constants import CASCADE
 from ...functions import utcnow
 
 
@@ -24,7 +25,7 @@ class RefreshSession(Base):
     user_agent = Column(String, nullable=False)
     created_at = Column(DateTime(), server_default=utcnow())
     expires_at = Column(DateTime, nullable=False)
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
 
     user = relationship('User', back_populates='refresh_sessions')
 

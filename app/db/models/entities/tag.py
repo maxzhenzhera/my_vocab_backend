@@ -8,6 +8,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from ..base import Base
+from ...constants import CASCADE
 from ...functions import utcnow
 
 
@@ -21,7 +22,7 @@ class Tag(Base):
     title = Column(String, nullable=False)
     description = Column(String)
     created_at = Column(DateTime, server_default=utcnow())
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
 
     user = relationship('User', back_populates='tags')
     vocabs = relationship('VocabTagsAssociation', back_populates='tag')

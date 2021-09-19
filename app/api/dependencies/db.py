@@ -3,17 +3,24 @@ from typing import (
     Type
 )
 
-from fastapi import Depends
+from fastapi import (
+    Depends,
+    Request
+)
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 from ...db.repositories import BaseRepository
-from ...db.session import db_sessionmaker
 
 
 __all__ = ['get_repository']
 
 
-async def _get_session() -> AsyncSession:
+def _get_sessionmaker(request: Request) -> sessionmaker:
+    return request.app.state.db_sessionmaker
+
+
+async def _get_session(db_sessionmaker: sessionmaker = Depends(_get_sessionmaker)) -> AsyncSession:
     async with db_sessionmaker() as session, session.begin():
         yield session
 

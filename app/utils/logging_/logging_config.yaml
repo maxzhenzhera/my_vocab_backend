@@ -88,6 +88,6 @@ root:
 loggers:
     # sqlalchemy namespace
     sqlalchemy:
-        level: DEBUG
+        level: INFO
         propagate: True
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

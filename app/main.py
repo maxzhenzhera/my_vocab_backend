@@ -11,6 +11,9 @@ from app.core.events import (
 )
 
 
+__all__ = ['app']
+
+
 def get_application() -> FastAPI:
     application = FastAPI()
 

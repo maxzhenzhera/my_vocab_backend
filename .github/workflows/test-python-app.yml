@@ -25,7 +25,7 @@ jobs:
           --health-retries 5
         ports:
           # Maps tcp port 5432 on service container to the host
-          - 5432:${{ secrets.TEST_DB_PORT }}
+          - 5432:5432
 
     steps:
       - name: Check out repository code
@@ -75,7 +75,7 @@ jobs:
           JWT_REFRESH_TOKEN_SECRET_KEY: secret
 
           TEST_DB_HOST: localhost
-          TEST_DB_PORT: ${{ secrets.TEST_DB_PORT }}
+          TEST_DB_PORT: 5432
           TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
           TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
           TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}

@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
           POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
-          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -77,5 +77,5 @@ jobs:
           TEST_DB_HOST: localhost
           TEST_DB_PORT: 5432
           TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
-          TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          TEST_DB_PASSWORD: postgres
           TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}

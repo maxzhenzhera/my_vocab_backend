@@ -14,9 +14,9 @@ jobs:
       db_service:
         image: postgres
         env:
-          POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
-          POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${{ env.TEST_DB_USER }}
+          POSTGRES_DB: ${{ env.TEST_DB_NAME }}
+          POSTGRES_PASSWORD: ${{ env.TEST_DB_PASSWORD }}
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -62,20 +62,20 @@ jobs:
           DB_PASSWORD: temporary_plug
           DB_NAME: temporary_plug
 
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          MAIL_PORT: ${{ secrets.MAIL_PORT }}
-          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
-          MAIL_FROM: ${{ secrets.MAIL_FROM }}
-          MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }}
-          MAIL_TLS: ${{ secrets.MAIL_TLS }}
-          MAIL_SSL: ${{ secrets.MAIL_SSL }}
+          MAIL_USERNAME: ${{ env.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ env.MAIL_PASSWORD }}
+          MAIL_PORT: ${{ env.MAIL_PORT }}
+          MAIL_SERVER: ${{ env.MAIL_SERVER }}
+          MAIL_FROM: ${{ env.MAIL_FROM }}
+          MAIL_FROM_NAME: ${{ env.MAIL_FROM_NAME }}
+          MAIL_TLS: ${{ env.MAIL_TLS }}
+          MAIL_SSL: ${{ env.MAIL_SSL }}
 
           JWT_ACCESS_TOKEN_SECRET_KEY: secret
           JWT_REFRESH_TOKEN_SECRET_KEY: secret
 
           TEST_DB_HOST: localhost
           TEST_DB_PORT: 5432
-          TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
-          TEST_DB_PASSWORD: postgres
-          TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
+          TEST_DB_USER: ${{ env.TEST_DB_USER }}
+          TEST_DB_PASSWORD: ${{ env.TEST_DB_PASSWORD }}
+          TEST_DB_NAME: ${{ env.TEST_DB_NAME }}

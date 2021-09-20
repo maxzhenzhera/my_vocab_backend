@@ -7,14 +7,14 @@ from fastapi import (
 )
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from ...db.errors import EmailIsAlreadyTakenError
-from ...schemas.auth import AuthenticationResult
-from ...schemas.user import UserInCreate
-from ...services.auth import (
+from ....db.errors import EmailIsAlreadyTakenError
+from ....schemas.auth import AuthenticationResult
+from ....schemas.user import UserInCreate
+from ....services.auth import (
     AuthenticationService,
     CookieService
 )
-from ...services.mail import MailService
+from ....services.mail import MailService
 
 
 __all__ = ['router']

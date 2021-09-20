@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from .authentication import router as authentication_router
+from .endpoints.authentication import router as authentication_router
 
 
 __all__ = ['router']

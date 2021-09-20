@@ -3,7 +3,8 @@ import logging
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException
+    HTTPException,
+    Query
 )
 from starlette.status import HTTP_400_BAD_REQUEST
 
@@ -32,6 +33,21 @@ async def register(
         cookie_service: CookieService = Depends(),
         mail_service: MailService = Depends()
 ):
+    """
+    Register an user with the given credentials.
+
+    Arguments
+    ---------
+        < UserInCreate > model
+
+    Return
+    ---------
+        * Body
+            < AuthenticationResult > model
+        * Cookies
+            < refresh_token> httpOnly cookie
+    """
+
     try:
         authentication_result = await auth_service.register(user_in_create)
     except EmailIsAlreadyTakenError as error:

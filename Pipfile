@@ -14,8 +14,8 @@ pydantic = {extras = ["email"], version = "*"}
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 python-freedictionaryapi = {extras = ["async-client"], version = "*"}
-fastapi-mail = {editable = true, git = "https://github.com/sabuhish/fastapi-mail"}
 alembic = "*"
+fastapi-mail = "*"
 
 [dev-packages]
 pytest = "*"

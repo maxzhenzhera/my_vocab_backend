@@ -9,7 +9,7 @@ from .errors import (
     ExpiredTokenSignatureError
 )
 from .types import TokenDataForDecoding
-from ...core.config import jwt_config
+from ...core.config.config import jwt_config
 
 
 __all__ = ['decode_token']

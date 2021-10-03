@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi_mail import FastMail
 
-from ...core.config import mail_connection_config
+from ...core.config.config import mail_connection_config
 
 
 __all__ = ['init_mail_sender']

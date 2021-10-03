@@ -6,7 +6,7 @@ from .postgres import (
     create_engine,
     create_sessionmaker
 )
-from ..core.config import sqlalchemy_connection_string
+from ..core.config.config import sqlalchemy_connection_string
 
 
 __all__ = [

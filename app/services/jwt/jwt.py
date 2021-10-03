@@ -14,7 +14,7 @@ from .types import (
     Tokens
 )
 from ..base import BaseUserService
-from ...core.config import jwt_config
+from ...core.config.config import jwt_config
 from ...schemas.jwt import (
     JWTMeta,
     JWTUser

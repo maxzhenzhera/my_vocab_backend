@@ -13,7 +13,7 @@ from fastapi_mail import (
 )
 
 from ...api.dependencies.mail import get_mail_sender
-from ...core.config import server_config
+from ...core.config.config import server_config
 from ...schemas.user import UserInResponse
 
 

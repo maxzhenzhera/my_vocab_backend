@@ -8,12 +8,12 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-# import from local project -------------------------------
+# import from local project ------------------------------------------------------------------------------------------
 sys.path.append(str(Path(__file__).parents[3]))
 
-from app.core.config import sqlalchemy_connection_string    # noqa
-from app.db.models import Base                              # noqa
-# ---------------------------------------------------------
+from app.core.config.config import sqlalchemy_connection_string     # noqa E402 module level import not at top of file
+from app.db.models import Base                                      # noqa E402 module level import not at top of file
+# --------------------------------------------------------------------------------------------------------------------
 
 
 config = context.config

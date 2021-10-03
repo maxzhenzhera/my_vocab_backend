@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from fastapi import Response
 
-from ...core.config import jwt_config
+from ...core.config.config import jwt_config
 from ...schemas.jwt import TokenInResponse
 
 

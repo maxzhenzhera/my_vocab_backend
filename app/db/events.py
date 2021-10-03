@@ -19,9 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 def init_db(app: FastAPI) -> None:
-    app.state.db_engine = create_engine(sqlalchemy_connection_string)
-    app.state.db_sessionmaker = create_sessionmaker(app.state.db_engine)
+    _set_db_in_app(sqlalchemy_connection_string, app)
     logger.info('Database engine and sessionmaker have been set.')
+
+
+def _set_db_in_app(connection_string: str, app: FastAPI) -> None:
+    app.state.db_engine = create_engine(connection_string)
+    app.state.db_sessionmaker = create_sessionmaker(app.state.db_engine)
 
 
 async def close_db(app: FastAPI) -> None:

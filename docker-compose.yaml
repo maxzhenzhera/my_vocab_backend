@@ -16,7 +16,9 @@ services:
     restart: always
 
   app:
-    build: .
+    build:
+      context: .
+      target: base
     ports:
       - "8000:$SERVER_PORT"
     env_file:

@@ -53,26 +53,14 @@ jobs:
         run: |
           pipenv run pytest
         env:
-          SERVER_HOST: 0.0.0.0
-          SERVER_PORT: 8000
-
-          DB_HOST: temporary_plug
-          DB_PORT: 5432
-          DB_USER: temporary_plug
-          DB_PASSWORD: temporary_plug
-          DB_NAME: temporary_plug
-
-          MAIL_USERNAME: test@gmail.com
-          MAIL_PASSWORD: password
-          MAIL_PORT: 587
-          MAIL_SERVER: smtp.gmail.com
-          MAIL_FROM: test@gmail.com
-          MAIL_FROM_NAME: My Vocab App
-          MAIL_TLS: True
-          MAIL_SSL: False
-
-          JWT_ACCESS_TOKEN_SECRET_KEY: secret
-          JWT_REFRESH_TOKEN_SECRET_KEY: secret
+          TEST_MAIL_USERNAME: test@gmail.com
+          TEST_MAIL_PASSWORD: password
+          TEST_MAIL_PORT: 587
+          TEST_MAIL_SERVER: smtp.gmail.com
+          TEST_MAIL_FROM: test@gmail.com
+          TEST_MAIL_FROM_NAME: My Vocab App
+          TEST_MAIL_TLS: True
+          TEST_MAIL_SSL: False
 
           TEST_DB_HOST: localhost
           TEST_DB_PORT: 5432

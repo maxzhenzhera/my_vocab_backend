@@ -70,7 +70,7 @@ class AuthenticationService:
     async def _authenticate(self, user: User) -> AuthenticationResult:
         tokens = UserJWTService(user).generate_tokens()
         await self._create_refresh_session(RefreshSessionData(user, tokens.refresh_token))
-        return AuthenticationResult(tokens=tokens, user=user)   # noqa
+        return AuthenticationResult(tokens=tokens, user=user) # noqa pydantic by itself make .from_orm() with passed dataclass instance
 
     async def _create_refresh_session(self, refresh_session_data: RefreshSessionData) -> None:
         await self.refresh_sessions_repository.create_by_entity(

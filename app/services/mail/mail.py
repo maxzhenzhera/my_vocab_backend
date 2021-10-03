@@ -56,6 +56,6 @@ class MailService:
             'For production programmer has to make a new implementation!'
         )
         return (
-            f'http://localhost:{server_config.PORT}'    # noqa
+            f'http://localhost:{server_config.PORT}'
             f'{server_config.API_PREFIX}/auth/confirm?link={link}'
         )

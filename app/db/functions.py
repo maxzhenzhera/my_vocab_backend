@@ -6,7 +6,7 @@ from sqlalchemy.types import DateTime
 __all__ = ['utcnow']
 
 
-class utcnow(expression.FunctionElement):       # noqa
+class utcnow(expression.FunctionElement):       # noqa Class names should use CamelCase convention
     """ docs: https://docs.sqlalchemy.org/en/14/core/compiler.html#utc-timestamp-function """
     type = DateTime()
 

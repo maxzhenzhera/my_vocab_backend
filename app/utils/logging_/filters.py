@@ -2,8 +2,11 @@ import logging
 from typing import Union
 
 
+__all__ = ['LevelFilter']
+
+
 class LevelFilter(logging.Filter):
-    """ Filters log records by level [includes logs only from **one** level] """
+    """ Filters log records by level (includes logs only by one level). """
 
     def __init__(self, level: Union[int, str]):
         super().__init__()
@@ -13,7 +16,7 @@ class LevelFilter(logging.Filter):
         elif isinstance(level, int):
             self.level: int = level
         else:
-            raise ValueError(f'expected to get either levelno [int] either levelname [str]. Instead got {level!r}')
+            raise ValueError(f'Expected to get either levelno [int] either levelname [str]. Instead got {level!r}.')
 
     def filter(self, record: logging.LogRecord) -> bool:
         return record.levelno == self.level

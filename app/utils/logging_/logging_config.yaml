@@ -60,7 +60,7 @@ handlers:
         class: logging.handlers.RotatingFileHandler
         level: INFO
         formatter: detailed
-        filename: /~tmp/logs/my_vocab_backend/info.log
+        filename: /tmp/my_vocab_backend/logs/info.log
         maxBytes: 10000000 # 10MB
         backupCount: 5
         encoding: utf8
@@ -70,7 +70,7 @@ handlers:
         class: logging.handlers.RotatingFileHandler
         level: WARN
         formatter: detailed
-        filename: /~tmp/logs/my_vocab_backend/error.log
+        filename: /tmp/my_vocab_backend/logs/error.log
         maxBytes: 10000000 # 10MB
         backupCount: 5
         encoding: utf8

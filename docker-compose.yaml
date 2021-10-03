@@ -1,0 +1,32 @@
+version: "3.9"
+
+
+services:
+
+  postgres:
+    image: postgres
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+      - ./app/db/migrations/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_PASSWORD
+      - POSTGRES_DB=$DB_NAME
+    command: -p $DB_PORT
+    restart: always
+
+  app:
+    build: .
+    ports:
+      - "8000:$SERVER_PORT"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      SERVER_HOST: 0.0.0.0
+    depends_on:
+      - postgres
+    restart: always
+
+volumes:
+  postgres_volume:

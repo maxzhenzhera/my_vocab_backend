@@ -67,3 +67,22 @@ jobs:
           TEST_DB_USER: postgres
           TEST_DB_PASSWORD: postgres
           TEST_DB_NAME: test_my_vocab
+
+          # just plugs in required production environment variables
+          SERVER_HOST: 0.0.0.0
+          SERVER_PORT: 8000
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: password
+          DB_NAME: my_vocab
+          MAIL_USERNAME: example@gmail.com
+          MAIL_PASSWORD: password
+          MAIL_SERVER: smtp.gmail.com
+          MAIL_PORT: 587
+          MAIL_FROM: example@gmail.com
+          MAIL_FROM_NAME: My Vocab App
+          MAIL_TLS: True
+          MAIL_SSL: False
+          JWT_ACCESS_TOKEN_SECRET_KEY: secret
+          JWT_REFRESH_TOKEN_SECRET_KEY: secret

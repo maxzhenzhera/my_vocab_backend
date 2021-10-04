@@ -9,7 +9,8 @@ from app.utils.casts import to_bool
 
 
 __all__ = [
-    'sqlalchemy_connection_string_to_test_database'
+    'sqlalchemy_connection_string_to_test_database',
+    'mail_connection_test_config'
 ]
 
 

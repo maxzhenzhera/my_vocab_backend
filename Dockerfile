@@ -13,7 +13,7 @@ COPY . .
 
 RUN python ./scripts/make_directories_for_logs.py
 
-CMD ["python", "/my_vocab_backend/app/main.py"]
+CMD ["python", "app/main.py"]
 
 
 

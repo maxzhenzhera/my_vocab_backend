@@ -12,7 +12,7 @@ log-dirs:
 	python ./scripts/make_directories_for_logs.py
 
 prepare:
-	make log-dirs
+	python ./scripts/prepare.py
 # -------------------------------------------------------------------------------------------------
 
 # docker compose for deployment -------------------------------------------------------------------

@@ -1,7 +1,8 @@
 __all__ = [
     'DBError',
     'EntityDoesNotExistError',
-    'EmailIsAlreadyTakenError'
+    'UserUpdateError',
+    'EmailInUpdateIsAlreadyTakenError'
 ]
 
 
@@ -13,8 +14,17 @@ class EntityDoesNotExistError(DBError):
     """ Raised if the searched entity does not exist in the database. """
 
 
-class EmailIsAlreadyTakenError(DBError):
-    """ Raised if the email is already used by the other user. """
+class UserUpdateError(DBError):
+    """ Common user update exception. """
+
+    @property
+    def detail(self) -> str:
+        return f"Given data is invalid for user update."
+
+
+class EmailInUpdateIsAlreadyTakenError:
+    """ Raised on the user update if the email is already used by the other user. """
+
     def __init__(self, email: str) -> None:
         self.email = email
 

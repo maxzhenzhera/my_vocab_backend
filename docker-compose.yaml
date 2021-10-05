@@ -18,9 +18,9 @@ services:
   app:
     build:
       context: .
-      target: base
+      target: main
     ports:
-      - "8000:$SERVER_PORT"
+      - "$DOCKER_SERVER_PORT:$SERVER_PORT"
     env_file:
       - .env
     environment:

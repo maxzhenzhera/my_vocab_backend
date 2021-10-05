@@ -15,12 +15,9 @@ services:
     build:
       context: .
       target: test
-    ports:
-      - "8000:$SERVER_PORT"
     env_file:
       - .env
     environment:
       TEST_DB_HOST: postgres
-      SERVER_HOST: 0.0.0.0
     depends_on:
       - postgres

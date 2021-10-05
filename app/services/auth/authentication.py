@@ -4,15 +4,13 @@ from dataclasses import dataclass
 from fastapi import Depends, Request
 
 from .errors import (
-    UserWithSuchEmailDoesNotExistError,
-    IncorrectPasswordError
+    EmailIsAlreadyTakenRegistrationError,
+    IncorrectPasswordError,
+    UserWithSuchEmailDoesNotExistError
 )
 from .types import RefreshSessionData
 from ...api.dependencies.db import get_repository
-from ...db.errors import (
-    EntityDoesNotExistError,
-    EmailIsAlreadyTakenError
-)
+from ...db.errors import EntityDoesNotExistError
 from ...db.models import (
     User,
     RefreshSession
@@ -52,7 +50,7 @@ class AuthenticationService:
 
     async def register(self, user_in_create: UserInCreate) -> AuthenticationResult:
         if await self.users_repository.check_email_is_taken(user_in_create.email):
-            raise EmailIsAlreadyTakenError(user_in_create.email)
+            raise EmailIsAlreadyTakenRegistrationError(user_in_create.email)
         user = UserPasswordService(User(email=user_in_create.email)).change_password(user_in_create.password)
         await self.users_repository.create_by_entity(user)
         return await self._authenticate(user)

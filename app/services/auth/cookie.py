@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import timedelta
+import warnings
 
 from fastapi import Response
 
@@ -27,6 +28,10 @@ class CookieService:
         return int(delta.total_seconds())
 
     def set_refresh_token(self, refresh_token: TokenInResponse) -> None:
+        warnings.warn(
+            'Refresh token cookie has been set without <path> property. '
+            'Programmer has to make implementation of adding URL on session refreshing route in <path>.'
+        )
         self.response.set_cookie(
             key=self.refresh_token_cookie_key,
             value=refresh_token.token,

@@ -1,8 +1,15 @@
 import pytest
 from fastapi import FastAPI
+from fastapi_mail import FastMail
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 from app.db.events import _set_db_in_app                        # noqa ; not in __all__; access to a protected member
+from app.db.repositories import (
+    RefreshSessionsRepository,
+    UsersRepository
+)
 from app.services.mail.events import _set_mail_sender_in_app    # noqa ; not in __all__; access to a protected member
 from tests.config import (
     sqlalchemy_connection_string_to_test_database,
@@ -27,10 +34,36 @@ async def fixture_test_app(app: FastAPI) -> FastAPI:
 
 
 @pytest.fixture(name='test_client')
-async def fixture_client(test_app: FastAPI) -> AsyncClient:
+async def fixture_test_client(test_app: FastAPI) -> AsyncClient:
     async with AsyncClient(
         app=test_app,
         base_url=f"http://testserver",
         headers={"Content-Type": "application/json"},
     ) as client:
         yield client
+
+
+@pytest.fixture(name='test_mail_sender')
+def fixture_test_mail_sender(test_app: FastAPI) -> FastMail:
+    return test_app.state.mail_sender
+
+
+@pytest.fixture(name='test_db_sessionmaker')
+def fixture_test_db_sessionmaker(test_app: FastAPI) -> sessionmaker:
+    return test_app.state.db_sessionmaker
+
+
+@pytest.fixture(name='test_db_session')
+async def fixture_test_db_session(test_db_sessionmaker: sessionmaker) -> AsyncSession:
+    async with test_db_sessionmaker() as session, session.begin():
+        yield session
+
+
+@pytest.fixture(name='test_users_repository')
+def fixture_test_db_users_repository(test_db_session: AsyncSession):
+    return UsersRepository(test_db_session)
+
+
+@pytest.fixture(name='test_refresh_sessions_repository')
+def fixture_test_db_refresh_sessions_repository(test_db_session: AsyncSession):
+    return RefreshSessionsRepository(test_db_session)

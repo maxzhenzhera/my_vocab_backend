@@ -5,8 +5,8 @@ from sqlalchemy.future import select as sa_select
 
 from .base import BaseRepository
 from ..errors import (
-    EntityDoesNotExistError,
-    EmailIsAlreadyTakenError
+    EmailInUpdateIsAlreadyTakenError,
+    EntityDoesNotExistError
 )
 from ..models import User
 from ...schemas.user import UserInUpdate
@@ -23,7 +23,7 @@ class UsersRepository(BaseRepository):
         update_data = self._exclude_unset_from_schema(user_in_update)
         if 'email' in update_data:
             if await self.check_email_is_taken(update_data['email']):
-                raise EmailIsAlreadyTakenError
+                raise EmailInUpdateIsAlreadyTakenError
             update_data.update(self._get_update_data_on_email_update())
         if 'password' in update_data:
             update_data.update(self._get_update_data_on_password_update(update_data['password']))

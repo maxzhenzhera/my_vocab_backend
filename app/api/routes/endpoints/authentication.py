@@ -3,18 +3,17 @@ import logging
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException,
-    Query
+    HTTPException
 )
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from ....db.errors import EmailIsAlreadyTakenError
 from ....schemas.auth import AuthenticationResult
 from ....schemas.user import UserInCreate
 from ....services.auth import (
     AuthenticationService,
     CookieService
 )
+from ....services.auth.errors import RegistrationError
 from ....services.mail import MailService
 
 
@@ -50,7 +49,7 @@ async def register(
 
     try:
         authentication_result = await auth_service.register(user_in_create)
-    except EmailIsAlreadyTakenError as error:
+    except RegistrationError as error:
         raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
     else:
         cookie_service.set_refresh_token(authentication_result.tokens.refresh_token)

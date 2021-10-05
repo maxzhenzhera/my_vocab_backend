@@ -1,3 +1,12 @@
+"""
+AuthenticationError
+    +-- UserWithSuchEmailDoesNotExistError
+    +-- IncorrectPasswordError
+RegistrationError
+    +-- EmailIsAlreadyTakenRegistrationError
+"""
+
+
 __all__ = [
     'AuthenticationError',
     'UserWithSuchEmailDoesNotExistError',

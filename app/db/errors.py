@@ -1,3 +1,11 @@
+"""
+DBError
+    +-- EntityDoesNotExistError
+    +-- UserUpdateError
+        +-- EmailInUpdateIsAlreadyTakenError
+"""
+
+
 __all__ = [
     'DBError',
     'EntityDoesNotExistError',

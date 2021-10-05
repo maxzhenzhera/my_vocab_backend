@@ -1,3 +1,9 @@
+"""
+InvalidTokenSignatureError
+    +-- ExpiredTokenSignatureError
+"""
+
+
 __all__ = [
     'InvalidTokenSignatureError',
     'ExpiredTokenSignatureError'

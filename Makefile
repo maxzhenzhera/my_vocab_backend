@@ -31,6 +31,7 @@ stop:
 
 # docker compose for testing ----------------------------------------------------------------------
 test:
+	make down-test
 	${DC} -f ${TEST_DC_CONFIG_FILENAME} --project-name ${TEST_PROJECT_NAME} up --abort-on-container-exit
 
 down-test:

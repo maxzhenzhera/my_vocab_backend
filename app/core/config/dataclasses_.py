@@ -58,6 +58,8 @@ class DBConfig:
 class JWTConfig:
     ACCESS_TOKEN_SECRET_KEY: str
     REFRESH_TOKEN_SECRET_KEY: str
+    ACCESS_TOKEN_TYPE: str = field(default='bearer', init=False)
+    REFRESH_TOKEN_TYPE: str = field(default='refresh', init=False)
     ACCESS_TOKEN_SUBJECT: str = field(default='access', init=False)
     REFRESH_TOKEN_SUBJECT: str = field(default='refresh', init=False)
     ACCESS_TOKEN_EXPIRE_TIMEDELTA: timedelta = field(default=timedelta(minutes=30), init=False)

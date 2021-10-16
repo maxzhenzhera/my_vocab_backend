@@ -8,7 +8,7 @@ from ...core.config.config import (
     jwt_config,
     server_config
 )
-from ...schemas.jwt import TokenInResponse
+from ...schemas.jwt import RefreshTokenInResponse
 
 
 __all__ = ['CookieService']
@@ -34,7 +34,7 @@ class CookieService:
     def _get_total_seconds_of_timedelta(delta: timedelta) -> int:
         return int(delta.total_seconds())
 
-    def set_refresh_token(self, refresh_token: TokenInResponse) -> None:
+    def set_refresh_token(self, refresh_token: RefreshTokenInResponse) -> None:
         self.response.set_cookie(
             key=self.refresh_token_cookie_key,
             value=refresh_token.token,

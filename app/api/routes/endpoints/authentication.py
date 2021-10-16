@@ -7,13 +7,13 @@ from fastapi import (
 )
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from ....schemas.auth import AuthenticationResult
+from ....schemas.authentication import AuthenticationResult
 from ....schemas.user import UserInCreate
-from ....services.auth import (
+from ....services.authentication import (
     AuthenticationService,
     CookieService
 )
-from ....services.auth.errors import RegistrationError
+from ....services.authentication.errors import RegistrationError
 from ....services.mail import MailService
 
 
@@ -28,7 +28,7 @@ router = APIRouter()
 @router.post('/register', response_model=AuthenticationResult, name='auth:register')
 async def register(
         user_in_create: UserInCreate,
-        auth_service: AuthenticationService = Depends(),
+        authentication_service: AuthenticationService = Depends(),
         cookie_service: CookieService = Depends(),
         mail_service: MailService = Depends()
 ):
@@ -48,7 +48,7 @@ async def register(
     """
 
     try:
-        authentication_result = await auth_service.register(user_in_create)
+        authentication_result = await authentication_service.register(user_in_create)
     except RegistrationError as error:
         raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
     else:

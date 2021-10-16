@@ -22,7 +22,7 @@ from ...db.repositories import (
     RefreshSessionsRepository,
     UsersRepository
 )
-from ...schemas.auth import AuthenticationResult
+from ...schemas.authentication import AuthenticationResult
 from ...schemas.user import (
     UserInLogin,
     UserInCreate

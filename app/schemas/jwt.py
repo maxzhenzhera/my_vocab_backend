@@ -3,12 +3,14 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from .base import ModelWithOrmMode
+from ..core.config.config import jwt_config
 
 
 __all__ = [
     'JWTMeta',
     'JWTUser',
-    'TokenInResponse',
+    'AccessTokenInResponse',
+    'RefreshTokenInResponse',
     'TokensInResponse'
 ]
 
@@ -25,10 +27,18 @@ class JWTUser(ModelWithOrmMode):
 
 class TokenInResponse(ModelWithOrmMode):
     token: str
+    token_type: str
     expires_at: datetime
-    token_type: str = 'bearer'
+
+
+class AccessTokenInResponse(TokenInResponse):
+    token_type: str = jwt_config.ACCESS_TOKEN_TYPE
+
+
+class RefreshTokenInResponse(TokenInResponse):
+    token_type: str = jwt_config.REFRESH_TOKEN_TYPE
 
 
 class TokensInResponse(ModelWithOrmMode):
-    access_token: TokenInResponse
-    refresh_token: TokenInResponse
+    access_token: AccessTokenInResponse
+    refresh_token: RefreshTokenInResponse

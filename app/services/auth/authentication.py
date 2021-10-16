@@ -1,7 +1,10 @@
 import logging
 from dataclasses import dataclass
 
-from fastapi import Depends, Request
+from fastapi import (
+    Depends,
+    Request
+)
 
 from .errors import (
     EmailIsAlreadyTakenRegistrationError,

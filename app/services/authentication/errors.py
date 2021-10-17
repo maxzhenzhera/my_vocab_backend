@@ -19,6 +19,10 @@ __all__ = [
 class AuthenticationError(Exception):
     """ Common authentication exception. """
 
+    @property
+    def detail(self) -> str:
+        return 'The incorrect credentials.'
+
 
 class UserWithSuchEmailDoesNotExistError(AuthenticationError):
     """ Raised if the searched user with given email has not been found. """

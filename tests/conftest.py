@@ -15,7 +15,18 @@ from tests.config import (
     sqlalchemy_connection_string_to_test_database,
     mail_connection_test_config
 )
+from tests.helpers.auth import (
+    make_unauthenticated_client,
+    make_authenticated_client
+)
 from tests.helpers.db import create_clear_db
+from tests.users import (
+    test_user_1,
+    test_user_2
+)
+
+
+# Fixtures: app, client
 
 
 @pytest.fixture(name='app')
@@ -43,6 +54,30 @@ async def fixture_test_client(test_app: FastAPI) -> AsyncClient:
         yield client
 
 
+# Fixtures: unauthenticated client
+
+
+@pytest.fixture(name='test_unauthenticated_client_user_1')
+async def fixture_test_unauthenticated_client_user_1(test_client: AsyncClient) -> AsyncClient:
+    return await make_unauthenticated_client(test_client, test_user_1)
+
+
+# Fixtures: authenticated clients
+
+
+@pytest.fixture(name='test_client_user_1')
+async def fixture_test_client_user_1(test_client: AsyncClient) -> AsyncClient:
+    return await make_authenticated_client(test_client, test_user_1)
+
+
+@pytest.fixture(name='test_client_user_2')
+async def fixture_test_client_user_2(test_client: AsyncClient) -> AsyncClient:
+    return await make_authenticated_client(test_client, test_user_2)
+
+
+# Fixtures: dependencies - mail sender, db session
+
+
 @pytest.fixture(name='test_mail_sender')
 def fixture_test_mail_sender(test_app: FastAPI) -> FastMail:
     return test_app.state.mail_sender
@@ -57,6 +92,9 @@ def fixture_test_db_sessionmaker(test_app: FastAPI) -> sessionmaker:
 async def fixture_test_db_session(test_db_sessionmaker: sessionmaker) -> AsyncSession:
     async with test_db_sessionmaker() as session, session.begin():
         yield session
+
+
+# Fixtures: db repositories
 
 
 @pytest.fixture(name='test_users_repository')

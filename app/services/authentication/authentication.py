@@ -52,11 +52,14 @@ class AuthenticationService:
         return self.request.headers['user-agent']
 
     async def register(self, user_in_create: UserInCreate) -> AuthenticationResult:
+        user = await self.create_user(user_in_create)
+        return await self._authenticate(user)
+
+    async def create_user(self, user_in_create: UserInCreate) -> User:
         if await self.users_repository.check_email_is_taken(user_in_create.email):
             raise EmailIsAlreadyTakenRegistrationError(user_in_create.email)
         user = UserPasswordService(User(email=user_in_create.email)).change_password(user_in_create.password)
-        await self.users_repository.create_by_entity(user)
-        return await self._authenticate(user)
+        return await self.users_repository.create_by_entity(user)
 
     async def login(self, user_in_login: UserInLogin) -> AuthenticationResult:
         try:

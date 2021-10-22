@@ -21,6 +21,8 @@ from app.db.repositories import (
     UsersRepository
 )
 from app.main import app
+from app.db.errors import EntityDoesNotExistError
+from app.services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
 from tests.config import mail_connection_test_config
 from tests.users import test_user_1
 from tests.helpers.auth import get_user_from_client
@@ -154,3 +156,43 @@ class TestConfirmRoute:
         response = await test_client_user_1.get(self.URL, params=params)
 
         assert response.status_code == HTTP_400_BAD_REQUEST
+
+
+class TestLogoutRoute:
+    URL = app.url_path_for('auth:logout')
+
+    @pytest.fixture(name='refresh_token')
+    def fixture_refresh_token(self, test_client_user_1: AsyncClient) -> str:
+        return test_client_user_1.cookies[REFRESH_TOKEN_COOKIE_KEY]
+
+    @pytest.fixture(name='response')
+    async def fixture_response_from_route(self, test_client_user_1: AsyncClient) -> Response:
+        return await test_client_user_1.get(self.URL)
+
+    @pytest.fixture(name='client')
+    async def fixture_client_from_route(self, test_client_user_1: AsyncClient) -> AsyncClient:
+        await test_client_user_1.get(self.URL)
+        return test_client_user_1
+
+    def test_route_response(self, response: Response):
+        response_json = response.json()
+
+        assert response.status_code == HTTP_200_OK
+        assert response_json is None
+
+    def test_route_deleting_refresh_token_cookie(self, client: AsyncClient):
+        assert REFRESH_TOKEN_COOKIE_KEY not in client.cookies
+
+    async def test_route_deleting_refresh_session_from_db(
+            self,
+            refresh_token: str,
+            response: Response,
+            test_refresh_sessions_repository: RefreshSessionsRepository
+    ):
+        """
+        The order of the used fixtures is important.
+        If put < refresh_token > after < response > than it would be a try to get the cookie from the logged out user.
+        """
+
+        with pytest.raises(EntityDoesNotExistError):
+            await test_refresh_sessions_repository.fetch_by_refresh_token(refresh_token)

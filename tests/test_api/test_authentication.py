@@ -1,3 +1,9 @@
+from datetime import (
+    datetime,
+    timedelta
+)
+from uuid import uuid4
+
 import pytest
 from httpx import (
     AsyncClient,
@@ -17,6 +23,7 @@ from app.db.repositories import (
 from app.main import app
 from tests.config import mail_connection_test_config
 from tests.users import test_user_1
+from tests.helpers.auth import get_user_from_client
 
 
 pytestmark = pytest.mark.asyncio
@@ -108,3 +115,42 @@ class TestLoginRoute(RegisterAndLoginRoutesMixin):
         """
         response = await test_client.post(self.URL, json=self.JSON)
         assert response.status_code == HTTP_401_UNAUTHORIZED
+
+
+class TestConfirmRoute:
+    URL = app.url_path_for('auth:confirm')
+    USER_EMAIL = test_user_1.email
+
+    @pytest.fixture(name='params')
+    def fixture_params(self, test_client_user_1: AsyncClient) -> dict:
+        return {
+            'link': get_user_from_client(test_client_user_1).email_confirmation_link
+        }
+
+    @pytest.fixture(name='response')
+    async def fixture_response_from_route(self, params: dict, test_client_user_1: AsyncClient) -> Response:
+        return await test_client_user_1.get(self.URL, params=params)
+
+    async def test_route_response(self, response: Response):
+        response_json = response.json()
+
+        assert response.status_code == HTTP_200_OK
+        assert 'email' in response_json
+        assert response_json['is_email_confirmed']
+        assert datetime.utcnow() - datetime.fromisoformat(response_json['email_confirmed_at']) < timedelta(seconds=10)
+
+    async def test_route_updating_user_in_db(self, response: Response, test_users_repository: UsersRepository):
+        user = await test_users_repository.fetch_by_email(self.USER_EMAIL)
+
+        assert user.is_email_confirmed
+        assert datetime.utcnow() - user.email_confirmed_at < timedelta(seconds=10)
+
+    async def test_route_return_400_error(self, params: dict, test_client_user_1: AsyncClient):
+        """
+        On confirm has been passed the link that does not correspond to the real user email confirmation link.
+        Must return 400 Bad Request.
+        """
+        params['link'] = uuid4()
+        response = await test_client_user_1.get(self.URL, params=params)
+
+        assert response.status_code == HTTP_400_BAD_REQUEST

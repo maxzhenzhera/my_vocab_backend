@@ -52,7 +52,10 @@ class CreateAndRegisterRoutesMixin:
         assert await test_users_repository.fetch_by_email(self.USER_EMAIL)
 
     async def test_route_return_400_error(self, response: Response, test_client: AsyncClient):
-        """ On creation has been passed the same credentials (used fixture) - must return 400 Bad Request """
+        """
+        On creation has been passed the same credentials (used fixture).
+        Must return 400 Bad Request.
+        """
         response = await test_client.post(self.URL, json=self.JSON)
         assert response.status_code == HTTP_400_BAD_REQUEST
 
@@ -99,6 +102,9 @@ class TestLoginRoute(RegisterAndLoginRoutesMixin):
         return await test_unauthenticated_client_user_1.post(self.URL, json=self.JSON)
 
     async def test_route_return_401_error(self, test_client: AsyncClient):
-        """ On login has been passed the credentials of the nonexistent user - must return 401 Unauthorized """
+        """
+        On login has been passed the credentials of the nonexistent user.
+        Must return 401 Unauthorized.
+        """
         response = await test_client.post(self.URL, json=self.JSON)
         assert response.status_code == HTTP_401_UNAUTHORIZED

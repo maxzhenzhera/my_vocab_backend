@@ -11,16 +11,18 @@ from ...core.config.config import (
 from ...schemas.jwt import RefreshTokenInResponse
 
 
-__all__ = ['CookieService']
+__all__ = [
+    'CookieService',
+    'REFRESH_TOKEN_COOKIE_KEY'
+]
+
+
+REFRESH_TOKEN_COOKIE_KEY = 'refresh_token'
 
 
 @dataclass
 class CookieService:
     response: Response
-
-    @property
-    def refresh_token_cookie_key(self) -> str:
-        return 'refresh_token'
 
     @property
     def refresh_token_path(self) -> str:
@@ -36,9 +38,15 @@ class CookieService:
 
     def set_refresh_token(self, refresh_token: RefreshTokenInResponse) -> None:
         self.response.set_cookie(
-            key=self.refresh_token_cookie_key,
+            key=REFRESH_TOKEN_COOKIE_KEY,
             value=refresh_token.token,
             max_age=self.refresh_token_cookie_max_age,
             path=self.refresh_token_path,
             httponly=True
+        )
+
+    def delete_refresh_token(self) -> None:
+        self.response.delete_cookie(
+            key=REFRESH_TOKEN_COOKIE_KEY,
+            path=self.refresh_token_path,
         )

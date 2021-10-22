@@ -18,7 +18,8 @@ from ....schemas.user import (
 )
 from ....services.authentication import (
     AuthenticationService,
-    CookieService
+    CookieService,
+    UserAccountService
 )
 from ....services.authentication.errors import (
     AuthenticationError,
@@ -38,7 +39,7 @@ router = APIRouter()
 @router.post('/create', response_model=UserInResponse, name='auth:create')
 async def create(
         user_in_create: UserInCreate,
-        authentication_service: AuthenticationService = Depends()
+        user_account_service: UserAccountService = Depends()
 ):
     """
     Create a user by the given credentials.
@@ -60,7 +61,7 @@ async def create(
     """
 
     try:
-        user = await authentication_service.create_user(user_in_create)
+        user = await user_account_service.create_user(user_in_create)
     except RegistrationError as error:
         raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
     else:

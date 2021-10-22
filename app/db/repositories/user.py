@@ -27,7 +27,7 @@ class UsersRepository(BaseRepository):
             update_data.update(self._get_update_data_on_email_update())
         if 'password' in update_data:
             update_data.update(self._get_update_data_on_password_update(update_data['password']))
-        stmt = sa_update(User).where(User.email == email).values(**update_data).returning(User)
+        stmt = sa_update(User).where(User.email == email).values(**update_data)
         return await self._return_from_update(stmt)
 
     @staticmethod

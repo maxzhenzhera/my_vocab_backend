@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import uuid4
 
 from sqlalchemy import update as sa_update
@@ -44,6 +45,18 @@ class UsersRepository(BaseRepository):
         return {
             'hashed_password': user.hashed_password,
             'password_salt': user.password_salt
+        }
+
+    async def confirm_email(self, email: str) -> User:
+        update_data = self._get_update_data_on_email_confirmation()
+        stmt = sa_update(User).where(User.email == email).values(**update_data)
+        return await self._return_from_update(stmt)
+
+    @staticmethod
+    def _get_update_data_on_email_confirmation() -> dict:
+        return {
+            'is_email_confirmed': True,
+            'email_confirmed_at': datetime.utcnow()
         }
 
     async def fetch_by_email(self, email: str) -> User:

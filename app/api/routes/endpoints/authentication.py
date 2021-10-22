@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import (
     APIRouter,
     Depends,
+    Cookie,
     HTTPException,
     Query
 )
@@ -15,7 +16,10 @@ from starlette.status import (
 from ...dependencies.authentication import get_current_active_user
 from ...dependencies.db import get_repository
 from ....db.models import User
-from ....db.repositories import UsersRepository
+from ....db.repositories import (
+    UsersRepository,
+    RefreshSessionsRepository
+)
 from ....schemas.authentication import AuthenticationResult
 from ....schemas.user import (
     UserInCreate,
@@ -27,6 +31,7 @@ from ....services.authentication import (
     CookieService,
     UserAccountService
 )
+from ....services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
 from ....services.authentication.errors import (
     AuthenticationError,
     RegistrationError
@@ -180,3 +185,26 @@ async def confirm(
         raise HTTPException(HTTP_400_BAD_REQUEST, 'Link does not correspond to the real user email confirmation link.')
 
     return await users_repository.confirm_email(user.email)
+
+
+@router.get('/logout', name='auth:logout')
+async def logout(
+        refresh_token: str = Cookie(..., alias=REFRESH_TOKEN_COOKIE_KEY),
+        cookie_service: CookieService = Depends(),
+        refresh_sessions_repository: RefreshSessionsRepository = Depends(get_repository(RefreshSessionsRepository))
+):
+    """
+    Logout the user.
+    Actually, terminate the refresh session and delete refresh token cookie.
+
+    Arguments
+    ---------
+        < refresh_token > cookie (basically, set on authentication [register/login])
+
+    Return
+    ---------
+        None
+    """
+
+    await refresh_sessions_repository.delete_by_refresh_token(refresh_token)
+    cookie_service.delete_refresh_token()

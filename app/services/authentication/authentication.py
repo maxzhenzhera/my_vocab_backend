@@ -1,27 +1,18 @@
 import logging
 from dataclasses import dataclass
 
-from fastapi import (
-    Depends,
-    Request
-)
+from fastapi import Depends
 
-from .errors import (
-    EmailIsAlreadyTakenRegistrationError,
-    IncorrectPasswordError,
-    UserWithSuchEmailDoesNotExistError
-)
+from .errors import IncorrectPasswordError
+from .request_analyzer import RequestAnalyzer
 from .types import RefreshSessionData
+from .user_account import UserAccountService
 from ...api.dependencies.db import get_repository
-from ...db.errors import EntityDoesNotExistError
 from ...db.models import (
     User,
     RefreshSession
 )
-from ...db.repositories import (
-    RefreshSessionsRepository,
-    UsersRepository
-)
+from ...db.repositories import RefreshSessionsRepository
 from ...schemas.authentication import AuthenticationResult
 from ...schemas.user import (
     UserInLogin,
@@ -39,37 +30,19 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AuthenticationService:
-    request: Request
-    users_repository: UsersRepository = Depends(get_repository(UsersRepository))
+    request_analyzer: RequestAnalyzer = Depends()
+    user_account_service: UserAccountService = Depends()
     refresh_sessions_repository: RefreshSessionsRepository = Depends(get_repository(RefreshSessionsRepository))
 
-    @property
-    def client_ip_address(self) -> str:
-        return self.request.client.host
-
-    @property
-    def client_user_agent(self) -> str:
-        return self.request.headers['user-agent']
-
     async def register(self, user_in_create: UserInCreate) -> AuthenticationResult:
-        user = await self.create_user(user_in_create)
+        user = await self.user_account_service.create_user(user_in_create)
         return await self._authenticate(user)
 
-    async def create_user(self, user_in_create: UserInCreate) -> User:
-        if await self.users_repository.check_email_is_taken(user_in_create.email):
-            raise EmailIsAlreadyTakenRegistrationError(user_in_create.email)
-        user = UserPasswordService(User(email=user_in_create.email)).change_password(user_in_create.password)
-        return await self.users_repository.create_by_entity(user)
-
     async def login(self, user_in_login: UserInLogin) -> AuthenticationResult:
-        try:
-            user = await self.users_repository.fetch_by_email(user_in_login.email)
-        except EntityDoesNotExistError as error:
-            raise UserWithSuchEmailDoesNotExistError from error
-        else:
-            if not UserPasswordService(user).verify_password(user_in_login.password):
-                raise IncorrectPasswordError
-            return await self._authenticate(user)
+        user = await self.user_account_service.fetch_user_by_email_or_raise_auth_error(user_in_login.email)
+        if not UserPasswordService(user).verify_password(user_in_login.password):
+            raise IncorrectPasswordError
+        return await self._authenticate(user)
 
     async def _authenticate(self, user: User) -> AuthenticationResult:
         tokens = UserJWTService(user).generate_tokens()
@@ -80,8 +53,8 @@ class AuthenticationService:
         await self.refresh_sessions_repository.create_by_entity(
             RefreshSession(
                 refresh_token=refresh_session_data.refresh_token.token,
-                ip_address=self.client_ip_address,
-                user_agent=self.client_user_agent,
+                ip_address=self.request_analyzer.client_ip_address,
+                user_agent=self.request_analyzer.client_user_agent,
                 expires_at=refresh_session_data.refresh_token.expires_at,
                 user_id=refresh_session_data.user.id
             )

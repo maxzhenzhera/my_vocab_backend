@@ -23,8 +23,7 @@ CLIENT_USER_ATTRIBUTE_NAME = 'custom_attribute__user'
 
 async def make_authenticated_client(client: AsyncClient, user: TestUser) -> AsyncClient:
     unauthenticated_client = await make_unauthenticated_client(client, user)
-    login_response = await _send_login_request(unauthenticated_client, user)
-    return _authenticate_client(unauthenticated_client, login_response)
+    return await _authenticate_client(unauthenticated_client, user)
 
 
 async def make_unauthenticated_client(client: AsyncClient, user: TestUser) -> AsyncClient:
@@ -46,14 +45,15 @@ def get_user_from_client(client: AsyncClient) -> UserInResponse:
     return getattr(client, CLIENT_USER_ATTRIBUTE_NAME)
 
 
-async def _send_login_request(client: AsyncClient, user: TestUser) -> Response:
-    return await client.post(app.url_path_for('auth:login'), json=user.in_login.dict())
-
-
-def _authenticate_client(client: AsyncClient, login_response: Response) -> AsyncClient:
+async def _authenticate_client(client: AsyncClient, user: TestUser) -> AsyncClient:
+    login_response = await _send_login_request(client, user)
     authentication_result = AuthenticationResult(**login_response.json())
     _set_access_token_in_authorization_header(client, authentication_result.tokens.access_token)
     return client
+
+
+async def _send_login_request(client: AsyncClient, user: TestUser) -> Response:
+    return await client.post(app.url_path_for('auth:login'), json=user.in_login.dict())
 
 
 def _set_access_token_in_authorization_header(client: AsyncClient, access_token: AccessTokenInResponse) -> None:

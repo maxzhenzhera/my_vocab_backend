@@ -1,15 +1,21 @@
 import logging
+from uuid import UUID
 
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException
+    HTTPException,
+    Query
 )
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED
 )
 
+from ...dependencies.authentication import get_current_active_user
+from ...dependencies.db import get_repository
+from ....db.models import User
+from ....db.repositories import UsersRepository
 from ....schemas.authentication import AuthenticationResult
 from ....schemas.user import (
     UserInCreate,
@@ -144,3 +150,33 @@ async def login(
     else:
         cookie_service.set_refresh_token(authentication_result.tokens.refresh_token)
         return authentication_result
+
+
+@router.get('/confirm', response_model=UserInResponse, name='auth:confirm')
+async def confirm(
+        email_confirmation_link: UUID = Query(..., alias='link', title='Email confirmation link'),
+        user: User = Depends(get_current_active_user),
+        users_repository: UsersRepository = Depends(get_repository(UsersRepository))
+):
+    """
+    Confirm the user email.
+
+    Arguments
+    ---------
+        < link > query param
+
+    Return
+    ---------
+        * Body
+            < UserInResponse > model
+
+    Raise
+    ---------
+        * 400 BAD REQUEST
+            The given link does not correspond to the real user email confirmation link.
+    """
+
+    if user.email_confirmation_link != email_confirmation_link:
+        raise HTTPException(HTTP_400_BAD_REQUEST, 'Link does not correspond to the real user email confirmation link.')
+
+    return await users_repository.confirm_email(user.email)

@@ -204,6 +204,11 @@ async def logout(
     Return
     ---------
         None
+
+    Other
+    ---------
+        * Cookies
+            Delete < refresh_token > httpOnly cookie
     """
 
     await refresh_sessions_repository.delete_by_refresh_token(refresh_token)

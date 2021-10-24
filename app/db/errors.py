@@ -30,7 +30,7 @@ class UserUpdateError(DBError):
         return 'Given data is invalid for user update.'
 
 
-class EmailInUpdateIsAlreadyTakenError:
+class EmailInUpdateIsAlreadyTakenError(UserUpdateError):
     """ Raised on the user update if the email is already used by the other user. """
 
     def __init__(self, email: str) -> None:

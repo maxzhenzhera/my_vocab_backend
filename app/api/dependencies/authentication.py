@@ -9,6 +9,10 @@ from fastapi.security import (
     HTTPBearer,
     HTTPAuthorizationCredentials
 )
+from jose import (
+    ExpiredSignatureError,
+    JWTError
+)
 from starlette.status import (
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN
@@ -20,10 +24,6 @@ from ...db.models import User
 from ...db.repositories import UsersRepository
 from ...schemas.jwt import JWTUser
 from ...services.jwt import UserJWTService
-from ...services.jwt.errors import (
-    InvalidTokenSignatureError,
-    ExpiredTokenSignatureError
-)
 
 
 __all__ = [
@@ -42,9 +42,9 @@ def _get_access_token(credentials: HTTPAuthorizationCredentials = Security(HTTPB
 def _get_jwt_user(access_token: str = Depends(_get_access_token)) -> JWTUser:
     try:
         jwt_user = UserJWTService.verify_access_token(access_token)
-    except ExpiredTokenSignatureError:
+    except ExpiredSignatureError:
         raise HTTPException(HTTP_401_UNAUTHORIZED, 'The current session has expired. Please, refresh.')
-    except InvalidTokenSignatureError:
+    except JWTError:
         raise HTTPException(HTTP_401_UNAUTHORIZED, 'Access token is invalid.')
     else:
         return jwt_user

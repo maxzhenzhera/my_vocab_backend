@@ -5,10 +5,9 @@ from pathlib import PurePosixPath as URLPathJoiner
 from fastapi import Response
 
 from ...core.config.config import (
-    jwt_config,
-    server_config
+    server_config,
+    refresh_session_config
 )
-from ...schemas.jwt import RefreshTokenInResponse
 
 
 __all__ = [
@@ -30,16 +29,16 @@ class CookieService:
 
     @property
     def refresh_token_cookie_max_age(self) -> int:
-        return self._get_total_seconds_of_timedelta(jwt_config.REFRESH_TOKEN_EXPIRE_TIMEDELTA)
+        return self._get_total_seconds_of_timedelta(refresh_session_config.REFRESH_TOKEN_EXPIRE_TIMEDELTA)
 
     @staticmethod
     def _get_total_seconds_of_timedelta(delta: timedelta) -> int:
         return int(delta.total_seconds())
 
-    def set_refresh_token(self, refresh_token: RefreshTokenInResponse) -> None:
+    def set_refresh_token(self, refresh_token: str) -> None:
         self.response.set_cookie(
             key=REFRESH_TOKEN_COOKIE_KEY,
-            value=refresh_token.token,
+            value=refresh_token,
             max_age=self.refresh_token_cookie_max_age,
             path=self.refresh_token_path,
             httponly=True

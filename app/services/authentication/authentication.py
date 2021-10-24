@@ -35,4 +35,7 @@ class AuthenticationService:
             raise IncorrectPasswordError
         return await self.refresh_session_service.authenticate(user)
 
-
+    async def refresh(self, refresh_token: str) -> AuthenticationResult:
+        refresh_session = await self.refresh_session_service.validate_refresh_session(refresh_token)
+        user = await self.user_account_service.users_repository.fetch_by_id(refresh_session.user_id)
+        return await self.refresh_session_service.authenticate(user)

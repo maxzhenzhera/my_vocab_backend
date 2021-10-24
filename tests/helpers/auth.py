@@ -5,7 +5,6 @@ from httpx import (
 
 from app.main import app
 from app.schemas.authentication import AuthenticationResult
-from app.schemas.jwt import AccessTokenInResponse
 from app.schemas.user import UserInResponse
 from tests.users import TestUser
 
@@ -56,5 +55,5 @@ async def _send_login_request(client: AsyncClient, user: TestUser) -> Response:
     return await client.post(app.url_path_for('auth:login'), json=user.in_login.dict())
 
 
-def _set_access_token_in_authorization_header(client: AsyncClient, access_token: AccessTokenInResponse) -> None:
-    client.headers['Authorization'] = f'{access_token.token_type} {access_token.token}'
+def _set_access_token_in_authorization_header(client: AsyncClient, access_token: str) -> None:
+    client.headers['Authorization'] = f'Bearer {access_token}'

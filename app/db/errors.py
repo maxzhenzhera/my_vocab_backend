@@ -27,7 +27,7 @@ class UserUpdateError(DBError):
 
     @property
     def detail(self) -> str:
-        return f"Given data is invalid for user update."
+        return 'Given data is invalid for user update.'
 
 
 class EmailInUpdateIsAlreadyTakenError:

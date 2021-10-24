@@ -1,5 +1,5 @@
 from .base import ModelWithOrmMode
-from .jwt import TokensInResponse
+from .tokens import TokensInResponse
 from .user import UserInResponse
 
 

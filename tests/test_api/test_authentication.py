@@ -16,16 +16,16 @@ from starlette.status import (
     HTTP_401_UNAUTHORIZED
 )
 
+from app.db.errors import EntityDoesNotExistError
 from app.db.repositories import (
     RefreshSessionsRepository,
     UsersRepository
 )
 from app.main import app
-from app.db.errors import EntityDoesNotExistError
 from app.services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
 from tests.config import mail_connection_test_config
-from tests.users import test_user_1
 from tests.helpers.auth import get_user_from_client
+from tests.users import test_user_1
 
 
 pytestmark = pytest.mark.asyncio
@@ -41,7 +41,7 @@ class ResponseAndClientFixturesMixin:
         return response_and_client[1]
 
 
-class RegisterAndLoginRoutesMixin:
+class AuthRouteMixin:
     URL: URLPath
     JSON: dict
 
@@ -49,20 +49,23 @@ class RegisterAndLoginRoutesMixin:
         response_json = response.json()
 
         assert response.status_code == HTTP_200_OK
-        assert 'user' in response_json and 'tokens' in response_json
+        assert 'user' in response_json
+        assert 'tokens' in response_json
 
     def test_route_setting_refresh_token_cookie(self, response: Response):      # noqa method may be static
-        assert 'refresh_token' in response.cookies
+        response_json = response.json()
+
+        assert response.cookies[REFRESH_TOKEN_COOKIE_KEY] == response_json['tokens']['refresh_token']
 
     async def test_route_creating_refresh_session_in_db(                        # noqa method may be static
             self,
             response: Response,
             test_refresh_sessions_repository: RefreshSessionsRepository
     ):
-        assert await test_refresh_sessions_repository.fetch_by_refresh_token(response.cookies['refresh_token'])
+        assert await test_refresh_sessions_repository.fetch_by_refresh_token(response.cookies[REFRESH_TOKEN_COOKIE_KEY])
 
 
-class CreateAndRegisterRoutesMixin:
+class UserCreationRouteMixin:
     URL: URLPath
     JSON: dict
     USER_EMAIL: str
@@ -70,9 +73,9 @@ class CreateAndRegisterRoutesMixin:
     async def test_route_creating_user_in_db(self, response: Response, test_users_repository: UsersRepository):
         assert await test_users_repository.fetch_by_email(self.USER_EMAIL)
 
-    async def test_route_return_400_error(self, client: AsyncClient):
+    async def test_route_return_400_error_on_passing_already_used_credentials(self, client: AsyncClient):
         """
-        On creation has been passed the same credentials (used fixture).
+        On creation has been passed the same credentials (client fixture - client that already sent the same request).
         Must return 400 Bad Request.
         """
 
@@ -80,7 +83,27 @@ class CreateAndRegisterRoutesMixin:
         assert response.status_code == HTTP_400_BAD_REQUEST
 
 
-class TestCreateRoute(CreateAndRegisterRoutesMixin, ResponseAndClientFixturesMixin):
+class TerminatingRefreshSessionRouteMixin:
+    @pytest.fixture(name='old_refresh_token')
+    def fixture_refresh_token(self, test_client_user_1: AsyncClient) -> str:
+        return test_client_user_1.cookies[REFRESH_TOKEN_COOKIE_KEY]
+
+    async def test_route_deleting_refresh_session_from_db(                      # noqa method may be static
+            self,
+            old_refresh_token: str,
+            response: Response,
+            test_refresh_sessions_repository: RefreshSessionsRepository
+    ):
+        """
+        The order of the used fixtures is important.
+        If put < refresh_token > after < response > than it would be a try to get the cookie from the logged out user.
+        """
+
+        with pytest.raises(EntityDoesNotExistError):
+            await test_refresh_sessions_repository.fetch_by_refresh_token(old_refresh_token)
+
+
+class TestCreateRoute(UserCreationRouteMixin, ResponseAndClientFixturesMixin):
     URL = app.url_path_for('auth:create')
     JSON = test_user_1.in_create.dict()
     USER_EMAIL = test_user_1.email
@@ -90,7 +113,7 @@ class TestCreateRoute(CreateAndRegisterRoutesMixin, ResponseAndClientFixturesMix
         return await test_client.post(self.URL, json=self.JSON), test_client
 
 
-class TestRegisterRoute(RegisterAndLoginRoutesMixin, CreateAndRegisterRoutesMixin, ResponseAndClientFixturesMixin):
+class TestRegisterRoute(AuthRouteMixin, UserCreationRouteMixin, ResponseAndClientFixturesMixin):
     URL = app.url_path_for('auth:register')
     JSON = test_user_1.in_create.dict()
     USER_EMAIL = test_user_1.email
@@ -113,7 +136,7 @@ class TestRegisterRoute(RegisterAndLoginRoutesMixin, CreateAndRegisterRoutesMixi
             assert outbox[0]['To'] == self.USER_EMAIL
 
 
-class TestLoginRoute(RegisterAndLoginRoutesMixin):
+class TestLoginRoute(AuthRouteMixin):
     URL = app.url_path_for('auth:login')
     JSON = test_user_1.in_login.dict()
 
@@ -121,7 +144,7 @@ class TestLoginRoute(RegisterAndLoginRoutesMixin):
     async def fixture_response_from_route(self, test_unauthenticated_client_user_1: AsyncClient) -> Response:
         return await test_unauthenticated_client_user_1.post(self.URL, json=self.JSON)
 
-    async def test_route_return_401_error(self, test_client: AsyncClient):
+    async def test_route_return_401_error_on_passing_false_credentials(self, test_client: AsyncClient):
         """
         On login has been passed the credentials of the nonexistent user.
         Must return 401 Unauthorized.
@@ -149,7 +172,6 @@ class TestConfirmRoute:
         response_json = response.json()
 
         assert response.status_code == HTTP_200_OK
-        assert 'email' in response_json
         assert response_json['is_email_confirmed']
         assert datetime.utcnow() - datetime.fromisoformat(response_json['email_confirmed_at']) < timedelta(seconds=10)
 
@@ -159,7 +181,7 @@ class TestConfirmRoute:
         assert user.is_email_confirmed
         assert datetime.utcnow() - user.email_confirmed_at < timedelta(seconds=10)
 
-    async def test_route_return_400_error(self, params: dict, test_client_user_1: AsyncClient):
+    async def test_route_return_400_error_on_passing_false_link(self, params: dict, test_client_user_1: AsyncClient):
         """
         On confirm has been passed the link that does not correspond to the real user email confirmation link.
         Must return 400 Bad Request.
@@ -171,12 +193,8 @@ class TestConfirmRoute:
         assert response.status_code == HTTP_400_BAD_REQUEST
 
 
-class TestLogoutRoute(ResponseAndClientFixturesMixin):
+class TestLogoutRoute(TerminatingRefreshSessionRouteMixin, ResponseAndClientFixturesMixin):
     URL = app.url_path_for('auth:logout')
-
-    @pytest.fixture(name='refresh_token')
-    def fixture_refresh_token(self, test_client_user_1: AsyncClient) -> str:
-        return test_client_user_1.cookies[REFRESH_TOKEN_COOKIE_KEY]
 
     @pytest.fixture(name='response_and_client')
     async def fixture_response_and_client(self, test_client_user_1: AsyncClient) -> tuple[Response, AsyncClient]:

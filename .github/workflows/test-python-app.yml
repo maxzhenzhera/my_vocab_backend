@@ -85,4 +85,3 @@ jobs:
           MAIL_TLS: True
           MAIL_SSL: False
           JWT_ACCESS_TOKEN_SECRET_KEY: secret
-          JWT_REFRESH_TOKEN_SECRET_KEY: secret

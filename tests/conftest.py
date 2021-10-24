@@ -19,7 +19,10 @@ from tests.helpers.auth import (
     make_unauthenticated_client,
     make_authenticated_client
 )
-from tests.helpers.db import create_clear_db
+from tests.helpers.db import (
+    create_db,
+    clear_db
+)
 from tests.users import (
     test_user_1,
     test_user_2
@@ -40,8 +43,9 @@ def fixture_app() -> FastAPI:
 async def fixture_test_app(app: FastAPI) -> FastAPI:
     _set_mail_sender_in_app(mail_connection_test_config, app)
     _set_db_in_app(sqlalchemy_connection_string_to_test_database, app)
-    await create_clear_db(app)
-    return app
+    await create_db(app)
+    yield app
+    await clear_db(app)
 
 
 @pytest.fixture(name='test_client')

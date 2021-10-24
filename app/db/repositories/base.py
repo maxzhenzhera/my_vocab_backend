@@ -1,5 +1,8 @@
 import abc
-from typing import Type
+from typing import (
+    Type,
+    Union
+)
 
 from sqlalchemy import (
     delete as sa_delete,
@@ -11,7 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select as sa_select
 from sqlalchemy.sql import (
     Select,
-    Update
+    Update,
+    Delete
 )
 
 from ._types import (
@@ -54,23 +58,22 @@ class BaseRepository(abc.ABC):
     async def update(self, id_: int, schema_in_update: UpdateSchemaType) -> ModelType:
         update_data = self._exclude_unset_from_schema(schema_in_update)
         stmt = sa_update(self.model).where(self.model.id == id_).values(**update_data)
-        return await self._return_from_update(stmt)
+        return await self._return_from_statement(stmt)
 
     @staticmethod
     def _exclude_unset_from_schema(schema_in_update: UpdateSchemaType) -> dict:
         return schema_in_update.dict(exclude_unset=True)
 
-    async def _return_from_update(self, update_statement: Update) -> ModelType:
+    async def delete_by_id(self, id_: int) -> ModelType:
+        stmt = sa_delete(self.model).where(self.model.id == id_)
+        return await self._return_from_statement(stmt)
+
+    async def _return_from_statement(self, statement: Union[Update, Delete]) -> ModelType:
         async with self._session.begin_nested():
-            stmt = update_statement.returning(self.model)
+            stmt = statement.returning(self.model)
             orm_stmt = sa_select(self.model).from_statement(stmt).execution_options(populate_existing=True)
             result: Result = await self._session.execute(orm_stmt)
         return result.scalar()
-
-    async def delete_by_id(self, id_: int) -> None:
-        async with self._session.begin_nested():
-            stmt = sa_delete(self.model).where(self.model.id == id_)
-            await self._session.execute(stmt)
 
     async def fetch_by_id(self, id_: int) -> ModelType:
         stmt = sa_select(self.model).where(self.model.id == id_)

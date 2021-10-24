@@ -4,6 +4,9 @@ AuthenticationError
     +-- IncorrectPasswordError
 RegistrationError
     +-- EmailIsAlreadyTakenRegistrationError
+RefreshError
+    +-- RefreshSessionWithSuchRefreshTokenDoesNotExistError
+    +-- RefreshSessionExpiredError
 """
 
 
@@ -12,7 +15,10 @@ __all__ = [
     'UserWithSuchEmailDoesNotExistError',
     'IncorrectPasswordError',
     'RegistrationError',
-    'EmailIsAlreadyTakenRegistrationError'
+    'EmailIsAlreadyTakenRegistrationError',
+    'RefreshError',
+    'RefreshSessionWithSuchRefreshTokenDoesNotExistError',
+    'RefreshSessionExpiredError'
 ]
 
 
@@ -37,7 +43,7 @@ class RegistrationError(Exception):
 
     @property
     def detail(self) -> str:
-        return f"Given credentials for registration are invalid."
+        return 'Given credentials for registration are invalid.'
 
 
 class EmailIsAlreadyTakenRegistrationError(RegistrationError):
@@ -49,3 +55,27 @@ class EmailIsAlreadyTakenRegistrationError(RegistrationError):
     @property
     def detail(self) -> str:
         return f"Email '{self.email}' is busy. Please, use another email!"
+
+
+class RefreshError(Exception):
+    """ Common refresh exception. """
+
+    @property
+    def detail(self) -> str:
+        return 'Refresh is impossible.'
+
+
+class RefreshSessionWithSuchRefreshTokenDoesNotExistError(RefreshError):
+    """ Raised if the refresh session with the given refresh token does not exist. """
+
+    @property
+    def detail(self) -> str:
+        return 'The refresh session with the given refresh token does not exist.'
+
+
+class RefreshSessionExpiredError(RefreshError):
+    """ Raised if the refresh session has expired. """
+
+    @property
+    def detail(self) -> str:
+        return 'The refresh session has expired. Please, login again!'

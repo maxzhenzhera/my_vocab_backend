@@ -34,7 +34,8 @@ from ....services.authentication import (
 from ....services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
 from ....services.authentication.errors import (
     AuthenticationError,
-    RegistrationError
+    RegistrationError,
+    RefreshError
 )
 from ....services.mail import MailService
 
@@ -213,3 +214,39 @@ async def logout(
 
     await refresh_sessions_repository.delete_by_refresh_token(refresh_token)
     cookie_service.delete_refresh_token()
+
+
+@router.get('/refresh', response_model=AuthenticationResult, name='auth:refresh')
+async def refresh(
+        refresh_token: str = Cookie(..., alias=REFRESH_TOKEN_COOKIE_KEY),
+        authentication_service: AuthenticationService = Depends(),
+        cookie_service: CookieService = Depends()
+):
+    """
+    Refresh the user session.
+
+    Arguments
+    ---------
+        < refresh_token > cookie (basically, set on authentication [register/login])
+
+    Return
+    ---------
+        * Body
+            < AuthenticationResult > model
+        * Cookies
+            < refresh_token> httpOnly cookie
+
+    Raise
+    ---------
+        * 401 UNAUTHORIZED
+            - The current refresh session has expired
+            - The refresh session with the given refresh token does not exist
+    """
+
+    try:
+        authentication_result = await authentication_service.refresh(refresh_token)
+    except RefreshError as error:
+        raise HTTPException(HTTP_401_UNAUTHORIZED, error.detail)
+    else:
+        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token)
+        return authentication_result

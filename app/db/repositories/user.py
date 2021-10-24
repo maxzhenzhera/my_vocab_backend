@@ -29,7 +29,7 @@ class UsersRepository(BaseRepository):
         if 'password' in update_data:
             update_data.update(self._get_update_data_on_password_update(update_data['password']))
         stmt = sa_update(User).where(User.email == email).values(**update_data)
-        return await self._return_from_update(stmt)
+        return await self._return_from_statement(stmt)
 
     @staticmethod
     def _get_update_data_on_email_update() -> dict:
@@ -50,7 +50,7 @@ class UsersRepository(BaseRepository):
     async def confirm_email(self, email: str) -> User:
         update_data = self._get_update_data_on_email_confirmation()
         stmt = sa_update(User).where(User.email == email).values(**update_data)
-        return await self._return_from_update(stmt)
+        return await self._return_from_statement(stmt)
 
     @staticmethod
     def _get_update_data_on_email_confirmation() -> dict:

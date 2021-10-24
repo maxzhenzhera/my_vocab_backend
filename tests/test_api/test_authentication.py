@@ -209,16 +209,41 @@ class TestLogoutRoute(TerminatingRefreshSessionRouteMixin, ResponseAndClientFixt
     def test_route_deleting_refresh_token_cookie(self, client: AsyncClient):
         assert REFRESH_TOKEN_COOKIE_KEY not in client.cookies
 
-    async def test_route_deleting_refresh_session_from_db(
+
+class TestRefreshRoute(AuthRouteMixin, TerminatingRefreshSessionRouteMixin, ResponseAndClientFixturesMixin):
+    URL = app.url_path_for('auth:refresh')
+
+    @pytest.fixture(name='response_and_client')
+    async def fixture_response_and_client(self, test_client_user_1: AsyncClient) -> tuple[Response, AsyncClient]:
+        return await test_client_user_1.get(self.URL), test_client_user_1
+
+    def test_route_deleting_old_refresh_token_cookie(self, old_refresh_token: str, client: AsyncClient):
+        assert client.cookies[REFRESH_TOKEN_COOKIE_KEY] != old_refresh_token
+
+    async def test_route_return_401_error_on_expired_session(
             self,
-            refresh_token: str,
-            response: Response,
+            old_refresh_token: str,
+            test_client_user_1: AsyncClient,
             test_refresh_sessions_repository: RefreshSessionsRepository
     ):
         """
-        The order of the used fixtures is important.
-        If put < refresh_token > after < response > than it would be a try to get the cookie from the logged out user.
+        On refresh has been passed refresh token which session has manually expired.
+        Must return 401 Unauthorized.
         """
 
-        with pytest.raises(EntityDoesNotExistError):
-            await test_refresh_sessions_repository.fetch_by_refresh_token(refresh_token)
+        await test_refresh_sessions_repository.expire(old_refresh_token)
+        await test_refresh_sessions_repository.session.commit()
+        response = await test_client_user_1.get('/api/auth/refresh')
+
+        assert response.status_code == HTTP_401_UNAUTHORIZED
+
+    async def test_route_return_401_error_on_passing_false_refresh_token(self, test_client_user_1: AsyncClient):
+        """
+        On confirm has been passed the link that does not correspond to the real user email confirmation link.
+        Must return 401 Unauthorized.
+        """
+
+        test_client_user_1.cookies[REFRESH_TOKEN_COOKIE_KEY] = str(uuid4())
+        response = await test_client_user_1.get(self.URL)
+
+        assert response.status_code == HTTP_401_UNAUTHORIZED

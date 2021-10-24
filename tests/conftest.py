@@ -48,7 +48,7 @@ async def fixture_test_app(app: FastAPI) -> FastAPI:
 async def fixture_test_client(test_app: FastAPI) -> AsyncClient:
     async with AsyncClient(
         app=test_app,
-        base_url=f"http://testserver",
+        base_url='http://testserver',
         headers={"Content-Type": "application/json"},
     ) as client:
         yield client

@@ -7,9 +7,13 @@ from .dataclasses_ import (
     ServerConfig,
     UvicornConfig,
     DBConfig,
-    JWTConfig
+    JWTConfig,
+    RefreshSessionConfig
 )
-from .paths import EMAIL_TEMPLATES_DIR
+from .paths import (
+    EMAIL_TEMPLATES_DIR,
+    LOGGING_CONFIG_PATH
+)
 from ...utils.casts import to_bool
 
 
@@ -18,7 +22,8 @@ __all__ = [
     'uvicorn_config',
     'sqlalchemy_connection_string',
     'mail_connection_config',
-    'jwt_config'
+    'jwt_config',
+    'refresh_session_config'
 ]
 
 
@@ -26,11 +31,15 @@ load_dotenv()
 
 
 server_config = ServerConfig(
-    getenv('SERVER_HOST'),
-    int(getenv('SERVER_PORT')),
-    getenv('API_PREFIX', '/api')
+    HOST=getenv('SERVER_HOST'),
+    PORT=int(getenv('SERVER_PORT')),
+    API_PREFIX=getenv('API_PREFIX', '/api')
 )
-uvicorn_config = UvicornConfig(server_config).get_config()
+uvicorn_config = UvicornConfig(
+    SERVER_CONFIG=server_config,
+    LOGGING_CONFIG_PATH=LOGGING_CONFIG_PATH,
+    RELOAD=to_bool(getenv('UVICORN_RELOAD'))
+)
 sqlalchemy_connection_string = DBConfig(
     getenv('DB_HOST'),
     int(getenv('DB_PORT')),
@@ -50,6 +59,6 @@ mail_connection_config = MailConnectionConfig(
     TEMPLATE_FOLDER=EMAIL_TEMPLATES_DIR
 )
 jwt_config = JWTConfig(
-    ACCESS_TOKEN_SECRET_KEY=getenv('JWT_ACCESS_TOKEN_SECRET_KEY'),
-    REFRESH_TOKEN_SECRET_KEY=getenv('JWT_REFRESH_TOKEN_SECRET_KEY')
+    ACCESS_TOKEN_SECRET_KEY=getenv('JWT_ACCESS_TOKEN_SECRET_KEY')
 )
+refresh_session_config = RefreshSessionConfig()

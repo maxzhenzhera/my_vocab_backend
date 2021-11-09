@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-from app.core.config.paths import LOGGING_CONFIG_PATH
+from app.core.paths import LOGGING_CONFIG_PATH
 from scripts.logging_ import logger
 
 

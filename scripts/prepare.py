@@ -1,4 +1,4 @@
-from app.core.config.paths import LOGGING_CONFIG_PATH
+from app.core.paths import LOGGING_CONFIG_PATH
 from scripts.logging_ import logger
 from scripts.make_directories_for_logs import make_directories_for_logs
 

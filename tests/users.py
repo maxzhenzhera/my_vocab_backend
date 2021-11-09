@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.schemas.user import (
+from app.schemas.entities.user import (
     UserInCreate,
     UserInLogin
 )

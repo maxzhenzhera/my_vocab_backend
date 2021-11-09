@@ -5,7 +5,7 @@ from datetime import (
 
 import pytest
 
-from app.core.config.config import jwt_config
+from app.core.config import jwt_config
 from app.db.models import User
 from app.schemas.jwt import JWTUser
 from app.services.jwt import UserJWTService
@@ -14,7 +14,7 @@ from app.services.jwt import UserJWTService
 class TestUserJWTService:
     @pytest.fixture(name='user')
     def fixture_user(self) -> User:
-        return User(email='example@gmail.com', is_superuser=False)
+        return User(id=1, email='example@gmail.com', is_superuser=False, is_email_confirmed=False)
 
     @pytest.fixture(name='service')
     def fixture_service(self, user: User) -> UserJWTService:

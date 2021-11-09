@@ -16,6 +16,8 @@ uvicorn = {extras = ["standard"], version = "*"}
 python-freedictionaryapi = {extras = ["async-client"], version = "*"}
 alembic = "*"
 fastapi-mail = "*"
+authlib = "*"
+itsdangerous = "*"
 
 [dev-packages]
 pytest = "*"

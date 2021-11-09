@@ -5,12 +5,19 @@ from sqlalchemy import (
     ForeignKey,
     String
 )
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import (
+    INET,
+    UUID
+)
 from sqlalchemy.orm import relationship
 
 from ..base import Base
 from ...constants import CASCADE
-from ...functions import utcnow
+from ...functions.defaults.refresh_session import compute_refresh_session_expire
+from ...functions.server_defaults import (
+    utcnow,
+    uuid_generate_v4
+)
 
 
 __all__ = ['RefreshSession']
@@ -19,15 +26,14 @@ __all__ = ['RefreshSession']
 class RefreshSession(Base):
     __tablename__ = 'refresh_sessions'
 
-    id = Column(BigInteger, primary_key=True)
-    refresh_token = Column(String, nullable=False)
+    refresh_token = Column(UUID, primary_key=True, server_default=uuid_generate_v4())
     ip_address = Column(INET, nullable=False)
-    user_agent = Column(String, nullable=False)
-    created_at = Column(DateTime(), server_default=utcnow())
-    expires_at = Column(DateTime, nullable=False)
+    user_agent = Column(String(256), nullable=False)
+    created_at = Column(DateTime, server_default=utcnow(), nullable=False)
+    expires_at = Column(DateTime, default=compute_refresh_session_expire, nullable=False)
     user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
 
     user = relationship('User', back_populates='refresh_sessions')
 
     def __repr__(self) -> str:
-        return f'RefreshSession(id = {self.id!r}, refresh_token={self.refresh_token!r}, user_id = {self.user_id!r})'
+        return f'RefreshSession(refresh_token={self.refresh_token!r}, user_id ={self.user_id!r})'

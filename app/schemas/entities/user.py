@@ -3,17 +3,17 @@ from typing import Optional
 
 from pydantic import (
     BaseModel,
-    EmailStr,
-    UUID4
+    EmailStr
 )
 
-from .base import (
+from ..base import (
     IDModelMixin,
     ModelWithOrmMode
 )
 
 
 __all__ = [
+    'UserBaseInCreate',
     'UserInCreate',
     'UserInLogin',
     'UserInUpdate',
@@ -21,8 +21,11 @@ __all__ = [
 ]
 
 
-class UserInCreate(BaseModel):
+class UserBaseInCreate(BaseModel):
     email: EmailStr
+
+
+class UserInCreate(UserBaseInCreate):
     password: str
 
 
@@ -37,7 +40,7 @@ class UserInUpdate(BaseModel):
 
 class UserInResponse(IDModelMixin, ModelWithOrmMode):
     email: EmailStr
-    email_confirmation_link: UUID4
+    email_confirmation_link: str
     is_active: bool
     is_email_confirmed: bool
     is_superuser: bool

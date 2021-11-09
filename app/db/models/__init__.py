@@ -1,5 +1,8 @@
+from .auth import (
+    OAuthConnection,
+    RefreshSession
+)
 from .base import Base
-from .auth import RefreshSession
 from .entities import (
     Tag,
     User,
@@ -10,9 +13,10 @@ from .entities import (
 
 
 __all__ = [
-    # meta
+    # base
     'Base',
     # auth
+    'OAuthConnection',
     'RefreshSession',
     # entities
     'User',

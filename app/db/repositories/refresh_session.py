@@ -29,9 +29,9 @@ class RefreshSessionsRepository(BaseRepository):
 
     async def expire(self, refresh_token: str) -> None:
         update_data = self._get_update_data_on_expire()
-        async with self._session.begin_nested():
+        async with self.session.begin_nested():
             stmt = sa_update(RefreshSession).where(RefreshSession.refresh_token == refresh_token).values(**update_data)
-            await self._session.execute(stmt)
+            await self.session.execute(stmt)
 
     @staticmethod
     def _get_update_data_on_expire() -> dict:

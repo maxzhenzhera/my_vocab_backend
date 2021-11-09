@@ -1,4 +1,4 @@
-from .security import UserPasswordService
+from .password import UserPasswordService
 
 
 __all__ = ['UserPasswordService']

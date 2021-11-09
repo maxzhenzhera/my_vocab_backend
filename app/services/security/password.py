@@ -1,3 +1,6 @@
+import secrets
+import string
+
 import bcrypt
 
 from .context import pwd_context
@@ -8,7 +11,18 @@ from ...db.models import User
 __all__ = ['UserPasswordService']
 
 
+DEFAULT_RANDOM_PASSWORD_LENGTH = 20
+DEFAULT_RANDOM_PASSWORD_ALPHABET = string.ascii_letters + string.digits
+
+
 class UserPasswordService(BaseUserService):
+    @staticmethod
+    def generate_random_password(
+            length: int = DEFAULT_RANDOM_PASSWORD_LENGTH,
+            alphabet: str = DEFAULT_RANDOM_PASSWORD_ALPHABET
+    ) -> str:
+        return ''.join([secrets.choice(alphabet) for _ in range(length)])
+
     def change_password(self, password: str) -> User:
         self.user.password_salt = self._generate_salt()
         self.user.hashed_password = self._hash_password(self._combine_password_with_salt(password=password))

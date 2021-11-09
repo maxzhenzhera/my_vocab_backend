@@ -2,6 +2,7 @@ from os import getenv
 
 from dotenv import load_dotenv
 from fastapi_mail import ConnectionConfig as MailConnectionConfig
+from starlette.config import Config as StarletteConfig
 
 from .dataclasses_ import (
     ServerConfig,
@@ -14,20 +15,27 @@ from .paths import (
     EMAIL_TEMPLATES_DIR,
     LOGGING_CONFIG_PATH
 )
-from ...utils.casts import to_bool
+from ..utils.casts import to_bool
 
 
 __all__ = [
+    'CORS_ORIGINS',
+    'SESSION_MIDDLEWARE_SECRET_KEY',
     'server_config',
     'uvicorn_config',
     'sqlalchemy_connection_string',
     'mail_connection_config',
     'jwt_config',
-    'refresh_session_config'
+    'refresh_session_config',
+    'oauth_config'
 ]
 
 
 load_dotenv()
+
+
+CORS_ORIGINS = [origin for origin in getenv('CORS_ORIGINS').split(',')]
+SESSION_MIDDLEWARE_SECRET_KEY = getenv('SESSION_MIDDLEWARE_SECRET_KEY')
 
 
 server_config = ServerConfig(
@@ -62,3 +70,9 @@ jwt_config = JWTConfig(
     ACCESS_TOKEN_SECRET_KEY=getenv('JWT_ACCESS_TOKEN_SECRET_KEY')
 )
 refresh_session_config = RefreshSessionConfig()
+oauth_config = StarletteConfig(
+    environ={
+        'GOOGLE_CLIENT_ID': getenv('GOOGLE_CLIENT_ID'),
+        'GOOGLE_CLIENT_SECRET': getenv('GOOGLE_CLIENT_SECRET')
+    }
+)

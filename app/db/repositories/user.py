@@ -1,26 +1,35 @@
 from datetime import datetime
 from uuid import uuid4
+from typing import (
+    TypeVar,
+    Union
+)
 
 from sqlalchemy import update as sa_update
 from sqlalchemy.future import select as sa_select
+from sqlalchemy.sql.elements import BinaryExpression
 
-from .base import BaseRepository
+from .base import BaseCRUDRepository
 from ..errors import (
     EmailInUpdateIsAlreadyTakenError,
     EntityDoesNotExistError
 )
 from ..models import User
-from ...schemas.user import UserInUpdate
+from ...schemas.entities.user import UserInUpdate
 from ...services.security import UserPasswordService
 
 
 __all__ = ['UsersRepository']
 
 
-class UsersRepository(BaseRepository):
+# actually, where statement emits <BinaryExpression>, but linter supposes comparing result as bool
+WhereStatement = TypeVar('WhereStatement', bound=Union[BinaryExpression, bool])
+
+
+class UsersRepository(BaseCRUDRepository):
     model = User
 
-    async def update(self, email: str, user_in_update: UserInUpdate) -> User:
+    async def update_by_email(self, email: str, user_in_update: UserInUpdate) -> User:
         update_data = self._exclude_unset_from_schema(user_in_update)
         if 'email' in update_data:
             if await self.check_email_is_taken(update_data['email']):
@@ -47,9 +56,15 @@ class UsersRepository(BaseRepository):
             'password_salt': user.password_salt
         }
 
-    async def confirm_email(self, email: str) -> User:
+    async def confirm_by_email(self, email: str) -> User:
+        return await self._confirm_by_where_statement(User.email == email)
+
+    async def confirm_by_link(self, link: str) -> User:
+        return await self._confirm_by_where_statement(User.email_confirmation_link == link)
+
+    async def _confirm_by_where_statement(self, where_statement: WhereStatement) -> User:
         update_data = self._get_update_data_on_email_confirmation()
-        stmt = sa_update(User).where(User.email == email).values(**update_data)
+        stmt = sa_update(User).where(where_statement).values(**update_data)
         return await self._return_from_statement(stmt)
 
     @staticmethod

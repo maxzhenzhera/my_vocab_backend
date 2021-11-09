@@ -1,10 +1,10 @@
 from os import getenv
 
 from dotenv import load_dotenv
-
-from app.core.config.dataclasses_ import DBConfig
-from app.core.config.paths import EMAIL_TEMPLATES_DIR
 from fastapi_mail import ConnectionConfig as MailConnectionConfig
+
+from app.core.dataclasses_ import DBConfig
+from app.core.paths import EMAIL_TEMPLATES_DIR
 from app.utils.casts import to_bool
 
 

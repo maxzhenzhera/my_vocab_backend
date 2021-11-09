@@ -2,10 +2,12 @@
 AuthenticationError
     +-- UserWithSuchEmailDoesNotExistError
     +-- IncorrectPasswordError
+    +-- OAuthLoginError
+        +-- OAuthConnectionDoesNotExistError
 RegistrationError
     +-- EmailIsAlreadyTakenRegistrationError
 RefreshError
-    +-- RefreshSessionWithSuchRefreshTokenDoesNotExistError
+    +-- RefreshSessionDoesNotExistError
     +-- RefreshSessionExpiredError
 """
 
@@ -14,10 +16,12 @@ __all__ = [
     'AuthenticationError',
     'UserWithSuchEmailDoesNotExistError',
     'IncorrectPasswordError',
+    'OAuthLoginError',
+    'OAuthConnectionDoesNotExistError',
     'RegistrationError',
     'EmailIsAlreadyTakenRegistrationError',
     'RefreshError',
-    'RefreshSessionWithSuchRefreshTokenDoesNotExistError',
+    'RefreshSessionDoesNotExistError',
     'RefreshSessionExpiredError'
 ]
 
@@ -36,6 +40,14 @@ class UserWithSuchEmailDoesNotExistError(AuthenticationError):
 
 class IncorrectPasswordError(AuthenticationError):
     """ Raised if the given password has not been verified. """
+
+
+class OAuthLoginError(AuthenticationError):
+    """ Common authentication exception on OAuth login. """
+
+
+class OAuthConnectionDoesNotExistError(OAuthLoginError):
+    """ Raised if the OAuth connection does not exist. """
 
 
 class RegistrationError(Exception):
@@ -65,7 +77,7 @@ class RefreshError(Exception):
         return 'Refresh is impossible.'
 
 
-class RefreshSessionWithSuchRefreshTokenDoesNotExistError(RefreshError):
+class RefreshSessionDoesNotExistError(RefreshError):
     """ Raised if the refresh session with the given refresh token does not exist. """
 
     @property

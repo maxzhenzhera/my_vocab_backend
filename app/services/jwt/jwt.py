@@ -3,7 +3,7 @@ from datetime import datetime
 from jose import jwt
 
 from ..base import BaseUserService
-from ...core.config.config import jwt_config
+from ...core.config import jwt_config
 from ...schemas.jwt import (
     JWTMeta,
     JWTUser
@@ -32,7 +32,7 @@ class UserJWTService(BaseUserService):
         return self.jwt_user.dict()
 
     def _make_meta_payload(self) -> dict:
-        return JWTMeta(exp=self._compute_expire(), sub=jwt_config.ACCESS_TOKEN_SUBJECT).dict()
+        return JWTMeta(exp=self._compute_expire(), sub=str(self.user.id)).dict()
 
     @staticmethod
     def _compute_expire() -> datetime:

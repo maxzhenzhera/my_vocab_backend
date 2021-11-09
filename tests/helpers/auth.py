@@ -3,9 +3,10 @@ from httpx import (
     Response
 )
 
+from app.core.config import jwt_config
 from app.main import app
 from app.schemas.authentication import AuthenticationResult
-from app.schemas.user import UserInResponse
+from app.schemas.entities.user import UserInResponse
 from tests.users import TestUser
 
 
@@ -26,8 +27,8 @@ async def make_authenticated_client(client: AsyncClient, user: TestUser) -> Asyn
 
 
 async def make_unauthenticated_client(client: AsyncClient, user: TestUser) -> AsyncClient:
-    create_response = await create_user(client, user)
-    user = UserInResponse(**create_response.json())
+    response = await create_user(client, user)
+    user = UserInResponse(**response.json())
     _set_user_in_client(client, user)
     return client
 
@@ -45,9 +46,9 @@ def get_user_from_client(client: AsyncClient) -> UserInResponse:
 
 
 async def _authenticate_client(client: AsyncClient, user: TestUser) -> AsyncClient:
-    login_response = await _send_login_request(client, user)
-    authentication_result = AuthenticationResult(**login_response.json())
-    _set_access_token_in_authorization_header(client, authentication_result.tokens.access_token)
+    response = await _send_login_request(client, user)
+    authentication_result = AuthenticationResult(**response.json())
+    _set_access_token_in_authorization_header(client, authentication_result.tokens.access_token.token)
     return client
 
 
@@ -56,4 +57,4 @@ async def _send_login_request(client: AsyncClient, user: TestUser) -> Response:
 
 
 def _set_access_token_in_authorization_header(client: AsyncClient, access_token: str) -> None:
-    client.headers['Authorization'] = f'Bearer {access_token}'
+    client.headers['Authorization'] = f'{jwt_config.ACCESS_TOKEN_TYPE} {access_token}'

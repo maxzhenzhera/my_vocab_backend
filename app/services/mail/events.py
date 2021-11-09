@@ -6,7 +6,7 @@ from fastapi_mail import (
     ConnectionConfig as MailConnectionConfig
 )
 
-from ...core.config.config import mail_connection_config
+from ...core.config import mail_connection_config
 
 
 __all__ = ['init_mail_sender']

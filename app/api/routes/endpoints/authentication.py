@@ -1,10 +1,9 @@
 import logging
-from uuid import UUID
 
 from fastapi import (
     APIRouter,
-    Depends,
     Cookie,
+    Depends,
     HTTPException,
     Query
 )
@@ -13,30 +12,28 @@ from starlette.status import (
     HTTP_401_UNAUTHORIZED
 )
 
-from ...dependencies.authentication import get_current_active_user
 from ...dependencies.db import get_repository
-from ....db.models import User
 from ....db.repositories import (
     UsersRepository,
     RefreshSessionsRepository
 )
 from ....schemas.authentication import AuthenticationResult
-from ....schemas.user import (
+from ....schemas.entities.user import (
     UserInCreate,
     UserInLogin,
     UserInResponse
 )
-from ....services.authentication import (
-    AuthenticationService,
+from ....services.authentication.cookie import (
     CookieService,
-    UserAccountService
+    REFRESH_TOKEN_COOKIE_KEY
 )
-from ....services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
 from ....services.authentication.errors import (
     AuthenticationError,
     RegistrationError,
     RefreshError
 )
+from ....services.authentication.server import AuthenticationService
+from ....services.authentication.user_account import UserAccountService
 from ....services.mail import MailService
 
 
@@ -73,7 +70,7 @@ async def create(
     """
 
     try:
-        user = await user_account_service.create_user(user_in_create)
+        user = await user_account_service.register_user(user_in_create)
     except RegistrationError as error:
         raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
     else:
@@ -118,7 +115,7 @@ async def register(
     except RegistrationError as error:
         raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
     else:
-        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token)
+        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token.token)
         mail_service.send_confirmation_mail(authentication_result.user)
         return authentication_result
 
@@ -154,14 +151,13 @@ async def login(
     except AuthenticationError as error:
         raise HTTPException(HTTP_401_UNAUTHORIZED, error.detail)
     else:
-        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token)
+        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token.token)
         return authentication_result
 
 
 @router.get('/confirm', response_model=UserInResponse, name='auth:confirm')
 async def confirm(
-        email_confirmation_link: UUID = Query(..., alias='link', title='Email confirmation link'),
-        user: User = Depends(get_current_active_user),
+        email_confirmation_link: str = Query(..., alias='link', title='Email confirmation link'),
         users_repository: UsersRepository = Depends(get_repository(UsersRepository))
 ):
     """
@@ -179,13 +175,13 @@ async def confirm(
     Raise
     ---------
         * 400 BAD REQUEST
-            The given link does not correspond to the real user email confirmation link.
+            The email confirmation link is invalid.
     """
 
-    if user.email_confirmation_link != email_confirmation_link:
-        raise HTTPException(HTTP_400_BAD_REQUEST, 'Link does not correspond to the real user email confirmation link.')
-
-    return await users_repository.confirm_email(user.email)
+    user = await users_repository.confirm_by_link(email_confirmation_link)
+    if user is None:
+        raise HTTPException(HTTP_400_BAD_REQUEST, 'The email confirmation link is invalid.')
+    return await users_repository.confirm_by_email(user.email)
 
 
 @router.get('/logout', name='auth:logout')
@@ -248,5 +244,5 @@ async def refresh(
     except RefreshError as error:
         raise HTTPException(HTTP_401_UNAUTHORIZED, error.detail)
     else:
-        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token)
+        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token.token)
         return authentication_result

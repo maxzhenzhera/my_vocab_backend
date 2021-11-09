@@ -1,7 +1,6 @@
 import logging
 import warnings
 from dataclasses import dataclass
-from uuid import UUID
 
 from fastapi import (
     BackgroundTasks,
@@ -13,8 +12,11 @@ from fastapi_mail import (
 )
 
 from ...api.dependencies.mail import get_mail_sender
-from ...core.config.config import server_config
-from ...schemas.user import UserInResponse
+from ...core.config import server_config
+from ...schemas.entities.user import (
+    UserInLogin,
+    UserInResponse
+)
 
 
 __all__ = ['MailService']
@@ -50,7 +52,7 @@ class MailService:
             }
 
     @staticmethod
-    def _make_email_confirmation_link(link: UUID) -> str:
+    def _make_email_confirmation_link(link: str) -> str:
         warnings.warn(
             'Email confirmation link has created for the LOCAL DEVELOPMENT. '
             'For production programmer has to make a new implementation!'
@@ -58,4 +60,20 @@ class MailService:
         return (
             f'http://localhost:{server_config.PORT}'
             f'{server_config.API_PREFIX}/auth/confirm?link={link}'
+        )
+
+    def send_credentials_mail(self, credentials: UserInLogin) -> None:
+        self.background_tasks.add_task(
+            self.mail_sender.send_message,
+            self._make_credentials_mail(credentials),
+            template_name='credentials.html'
+        )
+        logger.info(f'Credentials mail sending for {credentials.email} has been pushed in background tasks.')
+
+    @staticmethod
+    def _make_credentials_mail(credentials: UserInLogin) -> MessageSchema:
+        return MessageSchema(
+            subject='Account credentials',
+            recipients=[credentials.email],
+            template_body={'credentials': credentials}
         )

@@ -1,6 +1,6 @@
-from .base import ModelWithOrmMode
 from .tokens import TokensInResponse
-from .user import UserInResponse
+from ..base import ModelWithOrmMode
+from ..entities.user import UserInResponse
 
 
 __all__ = ['AuthenticationResult']

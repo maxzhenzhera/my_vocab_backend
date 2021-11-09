@@ -1,18 +1,14 @@
 import logging
 from dataclasses import dataclass
 
-from fastapi import Depends
-
-from .errors import IncorrectPasswordError
-from .refresh_session import RefreshSessionService
-from .user_account import UserAccountService
-from ...schemas.authentication import AuthenticationResult
-from ...schemas.user import (
+from .base import BaseServerAuthenticationService
+from ..errors import IncorrectPasswordError
+from ...security import UserPasswordService
+from ....schemas.authentication import AuthenticationResult
+from ....schemas.entities.user import (
     UserInLogin,
     UserInCreate
 )
-from ...services.security import UserPasswordService
-
 
 __all__ = ['AuthenticationService']
 
@@ -21,12 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class AuthenticationService:
-    user_account_service: UserAccountService = Depends()
-    refresh_session_service: RefreshSessionService = Depends()
-
+class AuthenticationService(BaseServerAuthenticationService):
     async def register(self, user_in_create: UserInCreate) -> AuthenticationResult:
-        user = await self.user_account_service.create_user(user_in_create)
+        user = await self.user_account_service.register_user(user_in_create)
         return await self.refresh_session_service.authenticate(user)
 
     async def login(self, user_in_login: UserInLogin) -> AuthenticationResult:

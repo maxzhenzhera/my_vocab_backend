@@ -5,14 +5,15 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
-    String
+    String,
+    false
 )
 from sqlalchemy.orm import relationship
 
-from .. import Base
+from ..base import Base
 from ...constants import CASCADE
 from ...enums import Language
-from ...functions import utcnow
+from ...functions.server_defaults.utcnow import utcnow
 
 
 __all__ = ['Vocab']
@@ -26,11 +27,11 @@ class Vocab(Base):
     __tablename__ = 'vocabs'
 
     id = Column(BigInteger, primary_key=True)
-    title = Column(String, nullable=False)
-    description = Column(String)
+    title = Column(String(), nullable=False)
+    description = Column(String(512))
     language = Column(Enum(Language, name='language'))
-    is_favourite = Column(Boolean, default=False)
-    created_at = Column(DateTime, server_default=utcnow())
+    is_favourite = Column(Boolean, server_default=false(), nullable=False)
+    created_at = Column(DateTime, server_default=utcnow(), nullable=False)
     user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
 
     user = relationship('User', back_populates='vocabs')

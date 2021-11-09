@@ -1,17 +1,20 @@
-import uuid
-
 from sqlalchemy import (
     BigInteger,
     Boolean,
     Column,
     DateTime,
-    String
+    String,
+    false,
+    true
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from ..base import Base
-from ...functions import utcnow
+from ...functions.server_defaults import (
+    utcnow,
+    uuid_generate_v4
+)
 
 
 __all__ = ['User']
@@ -21,19 +24,20 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(BigInteger, primary_key=True)
-    email = Column(String, nullable=False, index=True, unique=True)
-    hashed_password = Column(String, nullable=False)
-    password_salt = Column(String, nullable=False)
-    email_confirmation_link = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
-    is_active = Column(Boolean, default=True, nullable=False)
-    is_email_confirmed = Column(Boolean, default=False, nullable=False)
-    is_superuser = Column(Boolean, default=False, nullable=False)
+    email = Column(String(256), nullable=False, index=True, unique=True)
+    hashed_password = Column(String(128), nullable=False)
+    password_salt = Column(String(128), nullable=False)
+    email_confirmation_link = Column(UUID, server_default=uuid_generate_v4(), nullable=False)
+    is_active = Column(Boolean, server_default=true(), nullable=False)
+    is_email_confirmed = Column(Boolean, server_default=false(), nullable=False)
+    is_superuser = Column(Boolean, server_default=false(), nullable=False)
     created_at = Column(DateTime, server_default=utcnow(), nullable=False)
     email_confirmed_at = Column(DateTime)
 
     tags = relationship('Tag', back_populates='user', passive_deletes=True)
     vocabs = relationship('Vocab', back_populates='user', passive_deletes=True)
     refresh_sessions = relationship('RefreshSession', back_populates='user', passive_deletes=True)
+    oauth_connection = relationship('OAuthConnection', back_populates='user', passive_deletes=True)
 
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, email={self.email!r})'

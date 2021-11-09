@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from datetime import timedelta
 from pathlib import PurePosixPath as URLPathJoiner
 
 from fastapi import Response
 
-from ...core.config.config import (
+from ...core.config import (
     server_config,
     refresh_session_config
 )
@@ -29,11 +28,7 @@ class CookieService:
 
     @property
     def refresh_token_cookie_max_age(self) -> int:
-        return self._get_total_seconds_of_timedelta(refresh_session_config.REFRESH_TOKEN_EXPIRE_TIMEDELTA)
-
-    @staticmethod
-    def _get_total_seconds_of_timedelta(delta: timedelta) -> int:
-        return int(delta.total_seconds())
+        return int(refresh_session_config.REFRESH_TOKEN_EXPIRE_TIMEDELTA.total_seconds())
 
     def set_refresh_token(self, refresh_token: str) -> None:
         self.response.set_cookie(

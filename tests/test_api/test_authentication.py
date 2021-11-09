@@ -55,7 +55,7 @@ class AuthRouteMixin:
     def test_route_setting_refresh_token_cookie(self, response: Response):      # noqa method may be static
         response_json = response.json()
 
-        assert response.cookies[REFRESH_TOKEN_COOKIE_KEY] == response_json['tokens']['refresh_token']
+        assert response.cookies[REFRESH_TOKEN_COOKIE_KEY] == response_json['tokens']['refresh_token']['token']
 
     async def test_route_creating_refresh_session_in_db(                        # noqa method may be static
             self,
@@ -70,7 +70,11 @@ class UserCreationRouteMixin:
     JSON: dict
     USER_EMAIL: str
 
-    async def test_route_creating_user_in_db(self, response: Response, test_users_repository: UsersRepository):
+    async def test_route_creating_user_in_db(
+            self,
+            response: Response,         # noqa Parameter 'response' value is not used (use fixture)
+            test_users_repository: UsersRepository
+    ):
         assert await test_users_repository.fetch_by_email(self.USER_EMAIL)
 
     async def test_route_return_400_error_on_passing_already_used_credentials(self, client: AsyncClient):
@@ -91,7 +95,7 @@ class TerminatingRefreshSessionRouteMixin:
     async def test_route_deleting_refresh_session_from_db(                      # noqa method may be static
             self,
             old_refresh_token: str,
-            response: Response,
+            response: Response,         # noqa Parameter 'response' value is not used (use fixture)
             test_refresh_sessions_repository: RefreshSessionsRepository
     ):
         """

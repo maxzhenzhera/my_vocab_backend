@@ -69,6 +69,8 @@ jobs:
           TEST_DB_NAME: test_my_vocab
 
           # just plugs in required production environment variables
+          CORS_ORIGINS: *
+          SESSION_MIDDLEWARE_SECRET_KEY: secret
           SERVER_HOST: 0.0.0.0
           SERVER_PORT: 8000
           DB_HOST: localhost

@@ -11,5 +11,6 @@ class gen_random_uuid(expression.FunctionElement):       # noqa Class names shou
 
 
 @compiles(gen_random_uuid, 'postgresql')
-def pg_utcnow(element, compiler, **kw):
+def pg_gen_random_uuid(element, compiler, **kw):
+    """ postgres docs: https://www.postgresql.org/docs/14/functions-uuid.html"""
     return 'gen_random_uuid()'

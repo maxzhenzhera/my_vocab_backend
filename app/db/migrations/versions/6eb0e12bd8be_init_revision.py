@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('email', sa.String(length=256), nullable=False),
     sa.Column('hashed_password', sa.String(length=128), nullable=False),
     sa.Column('password_salt', sa.String(length=128), nullable=False),
-    sa.Column('email_confirmation_link', postgresql.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
+    sa.Column('email_confirmation_link', postgresql.UUID(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
     sa.Column('is_email_confirmed', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('is_superuser', sa.Boolean(), server_default=sa.text('false'), nullable=False),
@@ -40,7 +40,7 @@ def upgrade():
     sa.UniqueConstraint('google_id')
     )
     op.create_table('refresh_sessions',
-    sa.Column('refresh_token', postgresql.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
+    sa.Column('refresh_token', postgresql.UUID(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('ip_address', postgresql.INET(), nullable=False),
     sa.Column('user_agent', sa.String(length=256), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"), nullable=False),

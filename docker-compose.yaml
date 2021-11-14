@@ -7,8 +7,7 @@ services:
     image: postgres
     volumes:
       - postgres_volume:/var/lib/postgresql/data/
-      - ./postgres/extensions.sql:/docker-entrypoint-initdb.d/1-extensions.sql
-      - ./postgres/init_tables.sql:/docker-entrypoint-initdb.d/2-init_tables.sql
+      - ./postgres/init_tables.sql:/docker-entrypoint-initdb.d/1-init_tables.sql
     environment:
       - POSTGRES_USER=$DB_USER
       - POSTGRES_PASSWORD=$DB_PASSWORD

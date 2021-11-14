@@ -13,7 +13,7 @@ from sqlalchemy.orm import relationship
 from ..base import Base
 from ...functions.server_defaults import (
     utcnow,
-    uuid_generate_v4
+    gen_random_uuid
 )
 
 
@@ -27,7 +27,7 @@ class User(Base):
     email = Column(String(256), nullable=False, index=True, unique=True)
     hashed_password = Column(String(128), nullable=False)
     password_salt = Column(String(128), nullable=False)
-    email_confirmation_link = Column(UUID, server_default=uuid_generate_v4(), nullable=False)
+    email_confirmation_link = Column(UUID, server_default=gen_random_uuid(), nullable=False)
     is_active = Column(Boolean, server_default=true(), nullable=False)
     is_email_confirmed = Column(Boolean, server_default=false(), nullable=False)
     is_superuser = Column(Boolean, server_default=false(), nullable=False)

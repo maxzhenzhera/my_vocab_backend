@@ -16,7 +16,7 @@ from ...constants import CASCADE
 from ...functions.defaults.refresh_session import compute_refresh_session_expire
 from ...functions.server_defaults import (
     utcnow,
-    uuid_generate_v4
+    gen_random_uuid
 )
 
 
@@ -26,7 +26,7 @@ __all__ = ['RefreshSession']
 class RefreshSession(Base):
     __tablename__ = 'refresh_sessions'
 
-    refresh_token = Column(UUID, primary_key=True, server_default=uuid_generate_v4())
+    refresh_token = Column(UUID, primary_key=True, server_default=gen_random_uuid())
     ip_address = Column(INET, nullable=False)
     user_agent = Column(String(256), nullable=False)
     created_at = Column(DateTime, server_default=utcnow(), nullable=False)

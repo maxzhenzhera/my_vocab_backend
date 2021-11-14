@@ -3,13 +3,13 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql import expression
 
 
-__all__ = ['uuid_generate_v4']
+__all__ = ['gen_random_uuid']
 
 
-class uuid_generate_v4(expression.FunctionElement):       # noqa Class names should use CamelCase convention
+class gen_random_uuid(expression.FunctionElement):       # noqa Class names should use CamelCase convention
     type = UUID()
 
 
-@compiles(uuid_generate_v4, 'postgresql')
+@compiles(gen_random_uuid, 'postgresql')
 def pg_utcnow(element, compiler, **kw):
-    return 'uuid_generate_v4()'
+    return 'gen_random_uuid()'

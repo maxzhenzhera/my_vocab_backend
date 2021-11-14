@@ -37,7 +37,7 @@ class BaseAuthorizer(ABC):
     def oauth_service(self) -> StarletteRemoteApp:
         return getattr(oauth, self.oauth_service_name)
 
-    async def get_oauth_user(self):
+    async def get_oauth_user(self) -> OAuthUser:
         user_info = await self._extract_user_info_from_request()
         return OAuthUser(
             id=user_info.sub,

@@ -15,7 +15,10 @@ from ...db.repositories import BaseRepository
 __all__ = ['get_repository']
 
 
-def get_repository(repository_type: Type[BaseRepository]) -> Callable[[AsyncSession], BaseRepository]:
+Repository = Callable[[AsyncSession], BaseRepository]
+
+
+def get_repository(repository_type: Type[BaseRepository]) -> Repository:
     def _get_repo(session: AsyncSession = Depends(_get_session)) -> BaseRepository:
         return repository_type(session)
     return _get_repo

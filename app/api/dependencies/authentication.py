@@ -43,9 +43,15 @@ def _get_jwt_user(access_token: str = Depends(_get_access_token)) -> JWTUser:
     try:
         jwt_user = UserJWTService.verify_access_token(access_token)
     except ExpiredSignatureError:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, 'The current session has expired. Please, refresh.')
+        raise HTTPException(
+            HTTP_401_UNAUTHORIZED,
+            'The current session has expired. Please, refresh.'
+        )
     except JWTError:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, 'Access token is invalid.')
+        raise HTTPException(
+            HTTP_401_UNAUTHORIZED,
+            'Access token is invalid.'
+        )
     else:
         return jwt_user
 
@@ -64,11 +70,17 @@ async def _get_current_user(
 
 def get_current_active_user(current_user: User = Depends(_get_current_user)) -> User:
     if not current_user.is_active:
-        raise HTTPException(HTTP_403_FORBIDDEN, 'Current user is not active.')
+        raise HTTPException(
+            HTTP_403_FORBIDDEN,
+            'Current user is not active.'
+        )
     return current_user
 
 
 def get_current_superuser(current_active_user: User = Depends(get_current_active_user)) -> User:
     if not current_active_user.is_superuser:
-        raise HTTPException(HTTP_403_FORBIDDEN, 'Current user is not a superuser.')
+        raise HTTPException(
+            HTTP_403_FORBIDDEN,
+            'Current user is not a superuser.'
+        )
     return current_active_user

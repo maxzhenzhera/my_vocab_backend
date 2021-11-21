@@ -7,6 +7,7 @@ from fastapi import (
     HTTPException,
     Request
 )
+from fastapi.responses import RedirectResponse
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED
@@ -35,12 +36,12 @@ router = APIRouter()
 
 
 @router.get('/google/signup', name='google:signup')
-async def google_signup(request: Request):
+async def google_signup(request: Request) -> RedirectResponse:
     return await oauth.google.authorize_redirect(request, request.url_for('google:register'))
 
 
 @router.get('/google/signin', name='google:signin')
-async def google_signin(request: Request):
+async def google_signin(request: Request) -> RedirectResponse:
     return await oauth.google.authorize_redirect(request, request.url_for('google:login'))
 
 
@@ -50,7 +51,7 @@ async def google_register(
         google_oauth_service: GoogleOAuthService = Depends(),
         cookie_service: CookieService = Depends(),
         mail_service: MailService = Depends()
-):
+) -> AuthenticationResult:
     try:
         google_user = await google_authorizer.get_oauth_user()
     except OAuthError as error:
@@ -61,9 +62,13 @@ async def google_register(
         except RegistrationError as error:
             raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
         else:
-            cookie_service.set_refresh_token(oauth_registration_result.authentication_result.tokens.refresh_token.token)
-            mail_service.send_credentials_mail(oauth_registration_result.credentials)
-            return oauth_registration_result.authentication_result
+            credentials, authentication_result = (
+                oauth_registration_result.credentials,
+                oauth_registration_result.authentication_result
+            )
+            cookie_service.set_refresh_token(authentication_result.refresh_token)
+            mail_service.send_credentials_mail(credentials)
+            return authentication_result
 
 
 @router.get('/google/login', name='google:login')
@@ -71,16 +76,16 @@ async def google_login(
         google_authorizer: GoogleAuthorizer = Depends(),
         google_oauth_service: GoogleOAuthService = Depends(),
         cookie_service: CookieService = Depends()
-):
+) -> AuthenticationResult:
     try:
         google_user = await google_authorizer.get_oauth_user()
     except OAuthError as error:
-        raise HTTPException(400, detail=error.error)
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=error.error)
     else:
         try:
             authentication_result = await google_oauth_service.login(google_user)
         except AuthenticationError as error:
             raise HTTPException(HTTP_401_UNAUTHORIZED, error.detail)
         else:
-            cookie_service.set_refresh_token(authentication_result.tokens.refresh_token.token)
+            cookie_service.set_refresh_token(authentication_result.refresh_token)
             return authentication_result

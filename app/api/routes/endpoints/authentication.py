@@ -13,6 +13,7 @@ from starlette.status import (
 )
 
 from ...dependencies.db import get_repository
+from ....db.models import User
 from ....db.repositories import (
     UsersRepository,
     RefreshSessionsRepository
@@ -49,7 +50,7 @@ router = APIRouter()
 async def create(
         user_in_create: UserInCreate,
         user_account_service: UserAccountService = Depends()
-):
+) -> User:
     """
     Create a user by the given credentials.
     Route just creates a user in db. Mostly aims at the test fixtures or manual testing.
@@ -83,7 +84,7 @@ async def register(
         authentication_service: AuthenticationService = Depends(),
         cookie_service: CookieService = Depends(),
         mail_service: MailService = Depends()
-):
+) -> AuthenticationResult:
     """
     Register a user by the given credentials.
     Route creates a user and logins him simultaneously.
@@ -115,7 +116,7 @@ async def register(
     except RegistrationError as error:
         raise HTTPException(HTTP_400_BAD_REQUEST, error.detail)
     else:
-        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token.token)
+        cookie_service.set_refresh_token(authentication_result.refresh_token)
         mail_service.send_confirmation_mail(authentication_result.user)
         return authentication_result
 
@@ -125,7 +126,7 @@ async def login(
         user_in_login: UserInLogin,
         authentication_service: AuthenticationService = Depends(),
         cookie_service: CookieService = Depends()
-):
+) -> AuthenticationResult:
     """
     Login a user by the given credentials.
 
@@ -151,7 +152,7 @@ async def login(
     except AuthenticationError as error:
         raise HTTPException(HTTP_401_UNAUTHORIZED, error.detail)
     else:
-        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token.token)
+        cookie_service.set_refresh_token(authentication_result.refresh_token)
         return authentication_result
 
 
@@ -159,7 +160,7 @@ async def login(
 async def confirm(
         email_confirmation_link: str = Query(..., alias='link', title='Email confirmation link'),
         users_repository: UsersRepository = Depends(get_repository(UsersRepository))
-):
+) -> User:
     """
     Confirm the user email.
 
@@ -180,16 +181,21 @@ async def confirm(
 
     user = await users_repository.confirm_by_link(email_confirmation_link)
     if user is None:
-        raise HTTPException(HTTP_400_BAD_REQUEST, 'The email confirmation link is invalid.')
-    return await users_repository.confirm_by_email(user.email)
+        raise HTTPException(
+            HTTP_400_BAD_REQUEST,
+            'The email confirmation link is invalid.'
+        )
+    return user
 
 
 @router.get('/logout', name='auth:logout')
 async def logout(
         refresh_token: str = Cookie(..., alias=REFRESH_TOKEN_COOKIE_KEY),
         cookie_service: CookieService = Depends(),
-        refresh_sessions_repository: RefreshSessionsRepository = Depends(get_repository(RefreshSessionsRepository))
-):
+        refresh_sessions_repository: RefreshSessionsRepository = Depends(
+            get_repository(RefreshSessionsRepository)
+        )
+) -> None:
     """
     Logout the user.
     Actually, terminate the refresh session and delete refresh token cookie.
@@ -244,5 +250,5 @@ async def refresh(
     except RefreshError as error:
         raise HTTPException(HTTP_401_UNAUTHORIZED, error.detail)
     else:
-        cookie_service.set_refresh_token(authentication_result.tokens.refresh_token.token)
+        cookie_service.set_refresh_token(authentication_result.refresh_token)
         return authentication_result

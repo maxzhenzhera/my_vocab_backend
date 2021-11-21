@@ -9,3 +9,7 @@ __all__ = ['AuthenticationResult']
 class AuthenticationResult(ModelWithOrmMode):
     tokens: TokensInResponse
     user: UserInResponse
+
+    @property
+    def refresh_token(self) -> str:
+        return self.tokens.refresh_token.token

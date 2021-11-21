@@ -24,13 +24,18 @@ class UserAccountService:
     users_repository: UsersRepository = Depends(get_repository(UsersRepository))
 
     @staticmethod
-    def generate_in_create_schema_for_oauth_user(oauth_user: OAuthUser) -> UserInCreate:
-        return UserInCreate(**oauth_user.dict(), password=UserPasswordService.generate_random_password())
+    def generate_oauth_user_in_create(oauth_user: OAuthUser) -> UserInCreate:
+        return UserInCreate(
+            **oauth_user.dict(),
+            password=UserPasswordService.generate_random_password()
+        )
 
     async def register_user(self, user_in_create: UserInCreate) -> User:
         if await self.users_repository.check_email_is_taken(user_in_create.email):
             raise EmailIsAlreadyTakenRegistrationError(user_in_create.email)
-        user = UserPasswordService(User(email=user_in_create.email)).change_password(user_in_create.password)
+        user = UserPasswordService(
+            User(email=user_in_create.email)
+        ).change_password(user_in_create.password)
         return await self.users_repository.create_by_entity(user)
 
     async def register_oauth_user(self, user_in_create: UserInCreate) -> User:
@@ -45,7 +50,7 @@ class UserAccountService:
         ).change_password(user_in_create.password)
         return await self.users_repository.create_by_entity(user)
 
-    async def fetch_user_by_email_or_raise_auth_error(self, email: str) -> User:
+    async def fetch_user(self, email: str) -> User:
         try:
             user = await self.users_repository.fetch_by_email(email)
         except EntityDoesNotExistError as error:

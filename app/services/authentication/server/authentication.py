@@ -23,7 +23,7 @@ class AuthenticationService(BaseServerAuthenticationService):
         return await self.refresh_session_service.authenticate(user)
 
     async def login(self, user_in_login: UserInLogin) -> AuthenticationResult:
-        user = await self.user_account_service.fetch_user_by_email_or_raise_auth_error(user_in_login.email)
+        user = await self.user_account_service.fetch_user(user_in_login.email)
         if not UserPasswordService(user).verify_password(user_in_login.password):
             raise IncorrectPasswordError
         return await self.refresh_session_service.authenticate(user)

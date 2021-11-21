@@ -26,10 +26,12 @@ __all__ = ['BaseOAuthService']
 
 @dataclass
 class BaseOAuthService(BaseAuthenticationService):
-    oauth_connections_repository: OAuthConnectionsRepository = Depends(get_repository(OAuthConnectionsRepository))
+    oauth_connections_repository: OAuthConnectionsRepository = Depends(
+        get_repository(OAuthConnectionsRepository)
+    )
 
     async def register(self, oauth_user: OAuthUser) -> OAuthRegistrationResult:
-        user_in_create = self.user_account_service.generate_in_create_schema_for_oauth_user(oauth_user)
+        user_in_create = self.user_account_service.generate_oauth_user_in_create(oauth_user)
         user = await self.user_account_service.register_oauth_user(user_in_create)
         bound_user = await self._bind_oauth_connection_to_user(oauth_user, user)
         authentication_result = await self.refresh_session_service.authenticate(bound_user)
@@ -58,21 +60,33 @@ class BaseOAuthService(BaseAuthenticationService):
         """ Fetch OAuth connection by OAuth user id. """
 
     async def _login_by_oauth_email(self, oauth_user: OAuthUser) -> AuthenticationResult:
-        user = await self.user_account_service.fetch_user_by_email_or_raise_auth_error(oauth_user.email)
+        user = await self.user_account_service.fetch_user(oauth_user.email)
         bound_user = await self._bind_oauth_connection_to_user(oauth_user, user)
         return await self.refresh_session_service.authenticate(bound_user)
 
-    async def _bind_oauth_connection_to_user(self, oauth_user: OAuthUser, internal_user: User) -> User:
+    async def _bind_oauth_connection_to_user(
+            self,
+            oauth_user: OAuthUser,
+            internal_user: User
+    ) -> User:
         await self._link_oauth_connection_to_user(oauth_user, internal_user)
         confirmed_user = await self._confirm_user_email(internal_user)
         return confirmed_user
 
-    async def _link_oauth_connection_to_user(self, oauth_user: OAuthUser, internal_user: User) -> None:
+    async def _link_oauth_connection_to_user(
+            self,
+            oauth_user: OAuthUser,
+            internal_user: User
+    ) -> None:
         oauth_connection = self._build_oauth_connection_instance(oauth_user, internal_user)
         await self.oauth_connections_repository.link_connection(oauth_connection)
 
     @abstractmethod
-    def _build_oauth_connection_instance(self, oauth_user: OAuthUser, internal_user: User) -> BaseOAuthConnection:
+    def _build_oauth_connection_instance(
+            self,
+            oauth_user: OAuthUser,
+            internal_user: User
+    ) -> BaseOAuthConnection:
         """
         Build OAuth connection instance that contains:
             1. internal user id;

@@ -39,17 +39,21 @@ class UvicornConfig:
 
 @dataclass
 class DBConfig:
+    ENGINE: ClassVar[str] = 'postgresql'
+    DRIVER: ClassVar[str] = 'asyncpg'
+
     HOST: str
     PORT: int
     NAME: str
     USER: str
     PASSWORD: str
-    ENGINE: str = 'postgresql'
-    DRIVER: str = 'asyncpg'
 
     @property
     def sqlalchemy_connection_string(self) -> str:
-        return f'{self.ENGINE}+{self.DRIVER}://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}'
+        return (
+                f'{self.ENGINE}+{self.DRIVER}://'
+                f'{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}'
+        )
 
 
 @dataclass

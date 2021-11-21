@@ -25,11 +25,16 @@ class UserPasswordService(BaseUserService):
 
     def change_password(self, password: str) -> User:
         self.user.password_salt = self._generate_salt()
-        self.user.hashed_password = self._hash_password(self._combine_password_with_salt(password=password))
+        self.user.hashed_password = self._hash_password(
+            self._combine_password_with_salt(password)
+        )
         return self.user
 
     def verify_password(self, password: str) -> bool:
-        return self._verify_password(self._combine_password_with_salt(password=password), self.user.hashed_password)
+        return self._verify_password(
+            self._combine_password_with_salt(password),
+            self.user.hashed_password
+        )
 
     def _combine_password_with_salt(self, password: str) -> str:
         return self.user.password_salt + password

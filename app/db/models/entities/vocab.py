@@ -39,4 +39,7 @@ class Vocab(Base):
     words = relationship('Word', back_populates='vocab', passive_deletes=True)
 
     def __repr__(self) -> str:
-        return f'Vocab(id={self.id!r}, title={self.title!r}, language={self.language!r}, user_id={self.user_id!r})'
+        return (
+            f'Vocab(id={self.id!r}, title={self.title!r}, '
+            f'language={self.language!r}, user_id={self.user_id!r})'
+        )

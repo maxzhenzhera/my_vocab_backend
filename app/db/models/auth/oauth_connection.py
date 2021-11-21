@@ -16,7 +16,11 @@ __all__ = ['OAuthConnection']
 class OAuthConnection(Base):
     __tablename__ = 'oauth_connections'
 
-    user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), primary_key=True, autoincrement=False)
+    user_id = Column(
+        BigInteger,
+        ForeignKey('users.id', ondelete=CASCADE),
+        primary_key=True, autoincrement=False
+    )
     google_id = Column(String(64), unique=True)
 
     user = relationship('User', back_populates='oauth_connection')

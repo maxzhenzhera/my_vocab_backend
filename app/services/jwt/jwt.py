@@ -20,10 +20,20 @@ class UserJWTService(BaseUserService):
 
     @staticmethod
     def verify_access_token(access_token: str) -> JWTUser:
-        return JWTUser(**jwt.decode(access_token, jwt_config.ACCESS_TOKEN_SECRET_KEY, jwt_config.ALGORITHM))
+        return JWTUser(
+            **jwt.decode(
+                access_token,
+                jwt_config.ACCESS_TOKEN_SECRET_KEY,
+                jwt_config.ALGORITHM
+            )
+        )
 
     def generate_access_token(self) -> str:
-        return jwt.encode(self._prepare_payload(), jwt_config.ACCESS_TOKEN_SECRET_KEY, jwt_config.ALGORITHM)
+        return jwt.encode(
+            self._prepare_payload(),
+            jwt_config.ACCESS_TOKEN_SECRET_KEY,
+            jwt_config.ALGORITHM
+        )
 
     def _prepare_payload(self) -> dict:
         return self._make_user_payload() | self._make_meta_payload()

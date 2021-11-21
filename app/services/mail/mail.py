@@ -36,7 +36,9 @@ class MailService:
             self._make_confirmation_mail(user),
             template_name='confirmation.html'
         )
-        logger.info(f'Confirmation mail sending for {user.email} has been pushed in background tasks.')
+        logger.info(
+            f'Confirmation mail sending for {user.email} has been pushed in background tasks.'
+        )
 
     def _make_confirmation_mail(self, user: UserInResponse) -> MessageSchema:
         return MessageSchema(
@@ -48,7 +50,9 @@ class MailService:
     def _make_template_body_for_confirmation_mail(self, user: UserInResponse) -> dict:
         return {
                 'user': user,
-                'email_confirmation_link': self._make_email_confirmation_link(user.email_confirmation_link)
+                'email_confirmation_link': self._make_email_confirmation_link(
+                    user.email_confirmation_link
+                )
             }
 
     @staticmethod
@@ -68,7 +72,9 @@ class MailService:
             self._make_credentials_mail(credentials),
             template_name='credentials.html'
         )
-        logger.info(f'Credentials mail sending for {credentials.email} has been pushed in background tasks.')
+        logger.info(
+            f'Credentials mail sending for {credentials.email} has been pushed in background tasks.'
+        )
 
     @staticmethod
     def _make_credentials_mail(credentials: UserInLogin) -> MessageSchema:

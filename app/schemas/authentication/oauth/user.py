@@ -1,4 +1,3 @@
-from ...base import IDModelMixin
 from ...entities.user import UserBaseInCreate
 
 

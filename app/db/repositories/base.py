@@ -50,7 +50,7 @@ class BaseRepository(ABC):
     @property
     @abstractmethod
     def model(self) -> Type[ModelType]:
-        """ The repository`s db entity model. To implement: set class attribute 'model = DBEntity'. """
+        """ The repository`s db entity model. """
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(model={self.model.__cls__.__name__})'
@@ -71,7 +71,11 @@ class BaseRepository(ABC):
     async def _return_from_statement(self, statement: Union[Update, Insert, Delete]) -> ModelType:
         async with self.session.begin_nested():
             stmt = statement.returning(self.model)
-            orm_stmt = sa_select(self.model).from_statement(stmt).execution_options(populate_existing=True)
+            orm_stmt = (
+                sa_select(self.model)
+                .from_statement(stmt)
+                .execution_options(populate_existing=True)
+            )
             result: Result = await self.session.execute(orm_stmt)
         return result.scalar()
 
@@ -95,7 +99,10 @@ class BaseRepository(ABC):
 
 class BaseCRUDRepository(BaseRepository, ABC):
     async def fetch_by_id(self, id_: int) -> ModelType:
-        stmt = sa_select(self.model).where(self.model.id == id_)
+        stmt = (
+            sa_select(self.model)
+            .where(self.model.id == id_)
+        )
         return await self._fetch_entity(stmt)
 
     async def fetch_all(self) -> list[ModelType]:
@@ -103,14 +110,25 @@ class BaseCRUDRepository(BaseRepository, ABC):
         return await self._fetch_entities(stmt)
 
     async def fetch_with_limit_and_offset(self, limit: int, offset: int) -> list[ModelType]:
-        stmt = sa_select(self.model).limit(limit).offset(offset)
+        stmt = (
+            sa_select(self.model)
+            .limit(limit)
+            .offset(offset)
+        )
         return await self._fetch_entities(stmt)
 
     async def update_by_id(self, id_: int, schema_in_update: UpdateSchemaType) -> ModelType:
         update_data = self._exclude_unset_from_schema(schema_in_update)
-        stmt = sa_update(self.model).where(self.model.id == id_).values(**update_data)
+        stmt = (
+            sa_update(self.model)
+            .where(self.model.id == id_)
+            .values(**update_data)
+        )
         return await self._return_from_statement(stmt)
 
     async def delete_by_id(self, id_: int) -> ModelType:
-        stmt = sa_delete(self.model).where(self.model.id == id_)
+        stmt = (
+            sa_delete(self.model)
+            .where(self.model.id == id_)
+        )
         return await self._return_from_statement(stmt)

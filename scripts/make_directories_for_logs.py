@@ -13,7 +13,9 @@ def make_directories_for_logs(config_path: Path) -> None:
             log_path = Path(config['handlers'][handler_name]['filename']).resolve()
             log_dir = log_path.parent
             log_dir.mkdir(parents=True, exist_ok=True)
-            logger.info(f'For < {handler_name} > : logs directory by path {log_dir} has been created.')
+            logger.info(
+                f'For < {handler_name} > : logs directory by path {log_dir} has been created.'
+            )
 
 
 if __name__ == '__main__':

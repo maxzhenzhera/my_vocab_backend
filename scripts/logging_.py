@@ -5,7 +5,10 @@ __all__ = ['logger']
 
 
 DEFAULT_LOGGING_CONFIG = {
-    "format": "%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(funcName)s() [%(lineno)s] : %(message)s",
+    "format": (
+        "%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(funcName)s() "
+        "[%(lineno)s] : %(message)s"
+    ),
     "level": logging.INFO
 }
 

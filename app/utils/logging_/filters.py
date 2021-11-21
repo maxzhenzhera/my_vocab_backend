@@ -16,7 +16,10 @@ class LevelFilter(logging.Filter):
         elif isinstance(level, int):
             self.level: int = level
         else:
-            raise ValueError(f'Expected to get either levelno [int] either levelname [str]. Instead got {level!r}.')
+            raise ValueError(
+                'Expected to get either levelno [int] either levelname [str]. '
+                f'Instead got {level!r}.'
+            )
 
     def filter(self, record: logging.LogRecord) -> bool:
         return record.levelno == self.level

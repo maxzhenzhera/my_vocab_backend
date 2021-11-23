@@ -11,5 +11,9 @@ class AuthenticationResult(ModelWithOrmMode):
     user: UserInResponse
 
     @property
+    def access_token(self) -> str:
+        return self.tokens.access_token.token
+
+    @property
     def refresh_token(self) -> str:
         return self.tokens.refresh_token.token

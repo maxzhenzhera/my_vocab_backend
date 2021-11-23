@@ -22,7 +22,7 @@ from sqlalchemy.sql import (
     Select
 )
 
-from ._types import (
+from .types_ import (
     ModelType,
     CreateSchemaType,
     UpdateSchemaType

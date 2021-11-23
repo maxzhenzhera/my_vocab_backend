@@ -14,7 +14,12 @@ from app.services.jwt import UserJWTService
 class TestUserJWTService:
     @pytest.fixture(name='user')
     def fixture_user(self) -> User:
-        return User(id=1, email='example@gmail.com', is_superuser=False, is_email_confirmed=False)
+        return User(
+            id=1,
+            email='example@gmail.com',
+            is_superuser=False,
+            is_email_confirmed=False
+        )
 
     @pytest.fixture(name='service')
     def fixture_service(self, user: User) -> UserJWTService:

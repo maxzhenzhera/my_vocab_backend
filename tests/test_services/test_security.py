@@ -19,14 +19,22 @@ class TestUserPasswordService:
         return service
 
     def test_change_password(self, service: UserPasswordService):
-        old_hashed_password, old_password_salt = service.user.hashed_password, service.user.password_salt
+        old_hashed_password = service.user.hashed_password
+        old_password_salt = service.user.password_salt
+
         changed_user = service.change_password(self.NEW_PASSWORD)
-        new_hashed_password, new_password_salt = changed_user.hashed_password, changed_user.password_salt
-        assert old_hashed_password != new_hashed_password and old_password_salt != new_password_salt
+
+        new_hashed_password = changed_user.hashed_password
+        new_password_salt = changed_user.password_salt
+
+        assert old_hashed_password != new_hashed_password
+        assert old_password_salt != new_password_salt
 
     def test_verify_password(self, service: UserPasswordService):
         assert service.verify_password(self.INITIAL_PASSWORD)
         assert not service.verify_password(self.NEW_PASSWORD)
 
     def test_combine_password_with_salt(self, service: UserPasswordService):
-        assert service._combine_password_with_salt(self.NEW_PASSWORD) == service.user.password_salt + self.NEW_PASSWORD
+        expected = service._combine_password_with_salt(self.NEW_PASSWORD)
+        actual = service.user.password_salt + self.NEW_PASSWORD
+        assert expected == actual

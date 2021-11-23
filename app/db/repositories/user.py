@@ -1,6 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 from typing import (
+    ClassVar,
     TypeVar,
     Union
 )
@@ -10,6 +11,7 @@ from sqlalchemy.future import select as sa_select
 from sqlalchemy.sql.elements import BinaryExpression
 
 from .base import BaseCRUDRepository
+from .types_ import ModelType
 from ..errors import (
     EmailInUpdateIsAlreadyTakenError,
     EntityDoesNotExistError
@@ -27,7 +29,7 @@ WhereStatement = TypeVar('WhereStatement', bound=Union[BinaryExpression, bool])
 
 
 class UsersRepository(BaseCRUDRepository):
-    model = User
+    model: ClassVar[ModelType] = User
 
     async def update_by_email(self, email: str, user_in_update: UserInUpdate) -> User:
         update_data = self._exclude_unset_from_schema(user_in_update)

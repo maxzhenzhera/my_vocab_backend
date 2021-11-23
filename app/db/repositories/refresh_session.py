@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from datetime import (
     datetime,
     timedelta
@@ -10,6 +12,7 @@ from sqlalchemy import (
 from sqlalchemy.future import select as sa_select
 
 from .base import BaseRepository
+from .types_ import ModelType
 from ..models import RefreshSession
 
 
@@ -17,7 +20,7 @@ __all__ = ['RefreshSessionsRepository']
 
 
 class RefreshSessionsRepository(BaseRepository):
-    model = RefreshSession
+    model: ClassVar[ModelType] = RefreshSession
 
     async def fetch_by_refresh_token(self, refresh_token: str) -> RefreshSession:
         stmt = (

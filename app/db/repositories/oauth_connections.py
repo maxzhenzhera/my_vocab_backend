@@ -1,8 +1,11 @@
+from typing import ClassVar
+
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.future import select as sa_select
 from sqlalchemy.orm import joinedload
 
 from .base import BaseRepository
+from .types_ import ModelType
 from ..models import OAuthConnection
 from ...schemas.authentication.oauth import BaseOAuthConnection
 
@@ -11,7 +14,7 @@ __all__ = ['OAuthConnectionsRepository']
 
 
 class OAuthConnectionsRepository(BaseRepository):
-    model = OAuthConnection
+    model: ClassVar[ModelType] = OAuthConnection
 
     async def link_connection(self, oauth_connection: BaseOAuthConnection) -> OAuthConnection:
         oauth_connection_on_insert = oauth_connection.dict()

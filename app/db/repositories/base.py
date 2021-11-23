@@ -50,7 +50,12 @@ class BaseRepository(ABC):
     @property
     @abstractmethod
     def model(self) -> Type[ModelType]:
-        """ The repository`s db entity model. """
+        """
+        The repository`s db entity model.
+
+        Abstract *class* attribute:
+            model: ClassVar[ModelType] = Model
+        """
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(model={self.model.__cls__.__name__})'

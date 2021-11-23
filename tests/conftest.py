@@ -94,7 +94,7 @@ def fixture_test_db_sessionmaker(test_app: FastAPI) -> sessionmaker:
 
 @pytest.fixture(name='test_db_session')
 async def fixture_test_db_session(test_db_sessionmaker: sessionmaker) -> AsyncSession:
-    async with test_db_sessionmaker() as session, session.begin():
+    async with test_db_sessionmaker() as session:
         yield session
 
 

@@ -10,7 +10,7 @@ from sqlalchemy import update as sa_update
 from sqlalchemy.future import select as sa_select
 from sqlalchemy.sql.elements import BinaryExpression
 
-from .base import BaseCRUDRepository
+from .base import BaseRepository
 from .types_ import ModelType
 from ..errors import (
     EmailInUpdateIsAlreadyTakenError,
@@ -28,7 +28,7 @@ __all__ = ['UsersRepository']
 WhereStatement = TypeVar('WhereStatement', bound=Union[BinaryExpression, bool])
 
 
-class UsersRepository(BaseCRUDRepository):
+class UsersRepository(BaseRepository):
     model: ClassVar[ModelType] = User
 
     async def update_by_email(self, email: str, user_in_update: UserInUpdate) -> User:
@@ -78,6 +78,13 @@ class UsersRepository(BaseCRUDRepository):
 
     async def fetch_by_email(self, email: str) -> User:
         stmt = sa_select(User).where(User.email == email)
+        return await self._fetch_entity(stmt)
+
+    async def fetch_by_id(self, id_: int) -> ModelType:
+        stmt = (
+            sa_select(self.model)
+            .where(self.model.id == id_)
+        )
         return await self._fetch_entity(stmt)
 
     async def check_email_is_taken(self, email: str) -> bool:

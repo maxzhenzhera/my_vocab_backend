@@ -3,10 +3,12 @@ My Vocab Backend
 ****************
 
 
-Run locally
-===========
+**Good README there'll be later :)**
 
-Fill *.env* by seeing the *example.env*.
+Run
+===
+
+Fill *.env* (check *.env.example*).
 
 With Docker
 -----------
@@ -15,9 +17,9 @@ With Docker
 
     $ make up
 
-With manual installation
-------------------------
-Create virtual environment.
+Locally
+-------
+Create virtual environment (Pipenv used).
 
 Execute preparing script.
 
@@ -25,6 +27,6 @@ Execute preparing script.
 
     $ make prepare
 
-Run postgres database.
+Create postgres database indicated in *.env*.
 
 Run *app/main.py*.

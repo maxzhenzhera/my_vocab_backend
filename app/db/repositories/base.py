@@ -7,10 +7,6 @@ from typing import (
     Union
 )
 
-from sqlalchemy import (
-    delete as sa_delete,
-    update as sa_update,
-)
 from sqlalchemy.engine import Result
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,10 +26,7 @@ from .types_ import (
 from ..errors import EntityDoesNotExistError
 
 
-__all__ = [
-    'BaseRepository',
-    'BaseCRUDRepository'
-]
+__all__ = ['BaseRepository']
 
 
 class BaseRepository(ABC):
@@ -100,40 +93,3 @@ class BaseRepository(ABC):
     async def _fetch_entities(self, select_statement: Select) -> list[ModelType]:
         result: Result = await self.session.execute(select_statement)
         return result.scalars().all()
-
-
-class BaseCRUDRepository(BaseRepository, ABC):
-    async def fetch_by_id(self, id_: int) -> ModelType:
-        stmt = (
-            sa_select(self.model)
-            .where(self.model.id == id_)
-        )
-        return await self._fetch_entity(stmt)
-
-    async def fetch_all(self) -> list[ModelType]:
-        stmt = sa_select(self.model)
-        return await self._fetch_entities(stmt)
-
-    async def fetch_with_limit_and_offset(self, limit: int, offset: int) -> list[ModelType]:
-        stmt = (
-            sa_select(self.model)
-            .limit(limit)
-            .offset(offset)
-        )
-        return await self._fetch_entities(stmt)
-
-    async def update_by_id(self, id_: int, schema_in_update: UpdateSchemaType) -> ModelType:
-        update_data = self._exclude_unset_from_schema(schema_in_update)
-        stmt = (
-            sa_update(self.model)
-            .where(self.model.id == id_)
-            .values(**update_data)
-        )
-        return await self._return_from_statement(stmt)
-
-    async def delete_by_id(self, id_: int) -> ModelType:
-        stmt = (
-            sa_delete(self.model)
-            .where(self.model.id == id_)
-        )
-        return await self._return_from_statement(stmt)

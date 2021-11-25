@@ -13,18 +13,18 @@ from starlette.status import (
     HTTP_401_UNAUTHORIZED
 )
 
-from ....schemas.authentication import AuthenticationResult
-from ....services.authentication.cookie import CookieService
-from ....services.authentication.errors import (
+from .....schemas.authentication import AuthenticationResult
+from .....services.authentication.cookie import CookieService
+from .....services.authentication.errors import (
     AuthenticationError,
     RegistrationError
 )
-from ....services.authentication.oauth.client import oauth
-from ....services.authentication.oauth.google import (
+from .....services.authentication.oauth.client import oauth
+from .....services.authentication.oauth.google import (
     GoogleAuthorizer,
     GoogleOAuthService
 )
-from ....services.mail import MailService
+from .....services.mail import MailService
 
 
 __all__ = ['router']
@@ -35,17 +35,17 @@ logging = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get('/google/signup', name='google:signup')
+@router.get('/signup', name='oauth:google:signup')
 async def google_signup(request: Request) -> RedirectResponse:
-    return await oauth.google.authorize_redirect(request, request.url_for('google:register'))
+    return await oauth.google.authorize_redirect(request, request.url_for('oauth:google:register'))
 
 
-@router.get('/google/signin', name='google:signin')
+@router.get('/signin', name='oauth:google:signin')
 async def google_signin(request: Request) -> RedirectResponse:
-    return await oauth.google.authorize_redirect(request, request.url_for('google:login'))
+    return await oauth.google.authorize_redirect(request, request.url_for('oauth:google:login'))
 
 
-@router.get('/google/register', response_model=AuthenticationResult, name='google:register')
+@router.get('/register', response_model=AuthenticationResult, name='oauth:google:register')
 async def google_register(
         google_authorizer: GoogleAuthorizer = Depends(),
         google_oauth_service: GoogleOAuthService = Depends(),
@@ -71,7 +71,7 @@ async def google_register(
             return authentication_result
 
 
-@router.get('/google/login', name='google:login')
+@router.get('/login', name='oauth:google:login')
 async def google_login(
         google_authorizer: GoogleAuthorizer = Depends(),
         google_oauth_service: GoogleOAuthService = Depends(),

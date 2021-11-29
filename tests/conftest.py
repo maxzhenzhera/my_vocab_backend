@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.db.events import _set_db_in_app                        # noqa ; not in __all__; access to a protected member
 from app.db.repositories import (
+    OAuthConnectionsRepository,
     RefreshSessionsRepository,
     UsersRepository
 )
@@ -117,3 +118,10 @@ def fixture_test_refresh_sessions_repository(
         test_db_session: AsyncSession
 ) -> RefreshSessionsRepository:
     return RefreshSessionsRepository(test_db_session)
+
+
+@pytest.fixture(name='test_oauth_connections_repository')
+def fixture_test_oauth_connections_repository(
+        test_db_session: AsyncSession
+) -> OAuthConnectionsRepository:
+    return OAuthConnectionsRepository(test_db_session)

@@ -1,10 +1,10 @@
 from .auth_route import BaseTestAuthRoute
-from .terminating_refresh_session_route import BaseTestTerminatingRefreshSessionRoute
-from .user_creation_route import BaseTestUserCreationRoute
+from .common_user_creation_route import BaseTestCommonUserCreationRoute
+from .email_sending_route import BaseTestEmailSendingRoute
 
 
 __all__ = [
     'BaseTestAuthRoute',
-    'BaseTestTerminatingRefreshSessionRoute',
-    'BaseTestUserCreationRoute'
+    'BaseTestCommonUserCreationRoute',
+    'BaseTestEmailSendingRoute'
 ]

@@ -28,7 +28,7 @@ CMD ["python", "app/main.py"]
 FROM base as pre-test
 
 
-RUN pip install pytest pytest-asyncio
+RUN pipenv install --dev --system --deploy
 
 
 
@@ -37,7 +37,5 @@ FROM pre-test as test
 
 
 COPY . .
-
-RUN python ./scripts/prepare.py
 
 CMD ["pytest"]

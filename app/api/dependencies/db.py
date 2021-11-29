@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from typing import (
     Callable,
     Type
@@ -24,6 +25,6 @@ def get_repository(repository_type: Type[BaseRepository]) -> Repository:
     return _get_repo
 
 
-async def _get_session(request: Request) -> AsyncSession:
+async def _get_session(request: Request) -> AsyncGenerator[AsyncSession, None]:
     async with request.app.state.db_sessionmaker() as session, session.begin():
         yield session

@@ -8,7 +8,7 @@ from httpx import Response
 
 from app.db.errors import EntityDoesNotExistError
 from app.db.repositories import RefreshSessionsRepository
-from ...base import BaseTestRoute
+from ....base import BaseTestRoute
 
 
 __all__ = ['BaseTestTerminatingRefreshSessionRoute']

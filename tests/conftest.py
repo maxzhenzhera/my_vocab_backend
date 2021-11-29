@@ -26,6 +26,7 @@ from tests.helpers.db import (
     create_db,
     clear_db
 )
+from tests.helpers.oauth import link_oauth_connections
 from tests.users import (
     test_user_1,
     test_user_2
@@ -67,6 +68,20 @@ async def fixture_test_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, 
 @pytest.fixture(name='test_unauthenticated_client_user_1')
 async def fixture_test_unauthenticated_client_user_1(test_client: AsyncClient) -> AsyncClient:
     return await make_unauthenticated_client(test_client, test_user_1)
+
+
+@pytest.fixture(name='test_unauthenticated_client_user_1_with_oauth')
+async def fixture_test_unauthenticated_client_user_1_with_oauth(
+        test_client: AsyncClient,
+        test_oauth_connections_repository: OAuthConnectionsRepository
+) -> AsyncClient:
+    client = await make_unauthenticated_client(test_client, test_user_1)
+    await link_oauth_connections(
+        test_oauth_connections_repository,
+        client,
+        test_user_1
+    )
+    return client
 
 
 # Fixtures: authenticated clients

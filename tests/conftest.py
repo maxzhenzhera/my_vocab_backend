@@ -1,3 +1,5 @@
+from collections.abc import AsyncGenerator
+
 import pytest
 from fastapi import FastAPI
 from fastapi_mail import FastMail
@@ -40,7 +42,7 @@ def fixture_app() -> FastAPI:
 
 
 @pytest.fixture(name='test_app')
-async def fixture_test_app(app: FastAPI) -> FastAPI:
+async def fixture_test_app(app: FastAPI) -> AsyncGenerator[FastAPI, None]:
     _set_mail_sender_in_app(mail_connection_test_config, app)
     _set_db_in_app(sqlalchemy_connection_string_to_test_database, app)
     await create_db(app)
@@ -49,7 +51,7 @@ async def fixture_test_app(app: FastAPI) -> FastAPI:
 
 
 @pytest.fixture(name='test_client')
-async def fixture_test_client(test_app: FastAPI) -> AsyncClient:
+async def fixture_test_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         app=test_app,
         base_url='http://testserver',
@@ -93,7 +95,9 @@ def fixture_test_db_sessionmaker(test_app: FastAPI) -> sessionmaker:
 
 
 @pytest.fixture(name='test_db_session')
-async def fixture_test_db_session(test_db_sessionmaker: sessionmaker) -> AsyncSession:
+async def fixture_test_db_session(
+        test_db_sessionmaker: sessionmaker
+) -> AsyncGenerator[AsyncSession, None]:
     async with test_db_sessionmaker() as session:
         yield session
 

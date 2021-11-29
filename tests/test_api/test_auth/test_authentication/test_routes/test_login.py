@@ -22,9 +22,12 @@ class TestLoginRoute(BaseTestPostRoute, BaseTestAuthRoute):
     @pytest.fixture(name='response_and_client')
     async def fixture_response_and_client(
             self,
-            test_client_user_1: AsyncClient
+            test_unauthenticated_client_user_1: AsyncClient
     ) -> ResponseAndClient:
-        return await test_client_user_1.post(self.url, json=self.request_json), test_client_user_1
+        return (
+            await test_unauthenticated_client_user_1.post(self.url, json=self.request_json),
+            test_unauthenticated_client_user_1
+        )
 
     async def test_return_401_error_on_passing_false_credentials(
             self,

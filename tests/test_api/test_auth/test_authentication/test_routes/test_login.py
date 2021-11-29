@@ -6,10 +6,10 @@ from starlette.datastructures import URLPath
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from app.main import app
-from ..base import BaseTestAuthRoute
-from ...base import BaseTestPostRoute
-from ...mixins.response_and_client import ResponseAndClient
-from ....users import test_user_1
+from ...base import BaseTestAuthRoute
+from ....base import BaseTestPostRoute
+from ....mixins.response_and_client import ResponseAndClient
+from .....users import test_user_1
 
 
 pytestmark = pytest.mark.asyncio

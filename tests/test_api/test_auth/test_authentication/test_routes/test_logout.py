@@ -11,7 +11,7 @@ from starlette.status import HTTP_200_OK
 from app.main import app
 from app.services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
 from ..base import BaseTestTerminatingRefreshSessionRoute
-from ...mixins.response_and_client import ResponseAndClient
+from ....mixins.response_and_client import ResponseAndClient
 
 
 pytestmark = pytest.mark.asyncio

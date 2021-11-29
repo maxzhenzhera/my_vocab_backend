@@ -8,12 +8,10 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from app.db.repositories import RefreshSessionsRepository
 from app.main import app
 from app.services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
-from ..base import (
-    BaseTestAuthRoute,
-    BaseTestTerminatingRefreshSessionRoute
-)
-from ...mixins.response_and_client import ResponseAndClient
-from ....helpers.refresh_token import generate_fake_refresh_token
+from ..base import BaseTestTerminatingRefreshSessionRoute
+from ...base import BaseTestAuthRoute
+from ....mixins.response_and_client import ResponseAndClient
+from .....helpers.refresh_token import generate_fake_refresh_token
 
 
 pytestmark = pytest.mark.asyncio

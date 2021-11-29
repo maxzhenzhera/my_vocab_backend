@@ -6,8 +6,8 @@ from starlette.datastructures import URLPath
 
 from app.main import app
 from ..base import BaseTestUserCreationRoute
-from ...mixins.response_and_client import ResponseAndClient
-from ....users import test_user_1
+from ....mixins.response_and_client import ResponseAndClient
+from .....users import test_user_1
 
 
 pytestmark = pytest.mark.asyncio

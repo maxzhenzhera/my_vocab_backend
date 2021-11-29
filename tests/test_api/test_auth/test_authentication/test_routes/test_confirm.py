@@ -18,10 +18,10 @@ from starlette.status import (
 from app.db.repositories import UsersRepository
 from app.main import app
 from app.schemas.entities.user import UserInResponse
-from ...base import BaseTestRoute
-from ...mixins.response_and_client import ResponseAndClient
-from ....helpers.auth import get_user_from_client
-from ....helpers.email_confirmation_link import generate_fake_email_confirmation_link
+from ....base import BaseTestRoute
+from ....mixins.response_and_client import ResponseAndClient
+from .....helpers.auth import get_user_from_client
+from .....helpers.email_confirmation_link import generate_fake_email_confirmation_link
 
 
 pytestmark = pytest.mark.asyncio

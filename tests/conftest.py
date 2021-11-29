@@ -106,10 +106,14 @@ async def fixture_test_db_session(
 
 
 @pytest.fixture(name='test_users_repository')
-def fixture_test_db_users_repository(test_db_session: AsyncSession):
+def fixture_test_users_repository(
+        test_db_session: AsyncSession
+) -> UsersRepository:
     return UsersRepository(test_db_session)
 
 
 @pytest.fixture(name='test_refresh_sessions_repository')
-def fixture_test_db_refresh_sessions_repository(test_db_session: AsyncSession):
+def fixture_test_refresh_sessions_repository(
+        test_db_session: AsyncSession
+) -> RefreshSessionsRepository:
     return RefreshSessionsRepository(test_db_session)

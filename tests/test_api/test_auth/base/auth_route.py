@@ -4,6 +4,7 @@ from httpx import Response
 from starlette.status import HTTP_200_OK
 
 from app.db.repositories import RefreshSessionsRepository
+from app.schemas.authentication import AuthenticationResult
 from app.services.authentication.cookie import REFRESH_TOKEN_COOKIE_KEY
 from ...base import BaseTestRoute
 
@@ -20,10 +21,8 @@ class BaseTestAuthRoute(BaseTestRoute, ABC):
         assert 'tokens' in response_json
 
     def test_setting_refresh_token_cookie(self, response: Response):        # noqa Method may be 'static'
-        response_json = response.json()
-
         refresh_token_in_cookie = response.cookies[REFRESH_TOKEN_COOKIE_KEY]
-        refresh_token_in_response = response_json['tokens']['refresh_token']['token']
+        refresh_token_in_response = AuthenticationResult(**response.json()).refresh_token
 
         assert refresh_token_in_cookie == refresh_token_in_response
 

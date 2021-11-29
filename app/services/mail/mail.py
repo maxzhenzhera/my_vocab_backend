@@ -11,6 +11,10 @@ from fastapi_mail import (
     MessageSchema
 )
 
+from .subjects import (
+    CONFIRMATION_MAIL_SUBJECT,
+    CREDENTIALS_MAIL_SUBJECT
+)
 from ...api.dependencies.mail import get_mail_sender
 from ...core.config import server_config
 from ...schemas.entities.user import (
@@ -49,7 +53,7 @@ class MailService:
 
     def _make_confirmation_mail(self, user: UserInResponse) -> MessageSchema:
         return MessageSchema(
-            subject='Account email confirmation',
+            subject=CONFIRMATION_MAIL_SUBJECT,
             recipients=[user.email],
             template_body=self._make_template_body_for_confirmation_mail(user)
         )
@@ -82,7 +86,7 @@ class MailService:
     @staticmethod
     def _make_credentials_mail(credentials: UserInLogin) -> MessageSchema:
         return MessageSchema(
-            subject='Account credentials',
+            subject=CREDENTIALS_MAIL_SUBJECT,
             recipients=[credentials.email],
             template_body={'credentials': credentials}
         )

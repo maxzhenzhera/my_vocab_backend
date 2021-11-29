@@ -30,6 +30,13 @@ class MailService:
     background_tasks: BackgroundTasks
     mail_sender: FastMail = Depends(get_mail_sender)
 
+    @staticmethod
+    def __post_init__() -> None:
+        warnings.warn(
+            'Emails will be built for the LOCAL DEVELOPMENT. '
+            'For production programmer has to make a new implementation!'
+        )
+
     def send_confirmation_mail(self, user: UserInResponse) -> None:
         self.background_tasks.add_task(
             self.mail_sender.send_message,
@@ -57,10 +64,6 @@ class MailService:
 
     @staticmethod
     def _make_email_confirmation_link(link: str) -> str:
-        warnings.warn(
-            'Email confirmation link has created for the LOCAL DEVELOPMENT. '
-            'For production programmer has to make a new implementation!'
-        )
         return (
             f'http://localhost:{server_config.PORT}'
             f'{server_config.API_PREFIX}/auth/confirm?link={link}'

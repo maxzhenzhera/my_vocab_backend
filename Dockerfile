@@ -1,5 +1,5 @@
 # Image with prepared python environment
-FROM python:3.9-slim as base
+FROM python:3.10-slim as base
 
 
 WORKDIR /my_vocab_backend

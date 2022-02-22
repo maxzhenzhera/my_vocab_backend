@@ -1,24 +1,17 @@
 import logging
 
 from fastapi import FastAPI
-from fastapi_mail import (
-    FastMail,
-    ConnectionConfig as MailConnectionConfig
-)
+from fastapi_mail import ConnectionConfig as MailConnectionSettings
 
-from ...core.config import mail_connection_config
+from .state import MailState
 
 
-__all__ = ['init_mail_sender']
+__all__ = ['init_mail']
 
 
 logger = logging.getLogger(__name__)
 
 
-def init_mail_sender(app: FastAPI) -> None:
-    _set_mail_sender_in_app(mail_connection_config, app)
-    logger.info('Mail sender has been set.')
-
-
-def _set_mail_sender_in_app(config: MailConnectionConfig, app: FastAPI) -> None:
-    app.state.mail_sender = FastMail(config)
+def init_mail(app: FastAPI, settings: MailConnectionSettings) -> None:
+    app.state.mail = MailState(settings)
+    logger.info('Mail state (sender) has been set.')

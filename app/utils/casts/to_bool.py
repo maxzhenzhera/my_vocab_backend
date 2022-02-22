@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 __all__ = ['to_bool']
 
 
@@ -8,7 +5,7 @@ TRUE_STRINGS = {'true', 't', 'yes', '1'}
 FALSE_STRINGS = {'false', 'f', 'no', 'not', '0'}
 
 
-def to_bool(string: Optional[str]) -> bool:
+def to_bool(string: str | None) -> bool:
     if string is None:
         return False
     if string.lower() in TRUE_STRINGS:

@@ -1,12 +1,12 @@
 from .base import BaseRepo
+from .oauth import OAuthConnectionsRepo
 from .refresh_session import RefreshSessionsRepo
 from .user import UsersRepo
-from .oauth_connections import OAuthConnectionsRepo
 
 
 __all__ = [
     'BaseRepo',
+    'OAuthConnectionsRepo',
     'RefreshSessionsRepo',
-    'UsersRepo',
-    'OAuthConnectionsRepo'
+    'UsersRepo'
 ]

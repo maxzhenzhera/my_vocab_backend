@@ -8,7 +8,7 @@ from .errors import (
     UserWithSuchEmailDoesNotExistError
 )
 from ..security import UserPasswordService
-from ...api.dependencies.db import get_repository
+from app.api.dependencies import get_repository
 from ...db.errors import EntityDoesNotExistError
 from ...db.models import User
 from ...db.repositories import UsersRepository
@@ -35,7 +35,7 @@ class UserAccountService:
             raise EmailIsAlreadyTakenRegistrationError(user_in_create.email)
         user = UserPasswordService(
             User(email=user_in_create.email)
-        ).change_password(user_in_create.password)
+        ).set_password(user_in_create.password)
         return await self.users_repository.create_by_entity(user)
 
     async def register_oauth_user(self, user_in_create: UserInCreate) -> User:
@@ -47,7 +47,7 @@ class UserAccountService:
                 is_email_confirmed=True,
                 email_confirmed_at=datetime.utcnow()
             )
-        ).change_password(user_in_create.password)
+        ).set_password(user_in_create.password)
         return await self.users_repository.create_by_entity(user)
 
     async def fetch_user(self, email: str) -> User:

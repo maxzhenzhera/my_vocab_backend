@@ -1,16 +1,12 @@
-from .authentication import AuthenticationResult
+from .result import AuthenticationResult
 from .tokens import (
-    AccessTokenInResponse,
-    RefreshTokenInResponse,
+    TokenInResponse,
     TokensInResponse
 )
 
 
 __all__ = [
-    # authentication
     'AuthenticationResult',
-    # tokens
-    'AccessTokenInResponse',
-    'RefreshTokenInResponse',
+    'TokenInResponse',
     'TokensInResponse'
 ]

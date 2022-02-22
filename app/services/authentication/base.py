@@ -3,29 +3,24 @@ from abc import (
     abstractmethod
 )
 from dataclasses import dataclass
-from typing import TypeVar
 
 from fastapi import Depends
-from pydantic import BaseModel
 
-from .refresh_session import RefreshSessionService
-from .user_account import UserAccountService
+from .authenticator import Authenticator
+from ...db.repos import UsersRepo
+from ...schemas.auth import AuthenticationResult
 
 
 __all__ = ['BaseAuthenticationService']
 
 
-RegistrationResult = TypeVar('RegistrationResult', bound=BaseModel)
-AuthenticationResult = TypeVar('AuthenticationResult', bound=BaseModel)
-
-
 @dataclass
 class BaseAuthenticationService(ABC):
-    refresh_session_service: RefreshSessionService = Depends()
-    user_account_service: UserAccountService = Depends()
+    authenticator: Authenticator = Depends()
+    users_repo: UsersRepo = Depends()
 
     @abstractmethod
-    async def register(self, *args, **kwargs) -> RegistrationResult:
+    async def register(self, *args, **kwargs) -> AuthenticationResult:
         """ Register a new user. """
 
     @abstractmethod

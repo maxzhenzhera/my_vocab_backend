@@ -1,25 +1,21 @@
 import asyncio
-import sys
 from logging.config import fileConfig as loggingFileConfig
-from pathlib import Path
 
 from alembic import context
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import (
+    engine_from_config,
+    pool
+)
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-# import from local project ------------------------------------------------------------------------
-sys.path.append(str(Path(__file__).parents[3]))
-
-from app.core.config import sqlalchemy_connection_string        # noqa E402 module level import not at top of file
-from app.db.models import Base                                  # noqa E402 module level import not at top of file
-# --------------------------------------------------------------------------------------------------
+from app.core.config import get_app_settings
+from app.db.models import Base
 
 
 config = context.config
 loggingFileConfig(config.config_file_name)
 
-config.set_main_option('sqlalchemy.url', sqlalchemy_connection_string)
+config.set_main_option('sqlalchemy.url', get_app_settings().db.sqlalchemy_url)
 target_metadata = Base.metadata
 
 

@@ -1,8 +1,4 @@
-__all__ = [
-    'CASCADE',
-    'SET_NULL'
-]
+__all__ = ['CASCADE']
 
 
 CASCADE = 'CASCADE'
-SET_NULL = 'SET NULL'

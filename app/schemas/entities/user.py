@@ -13,7 +13,6 @@ from ..base import (
 
 
 __all__ = [
-    'UserBaseInCreate',
     'UserInCreate',
     'UserInLogin',
     'UserInUpdate',
@@ -21,11 +20,8 @@ __all__ = [
 ]
 
 
-class UserBaseInCreate(BaseModel):
+class UserInCreate(BaseModel):
     email: EmailStr
-
-
-class UserInCreate(UserBaseInCreate):
     password: str
 
 
@@ -40,7 +36,7 @@ class UserInUpdate(BaseModel):
 
 class UserInResponse(IDModelMixin, ModelWithOrmMode):
     email: EmailStr
-    email_confirmation_link: str
+    email_confirmation_token: str
     is_active: bool
     is_email_confirmed: bool
     is_superuser: bool

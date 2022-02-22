@@ -1,33 +1,64 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     Boolean,
     Column,
-    DateTime,
     ForeignKey,
     String,
     false
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import (
+    Mapped,
+    relationship
+)
 
 from ..base import Base
+from ..mixins import TimestampMixin
 from ...constants import CASCADE
-from ...functions.server_defaults.utcnow import utcnow
+
+
+if TYPE_CHECKING:
+    from .vocab import Vocab
 
 
 __all__ = ['Word']
 
 
-class Word(Base):
+class Word(Base, TimestampMixin):
     __tablename__ = 'words'
 
-    id = Column(BigInteger, primary_key=True)
-    word = Column(String(256), nullable=False)
-    is_learned = Column(Boolean, server_default=false(), nullable=False)
-    is_marked = Column(Boolean, server_default=false(), nullable=False)
-    created_at = Column(DateTime, server_default=utcnow(), nullable=False)
-    vocab_id = Column(BigInteger, ForeignKey('vocabs.id', ondelete=CASCADE), nullable=False)
+    id: Mapped[int] = Column(
+        BigInteger,
+        primary_key=True
+    )
+    word: Mapped[str] = Column(
+        String(256),
+        nullable=False
+    )
+    is_learned: Mapped[bool] = Column(
+        Boolean,
+        server_default=false(), nullable=False
+    )
+    is_marked: Mapped[bool] = Column(
+        Boolean,
+        server_default=false(), nullable=False
+    )
+    vocab_id: Mapped[int] = Column(
+        ForeignKey('vocabs.id', ondelete=CASCADE),
+        nullable=False
+    )
 
-    vocab = relationship('Vocab', back_populates='words')
+    vocab: Mapped['Vocab'] = relationship(
+        'Vocab',
+        back_populates='words'
+    )
 
     def __repr__(self) -> str:
-        return f'Word(id={self.id!r}, word={self.word!r}, vocab_id={self.vocab_id!r})'
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'word={self.word!r}, '
+            f'vocab_id={self.vocab_id!r}'
+            ')'
+        )

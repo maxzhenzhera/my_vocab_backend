@@ -1,31 +1,63 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     Column,
-    DateTime,
     ForeignKey,
     String
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import (
+    Mapped,
+    relationship
+)
 
 from ..base import Base
+from ..mixins import TimestampMixin
 from ...constants import CASCADE
-from ...functions.server_defaults import utcnow
+
+
+if TYPE_CHECKING:
+    from .user import User
+    from .vocab import Vocab
 
 
 __all__ = ['Tag']
 
 
-class Tag(Base):
+class Tag(Base, TimestampMixin):
     __tablename__ = 'tags'
 
-    id = Column(BigInteger, primary_key=True)
-    tag = Column(String(64), nullable=False)
-    description = Column(String(256))
-    created_at = Column(DateTime, server_default=utcnow(), nullable=False)
-    user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
+    id: Mapped[int] = Column(
+        BigInteger,
+        primary_key=True
+    )
+    tag: Mapped[str] = Column(
+        String(64),
+        nullable=False
+    )
+    description: Mapped[str | None] = Column(
+        String(256)
+    )
+    user_id: Mapped[int] = Column(
+        ForeignKey('users.id', ondelete=CASCADE),
+        nullable=False
+    )
 
-    user = relationship('User', back_populates='tags')
-    vocabs = relationship('VocabTagsAssociation', back_populates='tag')
+    user: Mapped['User'] = relationship(
+        'User',
+        back_populates='tags'
+    )
+
+    vocabs: Mapped[list['Vocab']] = relationship(
+        'VocabTagsAssociation',
+        back_populates='tag'
+    )
 
     def __repr__(self) -> str:
-        return f'Tag(id={self.id!r}, user_id={self.user_id!r}, tag={self.tag!r})'
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'user_id={self.user_id!r}, '
+            f'tag={self.tag!r}'
+            ')'
+        )

@@ -1,45 +1,83 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     Boolean,
     Column,
-    DateTime,
     Enum,
     ForeignKey,
     String,
     false
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import (
+    Mapped,
+    relationship
+)
 
 from ..base import Base
+from ..mixins import TimestampMixin
 from ...constants import CASCADE
 from ...enums import Language
-from ...functions.server_defaults.utcnow import utcnow
+
+
+if TYPE_CHECKING:
+    from .user import User
+    from .tag import Tag
+    from .word import Word
 
 
 __all__ = ['Vocab']
 
 
-class Vocab(Base):
+class Vocab(Base, TimestampMixin):
     """
     `Vocab` - short form of the `vocabulary`.
     """
 
     __tablename__ = 'vocabs'
 
-    id = Column(BigInteger, primary_key=True)
-    title = Column(String(), nullable=False)
-    description = Column(String(512))
-    language = Column(Enum(Language, name='language'))
-    is_favourite = Column(Boolean, server_default=false(), nullable=False)
-    created_at = Column(DateTime, server_default=utcnow(), nullable=False)
-    user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
+    id: Mapped[int] = Column(
+        BigInteger,
+        primary_key=True
+    )
+    title: Mapped[str] = Column(
+        String(128),
+        nullable=False
+    )
+    description: Mapped[str | None] = Column(
+        String(512)
+    )
+    language: Mapped[Language] = Column(
+        Enum(Language, name='language')
+    )
+    is_favourite: Mapped[bool] = Column(
+        Boolean,
+        server_default=false(), nullable=False
+    )
+    user_id: Mapped[int] = Column(
+        ForeignKey('users.id', ondelete=CASCADE),
+        nullable=False
+    )
 
-    user = relationship('User', back_populates='vocabs')
-    tags = relationship('VocabTagsAssociation', back_populates='vocab')
-    words = relationship('Word', back_populates='vocab', passive_deletes=True)
+    user: Mapped['User'] = relationship(
+        'User',
+        back_populates='vocabs'
+    )
+    tags: Mapped[list['Tag']] = relationship(
+        'VocabTagsAssociation',
+        back_populates='vocab'
+    )
+    words: Mapped[list['Word']] = relationship(
+        'Word',
+        backref='vocab', passive_deletes=True
+    )
 
     def __repr__(self) -> str:
         return (
-            f'Vocab(id={self.id!r}, title={self.title!r}, '
-            f'language={self.language!r}, user_id={self.user_id!r})'
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'title={self.title!r}, '
+            f'language={self.language!r}, '
+            f'user_id={self.user_id!r}'
+            ')'
         )

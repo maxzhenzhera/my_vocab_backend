@@ -1,5 +1,7 @@
+from datetime import datetime
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
-    BigInteger,
     Column,
     DateTime,
     ForeignKey,
@@ -9,31 +11,62 @@ from sqlalchemy.dialects.postgresql import (
     INET,
     UUID
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import (
+    Mapped,
+    relationship
+)
 
 from ..base import Base
+from ..mixins import TimestampMixin
 from ...constants import CASCADE
-from ...functions.defaults.refresh_session import compute_refresh_session_expire
-from ...functions.server_defaults import (
-    utcnow,
-    gen_random_uuid
-)
+from ...functions.server_defaults import gen_random_uuid
+
+
+if TYPE_CHECKING:
+    from ..entities.user import User
 
 
 __all__ = ['RefreshSession']
 
 
-class RefreshSession(Base):
+class RefreshSession(Base, TimestampMixin):
     __tablename__ = 'refresh_sessions'
 
-    refresh_token = Column(UUID, primary_key=True, server_default=gen_random_uuid())
-    ip_address = Column(INET, nullable=False)
-    user_agent = Column(String(256), nullable=False)
-    created_at = Column(DateTime, server_default=utcnow(), nullable=False)
-    expires_at = Column(DateTime, default=compute_refresh_session_expire, nullable=False)
-    user_id = Column(BigInteger, ForeignKey('users.id', ondelete=CASCADE), nullable=False)
+    token: Mapped[str] = Column(
+        UUID,
+        primary_key=True, server_default=gen_random_uuid()
+    )
+    ip_address: Mapped[str] = Column(
+        INET,
+        nullable=False
+    )
+    user_agent: Mapped[str] = Column(
+        String(256),
+        nullable=False
+    )
+    expires_at: Mapped[datetime] = Column(
+        DateTime,
+        nullable=False
+    )
+    user_id: Mapped[int] = Column(
+        ForeignKey('users.id', ondelete=CASCADE),
+        nullable=False
+    )
 
-    user = relationship('User', back_populates='refresh_sessions')
+    user: Mapped['User'] = relationship(
+        'User',
+        back_populates='refresh_sessions'
+    )
+
+    @hybrid_property
+    def is_expired(self) -> bool:
+        return self.expires_at < datetime.utcnow()
 
     def __repr__(self) -> str:
-        return f'RefreshSession(refresh_token={self.refresh_token!r}, user_id ={self.user_id!r})'
+        return (
+            f'{self.__class__.__name__}('
+            f'token={self.token!r}, '
+            f'user_id ={self.user_id!r}'
+            ')'
+        )

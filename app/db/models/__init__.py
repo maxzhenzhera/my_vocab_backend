@@ -1,3 +1,9 @@
+"""
+Some mixins are not used:
+    mypy does not correctly work with mixins (SQLAlchemy) behaviour
+    as I expect (on moment of writing).
+"""
+
 from .auth import (
     OAuthConnection,
     RefreshSession
@@ -13,12 +19,15 @@ from .entities import (
 
 
 __all__ = [
-    # base
+    # Base
+    # -------------------------------------------
     'Base',
-    # auth
+    # Auth
+    # -------------------------------------------
     'OAuthConnection',
     'RefreshSession',
-    # entities
+    # Entities
+    # -------------------------------------------
     'User',
     'Tag',
     'Vocab',

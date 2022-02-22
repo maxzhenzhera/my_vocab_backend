@@ -100,7 +100,7 @@ def get_current_active_user(
             detail=CURRENT_USER_IN_NOT_ACTIVE
         )
     return current_user
-1
+
 
 def get_current_superuser(
         current_active_user: User = Depends(get_current_active_user)

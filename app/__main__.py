@@ -1,36 +1,27 @@
-from fastapi import FastAPI, Depends
+"""
+Development environment entrypoint.
+"""
+
 import uvicorn
-from dataclasses import dataclass
+from fastapi import FastAPI
+
+from app.builder import AppBuilder
+from app.core.config import get_app_settings
+from app.core.settings import AppSettings
 
 
-app = FastAPI()
-
-from pydantic import BaseModel
-
-class Test(BaseModel):
-    aaa: int = 1
+__all__ = ['get_app']
 
 
-@dataclass
-class B:
-    data = Test(aaa=100)
-
-
-@dataclass
-class A:
-    b: B
-
-
-class Marker: pass
-
-
-app.dependency_overrides[Marker] = lambda: A(B())
-
-
-@app.post('/aboba', response_model=Test)
-def aboba(a: A = Depends()):
-    return a.b.data
+def get_app(settings: AppSettings | None = None) -> FastAPI:
+    settings = settings or get_app_settings()
+    return AppBuilder(settings).build_app()
 
 
 if __name__ == '__main__':
-    uvicorn.run('main:app')
+    uvicorn_settings = get_app_settings().uvicorn
+    uvicorn.run(
+        app='__main__:get_app',
+        factory=True,
+        **uvicorn_settings.kwargs
+    )

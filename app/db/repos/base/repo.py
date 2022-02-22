@@ -10,11 +10,15 @@ from typing import (
 )
 
 from fastapi import Depends
+from sqlalchemy import Boolean
 from sqlalchemy.engine import Result
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select as sa_select
-from sqlalchemy.sql import Select
+from sqlalchemy.sql import (
+    ColumnElement,
+    Select
+)
 
 from .protocols.statements import Returnable
 from ...errors import EntityDoesNotExistError
@@ -59,6 +63,13 @@ class BaseRepo(ABC, Generic[SQLAlchemyModel]):
             )
             result = await self.session.execute(orm_stmt)
         return result
+
+    async def _fetch_where(self, where_stmt: ColumnElement[Boolean]) -> SQLAlchemyModel:
+        stmt = (
+            sa_select(self.model)
+            .where(where_stmt)
+        )
+        return await self._fetch_entity(stmt)
 
     async def _fetch_entity(self, select_stmt: Select) -> SQLAlchemyModel:
         result = await self.session.execute(select_stmt)

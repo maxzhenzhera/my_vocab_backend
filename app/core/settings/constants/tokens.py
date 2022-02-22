@@ -1,0 +1,8 @@
+__all__ = [
+    'ACCESS_TOKEN_TYPE',
+    'REFRESH_TOKEN_TYPE'
+]
+
+
+ACCESS_TOKEN_TYPE = 'Bearer'
+REFRESH_TOKEN_TYPE = 'Refresh'

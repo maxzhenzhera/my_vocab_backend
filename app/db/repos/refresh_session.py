@@ -10,8 +10,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.future import select as sa_select
 
-from app.db.repos.base import BaseRepo
-from app.db.models import RefreshSession
+from .base import BaseRepo
+from ..models import RefreshSession
 
 
 __all__ = ['RefreshSessionsRepo']
@@ -20,25 +20,33 @@ __all__ = ['RefreshSessionsRepo']
 class RefreshSessionsRepo(BaseRepo[RefreshSession]):
     model: ClassVar = RefreshSession
 
-    async def fetch_by_refresh_token(self, refresh_token: str) -> RefreshSession:
+    async def fetch_by_token(self, token: str) -> RefreshSession:
         stmt = (
             sa_select(RefreshSession)
-            .where(RefreshSession.refresh_token == refresh_token)
+            .where(RefreshSession.token == token)
         )
         return await self._fetch_entity(stmt)
 
-    async def delete_by_refresh_token(self, refresh_token: str) -> RefreshSession:
+    async def delete_by_token(self, token: str) -> RefreshSession | None:
         stmt = (
             sa_delete(RefreshSession)
-            .where(RefreshSession.refresh_token == refresh_token)
+            .where(RefreshSession.token == token)
         )
-        return await self._return_from_statement(stmt)
+        result = await self._return_from_statement(stmt)
+        return result.scalar()
 
-    async def expire(self, refresh_token: str) -> None:
+    async def expire(
+            self,
+            token: str,
+            *,
+            expires_at: datetime | None = None
+    ) -> None:
+        expires_at = expires_at or datetime.utcnow() - timedelta(seconds=5)
+
         async with self.session.begin_nested():
             stmt = (
                 sa_update(RefreshSession)
-                .where(RefreshSession.refresh_token == refresh_token)
-                .values(expires_at=datetime.utcnow() - timedelta(seconds=5))
+                .where(RefreshSession.token == token)
+                .values(expires_at=expires_at)
             )
             await self.session.execute(stmt)

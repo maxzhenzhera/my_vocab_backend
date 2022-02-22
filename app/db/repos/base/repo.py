@@ -19,7 +19,7 @@ from sqlalchemy.sql import Select
 from .protocols.statements import Returnable
 from ...errors import EntityDoesNotExistError
 from ...models import Base
-from ....api.dependencies.db import get_session
+from ....api.dependencies.db import DBSessionInTransactionMarker
 
 
 __all__ = [
@@ -31,31 +31,14 @@ __all__ = [
 SQLAlchemyModel = TypeVar('SQLAlchemyModel', bound=Base)
 
 
-# https://github.com/python/mypy/issues/5374
 @dataclass  # type: ignore[misc]
 class BaseRepo(ABC, Generic[SQLAlchemyModel]):
-    """
-    Implements a base repo
-    to create a particular repo for the corresponded model.
-
-    Each child class
-    must override the class attribute
-    about model that related to:
-
-        .. attribute:: model: Type[SQLAlchemyModel]
-    """
-
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(DBSessionInTransactionMarker)
 
     @property
     @abstractmethod
     def model(self) -> Type[SQLAlchemyModel]:
-        """
-        The repository`s db entity model.
-
-        Abstract *class* attribute:
-            model: ClassVar[Type[SQLAlchemyModel]] = Model
-        """
+        """ The repository`s db entity model. """
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(model={self.model.__class__.__name__})'

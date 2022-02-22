@@ -12,27 +12,27 @@ from fastapi_mail import (
     MessageSchema
 )
 
-
+from ...api.dependencies.mail import MailSenderMarker
 from ...resources.mail.subjects import (
     CONFIRMATION_MAIL_SUBJECT,
     CREDENTIALS_MAIL_SUBJECT
 )
-from ...api.dependencies.mail import MailSenderMarker
-from ...schemas.entities.user import (
-    UserInLogin,
-    UserInResponse
-)
+from ...schemas.entities.user import UserInResponse
+from ...services.authentication.oauth.dataclasses_ import OAuthUserCredentials
 
 
 __all__ = ['MailService']
 
 
-logger = logging.getLogger(__name__)
-
 warnings.warn(
-    'Emails will be built for the LOCAL DEVELOPMENT. '
-    'For production: programmer has to provide a new implementation!'
+    UserWarning(
+        'Emails will be built for the LOCAL DEVELOPMENT. '
+        'For production: programmer has to provide a new implementation!'
+    )
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -65,18 +65,18 @@ class MailService:
     ) -> dict[str, str | UserInResponse]:
         return {
             'user': user,
-            'email_confirmation_url': self._make_email_confirmation_url(
-                user.email_confirmation_token
+            'email_confirmation_url': ''.join(
+                (
+                    self._make_email_confirmation_url(),
+                    f'?token={user.email_confirmation_token}'
+                )
             )
         }
 
-    def _make_email_confirmation_url(self, token: str) -> str:
-        return self.request.app.url_path_for(
-            name='auth:confirm',
-            token=token
-        )
+    def _make_email_confirmation_url(self) -> str:
+        return self.request.app.url_path_for(name='auth:confirm')
 
-    def send_credentials_mail(self, credentials: UserInLogin) -> None:
+    def send_credentials_mail(self, credentials: OAuthUserCredentials) -> None:
         self.background_tasks.add_task(
             self.mail_sender.send_message,
             self._make_credentials_mail(credentials),
@@ -88,7 +88,7 @@ class MailService:
         )
 
     @staticmethod
-    def _make_credentials_mail(credentials: UserInLogin) -> MessageSchema:
+    def _make_credentials_mail(credentials: OAuthUserCredentials) -> MessageSchema:
         return MessageSchema(
             subject=CREDENTIALS_MAIL_SUBJECT,
             recipients=[credentials.email],

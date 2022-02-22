@@ -1,4 +1,4 @@
-from .mail import MailService
+from .service import MailService
 
 
 __all__ = ['MailService']

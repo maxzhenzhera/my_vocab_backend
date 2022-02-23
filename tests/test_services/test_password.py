@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 
 from app.core.settings.dataclasses_.components import PasswordSettings
 from app.db.models import User
-from app.services.security import PasswordService
+from app.services.password import PasswordService
 
 
 class TestPasswordService:

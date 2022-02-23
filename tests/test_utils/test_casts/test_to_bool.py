@@ -1,28 +1,43 @@
+from typing import Type
+
 import pytest
 
 from app.utils.casts import to_bool
 
 
-def test_to_bool():
-    assert not to_bool(None)
-    assert not to_bool('False')
-    assert not to_bool('false')
-    assert not to_bool('F')
-    assert not to_bool('f')
-    assert not to_bool('not')
-    assert not to_bool('no')
-    assert not to_bool('0')
+@pytest.mark.parametrize(
+    ('string, result'),
+    (
+            # False
+            (None, False),
+            ('False', False),
+            ('false', False),
+            ('F', False),
+            ('f', False),
+            ('not', False),
+            ('no', False),
+            ('0', False),
+            # True
+            ('True', True),
+            ('true', True),
+            ('T', True),
+            ('t', True),
+            ('yes', True),
+            ('1', True)
+    )
+)
+def test_result(string: str | None, result: bool):
+    assert to_bool(string) == result
 
-    assert to_bool('True')
-    assert to_bool('true')
-    assert to_bool('T')
-    assert to_bool('t')
-    assert to_bool('yes')
-    assert to_bool('1')
 
-    with pytest.raises(ValueError):
-        to_bool('')
-    with pytest.raises(ValueError):
-        to_bool(' ')
-    with pytest.raises(ValueError):
-        to_bool('Invalid string to cast')
+@pytest.mark.parametrize(
+    ('string', 'exception_type'),
+    (
+            ('', ValueError),
+            (' ', ValueError),
+            ('Invalid string to cast', ValueError)
+    )
+)
+def test_error(string: str | None, exception_type: Type[Exception]):
+    with pytest.raises(exception_type):
+        to_bool(string)

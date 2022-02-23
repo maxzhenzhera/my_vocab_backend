@@ -92,7 +92,7 @@ class BaseRepo(ABC, Generic[SQLAlchemyModel]):
         except NoResultFound as error:
             raise EntityDoesNotExistError from error
         else:
-            return entity
+            return cast(SQLAlchemyModel, entity)
 
     async def _fetch_entities(self, select_stmt: Select) -> list[SQLAlchemyModel]:
         result = await self.session.execute(select_stmt)

@@ -1,6 +1,7 @@
 import secrets
 import string
 from dataclasses import dataclass
+from typing import cast
 
 import bcrypt
 
@@ -53,8 +54,8 @@ class PasswordService:
 
     @staticmethod
     def _hash_password(password: str) -> str:
-        return pwd_context.hash(password)
+        return cast(str, pwd_context.hash(password))
 
     @staticmethod
     def _verify_password(plain_password: str, hashed_password: str) -> bool:
-        return pwd_context.verify(plain_password, hashed_password)
+        return cast(bool, pwd_context.verify(plain_password, hashed_password))

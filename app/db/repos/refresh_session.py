@@ -35,6 +35,9 @@ class RefreshSessionsRepo(BaseRepo[RefreshSession]):
         result = await self._return_from_statement(stmt)
         return result.scalar()
 
+    async def exists_by_token(self, token: str) -> bool:
+        return await self._exists_where(RefreshSession.token == token)
+
     async def expire(
             self,
             token: str,

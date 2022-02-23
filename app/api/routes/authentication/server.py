@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID
 
 from fastapi import (
     APIRouter,
@@ -191,7 +192,7 @@ async def login(
     }
 )
 async def confirm(
-        email_confirmation_token: str = Query(
+        email_confirmation_token: UUID = Query(
             ...,
             alias='token',
             title='Email confirmation token'
@@ -201,7 +202,7 @@ async def confirm(
     """ Confirm the user`s email. """
 
     try:
-        user = await users_repo.confirm_by_token(email_confirmation_token)
+        user = await users_repo.confirm_by_token(str(email_confirmation_token))
     except EntityDoesNotExistError:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
@@ -230,7 +231,7 @@ async def confirm(
     }
 )
 async def logout(
-        refresh_token: str = Cookie(
+        refresh_token: UUID = Cookie(
             ...,
             alias=REFRESH_TOKEN_COOKIE_KEY
         ),
@@ -239,7 +240,7 @@ async def logout(
     """ Logout the user. """
 
     try:
-        await authenticator.deauthenticate(refresh_token)
+        await authenticator.deauthenticate(str(refresh_token))
     except RefreshSessionDoesNotExistError as error:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
@@ -270,7 +271,7 @@ async def logout(
     }
 )
 async def refresh(
-        refresh_token: str = Cookie(
+        refresh_token: UUID = Cookie(
             ...,
             alias=REFRESH_TOKEN_COOKIE_KEY
         ),
@@ -279,7 +280,7 @@ async def refresh(
     """ Refresh the user`s session. """
 
     try:
-        authentication_result = await authentication_service.refresh(refresh_token)
+        authentication_result = await authentication_service.refresh(str(refresh_token))
     except RefreshError as error:
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,

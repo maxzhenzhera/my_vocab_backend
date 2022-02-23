@@ -1,14 +1,10 @@
 from datetime import datetime
-from typing import (
-    ClassVar,
-    cast
-)
+from typing import ClassVar
 
 from sqlalchemy import (
     Boolean,
     update as sa_update
 )
-from sqlalchemy.future import select as sa_select
 from sqlalchemy.sql import ColumnElement
 
 from .base import BaseRepo
@@ -28,13 +24,7 @@ class UsersRepo(BaseRepo[User]):
         return await self._fetch_where(User.email == email)
 
     async def check_email_is_taken(self, email: str) -> bool:
-        stmt = (
-            sa_select(User.id)
-            .where(User.email == email)
-            .exists().select()
-        )
-        result = await self.session.execute(stmt)
-        return cast(bool, result.scalar())
+        return await self._exists_where(User.email == email)
 
     async def confirm_by_email(self, email: str) -> User:
         return await self._confirm_where(User.email == email)

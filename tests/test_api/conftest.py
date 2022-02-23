@@ -171,16 +171,16 @@ async def fixture_unauthenticated_client_1(
 
 @pytest.fixture(name='unauthenticated_client_1_with_oauth')
 async def fixture_unauthenticated_client_1_with_oauth(
-        unauthenticated_client_1_without_oauth: AsyncClient,
+        unauthenticated_client_1: AsyncClient,
         oauth_connections_repo: OAuthConnectionsRepo,
         meta_user_1: MetaUser
 ) -> AsyncClient:
     await link_oauth_connections(
         oauth_connections_repo=oauth_connections_repo,
-        client=unauthenticated_client_1_without_oauth,
+        client=unauthenticated_client_1,
         meta_user=meta_user_1
     )
-    return unauthenticated_client_1_without_oauth
+    return unauthenticated_client_1
 
 
 # # Fixtures: authenticated --------------------------------------------------------------

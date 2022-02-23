@@ -2,24 +2,13 @@ from abc import (
     ABC,
     abstractmethod
 )
-from dataclasses import (
-    dataclass
-)
+from dataclasses import dataclass
 
-from authlib.integrations.starlette_client import (
-    OAuth,
-    StarletteRemoteApp
-)
+from authlib.integrations.starlette_client import StarletteRemoteApp
 from authlib.oidc.core.claims import UserInfo
-from fastapi import (
-    Depends,
-    Request
-)
+from fastapi import Request
 
 from ..dataclasses_ import OAuthUser
-from .....api.dependencies.oauth import OAuthClientMarker
-from .....api.dependencies.settings import AppSettingsMarker
-from .....core.settings import AppSettings
 
 
 __all__ = ['BaseAuthorizer']
@@ -28,17 +17,15 @@ __all__ = ['BaseAuthorizer']
 @dataclass  # type: ignore[misc]
 class BaseAuthorizer(ABC):
     request: Request
-    settings: AppSettings = Depends(AppSettingsMarker)
-    oauth_client: OAuth = Depends(OAuthClientMarker)
 
     @property
     @abstractmethod
-    def oauth_provider_name(self) -> str:
-        """ The name of the registered OAuth provider. """
-
-    @property
     def oauth_provider(self) -> StarletteRemoteApp:
-        return getattr(self.oauth_client, self.oauth_provider_name)
+        """
+        OAuth provider of authorizer
+        that have to declared in provider authorizer subclass
+        as dependency.
+        """
 
     async def get_oauth_user(self) -> OAuthUser:
         """

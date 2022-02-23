@@ -11,6 +11,7 @@ class LevelFilter(logging.Filter):
     def __init__(self, level: int | str) -> None:
         super().__init__()
 
+        self.level: int
         if isinstance(level, str):
             self.level = getattr(logging, level.upper())
         elif isinstance(level, int):

@@ -1,10 +1,16 @@
-from .oauth_login_route import BaseOauthLoginRoute
-from .oauth_register_route import BaseOauthRegisterRoute
-from .redirect_to_oauth_route import BaseTestRedirectToOauthRoute
+from .login import (
+    BaseTestOAuthLoginRouteCaseByUserWithOAuth,
+    BaseTestOAuthLoginRouteCaseByUserWithoutOAuth
+)
+from .redirect_to_oauth_route import BaseTestRedirectToOAuthRouteCase
+from .register import BaseOauthRegisterRouteCase
+from .route import BaseTestCommonErrorsOfOAuthRoute
 
 
 __all__ = [
-    'BaseOauthLoginRoute',
-    'BaseOauthRegisterRoute',
-    'BaseTestRedirectToOauthRoute'
+    'BaseTestOAuthLoginRouteCaseByUserWithOAuth',
+    'BaseTestOAuthLoginRouteCaseByUserWithoutOAuth',
+    'BaseTestRedirectToOAuthRouteCase',
+    'BaseOauthRegisterRouteCase',
+    'BaseTestCommonErrorsOfOAuthRoute'
 ]

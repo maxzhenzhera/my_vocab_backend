@@ -2,51 +2,106 @@ from abc import (
     ABC,
     abstractmethod
 )
+from datetime import timedelta
 from unittest.mock import MagicMock
 
 import pytest
 from authlib.integrations.starlette_client import OAuthError
 from httpx import AsyncClient
-from pytest_mock import MockerFixture
+from starlette.datastructures import URLPath
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from app.schemas.authentication.oauth import OAuthUser
-from ...base import BaseTestAuthRoute
+from app.db.models import OAuthConnection
+from app.db.repos import OAuthConnectionsRepo
+from app.services.authentication.oauth.dataclasses_ import OAuthUser
+from ..mixins import (
+    OAuthMockMixin,
+    RawOAuthMockMixin
+)
+from ...base import BaseTestAuthRouteCase
+from ....base import BaseTestRoute
+from .....utils.datetime_ import assert_datetime
 
 
-__all__ = ['BaseTestOAuthRoute']
+__all__ = [
+    'BaseTestOAuthRouteCase',
+    'BaseTestOAuthRouteCaseWhenConnectionCreating',
+    'BaseTestCommonErrorsOfOAuthRoute'
+]
 
 
-class BaseTestOAuthRoute(BaseTestAuthRoute, ABC):
-    @property
-    @abstractmethod
-    def oauth_user(self) -> OAuthUser:
-        """
-        The OAuth user that interact in OAuth routes.
+class BaseTestOAuthRouteCase(
+    BaseTestAuthRouteCase,
+    OAuthMockMixin,
+    ABC
+):
+    """ Auth route tests combined with mocking OAuth interaction. """
 
-        In all OAuth routes test cases
-        extracting of OAuth user is mocked.
-        Return value of this mock will be this property.
 
-        Abstract *class* attribute:
-            oauth_user: ClassVar[OAuthUser] = test_user.service_name_oauth_user
-        """
+class BaseTestOAuthRouteCaseWhenConnectionCreating(
+    BaseTestOAuthRouteCase,
+    ABC
+):
+    """
+    OAuth route case when OAuth connection
+    have to be created after request.
 
-    @pytest.fixture(name='mock_get_oauth_user')
-    async def fixture_mock_get_oauth_user(self, mocker: MockerFixture) -> MagicMock:
-        get_oauth_user_mock = mocker.patch(
-            'app.services.authentication.oauth.base.authorizer.BaseAuthorizer.get_oauth_user'
+    When:
+        - registration route:
+          binds OAuth connection on moment of user creating.
+        - login route:
+          executed by user that has not bound to OAuth connection
+          (has been registered through own auth system or another OAuth).
+    """
+
+    @pytest.mark.usefixtures('success_response')
+    async def test_creating_oauth_connection_in_db(
+            self,
+            oauth_user: OAuthUser,
+            oauth_connections_repo: OAuthConnectionsRepo
+    ):
+        oauth_connection = await self._fetch_oauth_connection(
+            oauth_user,
+            oauth_connections_repo,
         )
-        get_oauth_user_mock.return_value = self.oauth_user
-        return get_oauth_user_mock
 
+        assert_datetime(
+            actual=oauth_connection.updated_at,
+            delta=timedelta(seconds=5)
+        )
+
+    @abstractmethod
+    async def _fetch_oauth_connection(
+            self,
+            oauth_user: OAuthUser,
+            repo: OAuthConnectionsRepo,
+    ) -> OAuthConnection:
+        """
+        Has the same logic as:
+            app.services.authentication
+            .oauth.google.service.GoogleOAuthService._fetch_oauth_connection
+        """
+
+
+class BaseTestCommonErrorsOfOAuthRoute(
+    BaseTestRoute,
+    RawOAuthMockMixin,
+    ABC
+):
+    @pytest.fixture(name='mock_get_oauth_user')
+    def fixture_mock_get_oauth_user(
+            self,
+            raw_mock_get_oauth_user: MagicMock,
+    ) -> MagicMock:
+        raw_mock_get_oauth_user.side_effect = OAuthError
+        return raw_mock_get_oauth_user
+
+    @pytest.mark.usefixtures('mock_get_oauth_user')
     async def test_return_400_error_on_oauth_error(
             self,
-            mock_get_oauth_user: MagicMock,
-            test_client: AsyncClient
+            route_url: URLPath,
+            client: AsyncClient
     ):
-        mock_get_oauth_user.side_effect = OAuthError
+        bad_response = await client.get(route_url)
 
-        response = await test_client.get(self.url)
-
-        assert response.status_code == HTTP_400_BAD_REQUEST
+        assert bad_response.status_code == HTTP_400_BAD_REQUEST

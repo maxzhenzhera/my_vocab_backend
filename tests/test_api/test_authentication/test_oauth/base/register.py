@@ -1,79 +1,89 @@
-from abc import (
-    ABC,
-    abstractmethod
-)
+from abc import ABC
 from collections.abc import AsyncGenerator
 from email.mime.multipart import MIMEMultipart
-from typing import ClassVar
 from unittest.mock import MagicMock
 
 import pytest
 from fastapi_mail import FastMail
 from httpx import AsyncClient
+from starlette.datastructures import URLPath
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from app.db.repositories import OAuthConnectionsRepo
-from app.resources.mail import CREDENTIALS_MAIL_SUBJECT
-from .oauth_route import BaseTestOAuthRoute
-from .oauth_user_creation_route import BaseTestOAuthUserCreationRoute
-from ...base import BaseTestEmailSendingRoute
+from app.core.settings import AppSettings
+from app.resources.mail.subjects import CREDENTIALS_MAIL_SUBJECT
+from .route import BaseTestOAuthRouteCaseWhenConnectionCreating
+from .user_creation import BaseTestOAuthUserCreationRouteCase
 from ....mixins.response_and_client import ResponseAndClient
 
 
-__all__ = ['BaseOauthRegisterRoute']
+__all__ = ['BaseOauthRegisterRouteCase']
 
 
-class BaseOauthRegisterRoute(
-    BaseTestOAuthRoute,
-    BaseTestOAuthUserCreationRoute,
-    BaseTestEmailSendingRoute,
+class BaseOauthRegisterRouteCase(
+    BaseTestOAuthRouteCaseWhenConnectionCreating,
+    BaseTestOAuthUserCreationRouteCase,
     ABC
 ):
-    number_emails_sent: ClassVar[int] = 1
-
-    @pytest.fixture(name='response_and_client')
-    async def fixture_response_and_client(
+    @pytest.fixture(name='response_and_client_on_success')
+    async def fixture_response_and_client_on_success(
             self,
+            # apply mocking
+            # -----------------------------
             mock_get_oauth_user: MagicMock,
-            test_client: AsyncClient
+            # -----------------------------
+            route_url: URLPath,
+            client: AsyncClient
     ) -> ResponseAndClient:
-        return await test_client.get(self.url), test_client
-
-    @pytest.mark.usefixtures('mock_get_oauth_user')
-    @abstractmethod
-    async def test_creating_oauth_connection_in_db(
-            self,
-            test_oauth_connections_repository: OAuthConnectionsRepo,
-            client: AsyncClient,
-    ):
-        """
-        On route execution oauth connection must be linked to user.
-        So, it must be oauth connection record in db.
-        """
+        return (
+            await client.get(
+                url=route_url
+            ),
+            client
+        )
 
     @pytest.mark.usefixtures('mock_get_oauth_user')
     async def test_return_400_error_on_passing_already_used_credentials(
             self,
-            client: AsyncClient
+            route_url: URLPath,
+            success_client: AsyncClient
     ):
-        response = await client.get(self.url)
+        bad_response = await success_client.get(route_url)
 
-        assert response.status_code == HTTP_400_BAD_REQUEST
+        assert bad_response.status_code == HTTP_400_BAD_REQUEST
 
-    @pytest.fixture(name='email_outbox')
+    @pytest.fixture(name='email_outbox_on_success')
     async def fixture_email_outbox(
             self,
+            # apply mocking
+            # -----------------------------
             mock_get_oauth_user: MagicMock,
-            test_mail_sender: FastMail,
-            test_client: AsyncClient
+            # -----------------------------
+            route_url: URLPath,
+            mail_sender: FastMail,
+            client: AsyncClient
     ) -> AsyncGenerator[list[MIMEMultipart], None]:
-        with test_mail_sender.record_messages() as outbox:
-            await test_client.get(self.url)
+        with mail_sender.record_messages() as outbox:
+            await client.get(route_url)
+
             yield outbox
 
-    async def test_credentials_email_sending(self, email_outbox: list[MIMEMultipart]):
-        self._test_base_outbox_claims(email_outbox)
+    async def test_credentials_email_sending(
+            self,
+            created_user_email: str,
+            email_outbox_on_success: list[MIMEMultipart],
+            app_settings: AppSettings
+    ):
+        assert len(email_outbox_on_success) == 1
 
-        credentials_mail = email_outbox[0]
-        assert credentials_mail['To'] == self.created_user_email
+        credentials_mail = email_outbox_on_success[0]
+        assert credentials_mail['To'] == created_user_email
         assert credentials_mail['Subject'] == CREDENTIALS_MAIL_SUBJECT
+
+        if app_settings.mail.MAIL_FROM_NAME is not None:
+            from_ = (
+                f"{app_settings.mail.MAIL_FROM_NAME} "
+                f"<{app_settings.mail.MAIL_FROM}>"
+            )
+        else:
+            from_ = app_settings.mail.MAIL_FROM
+        assert credentials_mail['from'] == from_

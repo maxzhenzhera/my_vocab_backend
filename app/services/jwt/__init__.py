@@ -1,4 +1,4 @@
-from .jwt import UserJWTService
+from .service import JWTService
 
 
-__all__ = ['UserJWTService']
+__all__ = ['JWTService']

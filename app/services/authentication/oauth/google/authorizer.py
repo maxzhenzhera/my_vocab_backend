@@ -1,10 +1,15 @@
+from dataclasses import dataclass
+
+from authlib.integrations.starlette_client import StarletteRemoteApp
+from fastapi import Depends
+
 from ..base import BaseAuthorizer
+from .....api.dependencies.oauth import GoogleProviderMarker
 
 
 __all__ = ['GoogleAuthorizer']
 
 
+@dataclass
 class GoogleAuthorizer(BaseAuthorizer):
-    @property
-    def oauth_provider_name(self) -> str:
-        return self.settings.oauth.google.name
+    oauth_provider: StarletteRemoteApp = Depends(GoogleProviderMarker)

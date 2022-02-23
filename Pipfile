@@ -5,19 +5,19 @@ name = "pypi"
 
 [packages]
 fastapi-mail = "*"
-python-dotenv = "*"
-pyyaml = "*"
-python-jose = {extras = ["cryptography"], version = "*"}
-passlib = {extras = ["bcrypt"], version = "*"}
-asyncpg = "*"
-sqlalchemy = "*"
-pydantic = {extras = ["email"], version = "*"}
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
-python-freedictionaryapi = {extras = ["async-client"], version = "*"}
+pydantic = {extras = ["email"], version = "*"}
 alembic = "*"
+sqlalchemy = "*"
+asyncpg = "*"
 authlib = "*"
+python-jose = {extras = ["cryptography"], version = "*"}
+passlib = {extras = ["bcrypt"], version = "*"}
 itsdangerous = "*"
+python-dotenv = "*"
+pyyaml = "*"
+python-freedictionaryapi = {extras = ["async-client"], version = "*"}
 
 [dev-packages]
 pytest = "*"

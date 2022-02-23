@@ -8,4 +8,8 @@ __all__ = ['router']
 
 router = APIRouter()
 
-router.include_router(google_router, tags=['Google OAuth'], prefix='/google')
+router.include_router(
+    router=google_router,
+    tags=['Google OAuth'],
+    prefix='/google'
+)

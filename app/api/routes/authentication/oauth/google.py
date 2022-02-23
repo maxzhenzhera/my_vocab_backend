@@ -12,21 +12,24 @@ from fastapi import (
 )
 from fastapi.responses import RedirectResponse
 from starlette.status import (
+    HTTP_200_OK,
+    HTTP_302_FOUND,
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED
 )
 
-from ...dependencies.oauth import OAuthClientMarker
-from ....schemas.authentication import AuthenticationResult
-from ....services.authentication.errors import (
+from ....dependencies.oauth import OAuthClientMarker
+from .....schemas.authentication import AuthenticationResult
+from .....schemas.fastapi_ import HTTPExceptionSchema
+from .....services.authentication.errors import (
     LoginError,
     RegistrationError
 )
-from ....services.authentication.oauth.google import (
+from .....services.authentication.oauth.google import (
     GoogleAuthorizer,
     GoogleOAuthService
 )
-from ....services.mail import MailService
+from .....services.mail import MailService
 
 
 __all__ = ['router']
@@ -40,12 +43,16 @@ router = APIRouter()
 @router.get(
     path='/signup',
     name='oauth:google:signup',
-    summary='Redirect to the registration process through Google OAuth.'
+    summary='Redirect to the registration through Google OAuth.',
+    response_class=RedirectResponse,
+    response_description='Redirected to Google OAuth.',
+    status_code=HTTP_302_FOUND
 )
 async def google_signup(
         request: Request,
         oauth_client: OAuth = Depends(OAuthClientMarker)
 ) -> RedirectResponse:
+    """ Redirect to the registration through Google OAuth. """
     return await oauth_client.google.authorize_redirect(
         request=request,
         redirect_uri=request.url_for('oauth:google:register')
@@ -55,12 +62,16 @@ async def google_signup(
 @router.get(
     path='/signin',
     name='oauth:google:signin',
-    summary='Redirect to the login process through Google OAuth.'
+    summary='Redirect to the login through Google OAuth.',
+    response_class=RedirectResponse,
+    response_description='Redirected to Google OAuth.',
+    status_code=HTTP_302_FOUND
 )
 async def google_signin(
         request: Request,
         oauth_client: OAuth = Depends(OAuthClientMarker)
 ) -> RedirectResponse:
+    """ Redirect to the login through Google OAuth. """
     return await oauth_client.google.authorize_redirect(
         request=request,
         redirect_uri=request.url_for('oauth:google:login')
@@ -73,7 +84,17 @@ async def google_signin(
     summary='Callback for registration through Google OAuth.',
     response_model=AuthenticationResult,
     responses={
-
+        HTTP_200_OK: {
+            'model': AuthenticationResult,
+            'description': 'Google OAuth user has been successfully registered.'
+        },
+        HTTP_400_BAD_REQUEST: {
+            'model': HTTPExceptionSchema,
+            'description': (
+                '- Security issue on OAuth request processing;\n'
+                '- The given credentials are already used before.'
+            )
+        }
     }
 )
 async def google_register(
@@ -81,6 +102,15 @@ async def google_register(
         oauth_service: GoogleOAuthService = Depends(),
         mail_service: MailService = Depends()
 ) -> AuthenticationResult:
+    """
+    Register a new user through Google OAuth.
+
+    ### Mail
+
+    If user has been successfully registered
+    send credentials mail to the parsed email.
+    """
+
     try:
         google_user = await authorizer.get_oauth_user()
     except OAuthError as error:
@@ -107,13 +137,24 @@ async def google_register(
     summary='Callback for login through Google OAuth.',
     response_model=AuthenticationResult,
     responses={
-
+        HTTP_200_OK: {
+            'model': AuthenticationResult,
+            'description': 'Google OAuth user has been successfully logged in.'
+        },
+        HTTP_400_BAD_REQUEST: {
+            'model': HTTPExceptionSchema,
+            'description': (
+                '- Security issue on OAuth request processing;\n'
+                '- Such user does not exist.'
+            )
+        }
     }
 )
 async def google_login(
         authorizer: GoogleAuthorizer = Depends(),
         oauth_service: GoogleOAuthService = Depends(),
 ) -> AuthenticationResult:
+    """ Login a new user through Google OAuth. """
     try:
         google_user = await authorizer.get_oauth_user()
     except OAuthError as error:

@@ -13,29 +13,29 @@ from starlette.status import (
     HTTP_401_UNAUTHORIZED
 )
 
-from app.resources.strings.authentication import CONFIRMATION_LINK_IS_INVALID
-from app.db.errors import EntityDoesNotExistError
-from app.db.models import User
-from app.db.repos import UsersRepo
-from app.schemas.authentication import AuthenticationResult
-from app.schemas.entities.user import (
+from ....db.errors import EntityDoesNotExistError
+from ....db.models import User
+from ....db.repos import UsersRepo
+from ....resources.strings.authentication import CONFIRMATION_LINK_IS_INVALID
+from ....schemas.authentication import AuthenticationResult
+from ....schemas.entities.user import (
     UserInCreate,
     UserInLogin,
     UserInResponse
 )
-from app.schemas.fastapi_ import HTTPExceptionSchema
-from app.services.authentication.authenticator import Authenticator
-from app.services.authentication.authenticator.cookie import REFRESH_TOKEN_COOKIE_KEY
-from app.services.authentication.errors import (
+from ....schemas.fastapi_ import HTTPExceptionSchema
+from ....services.authentication.authenticator import Authenticator
+from ....services.authentication.authenticator.cookie import REFRESH_TOKEN_COOKIE_KEY
+from ....services.authentication.errors import (
     LoginError,
     RefreshError,
     RefreshSessionDoesNotExistError,
     RegistrationError
 )
-from app.services.authentication.server import AuthenticationService
-from app.services.authentication.user_account import UserAccountService
-from app.services.mail import MailService
-from app.utils.open_api.cookies import (
+from ....services.authentication.server import AuthenticationService
+from ....services.authentication.user_account import UserAccountService
+from ....services.mail import MailService
+from ....utils.open_api.cookies import (
     SetRefreshTokenCookieAsOpenAPIHeader,
     UnsetRefreshTokenCookieAsOpenAPIHeader
 )
@@ -57,12 +57,13 @@ router = APIRouter()
     responses={
         HTTP_200_OK: {
             'model': UserInResponse,
+            'description': 'User has been successfully created.'
         },
         HTTP_400_BAD_REQUEST: {
             'model': HTTPExceptionSchema,
             'description': (
-                    'The given credentials are invalid '
-                    'or (most likely) already used before.'
+                'The given credentials are invalid '
+                'or (most likely) already used before.'
             )
         }
     }
@@ -72,8 +73,10 @@ async def create(
         user_account_service: UserAccountService = Depends()
 ) -> User:
     """
-    Create a user by the given credentials.
-    Route just creates a user in db. Mostly aims at the test fixtures or manual testing.
+    Create a new user.
+
+    Just creates a user in db.
+    Mostly aims at the test fixtures or manual testing.
     """
 
     try:
@@ -95,6 +98,7 @@ async def create(
     responses={
         HTTP_200_OK: {
             'model': AuthenticationResult,
+            'description': 'User has been successfully registered.',
             'headers': {
                 'Set-Cookie': SetRefreshTokenCookieAsOpenAPIHeader
             }
@@ -102,8 +106,8 @@ async def create(
         HTTP_400_BAD_REQUEST: {
             'model': HTTPExceptionSchema,
             'description': (
-                    'The given credentials are invalid '
-                    'or (most likely) already used before.'
+                'The given credentials are invalid '
+                'or (most likely) already used before.'
             )
         }
     }
@@ -114,14 +118,13 @@ async def register(
         mail_service: MailService = Depends()
 ) -> AuthenticationResult:
     """
-    # User registration
+    Register a new user:
+    create a user and login him simultaneously.
 
-    Register a user by the given credentials.
-    Route creates a user and logins him simultaneously.
+    ### Mail
 
-    ## Email
-
-    Send confirmation mail to the passed email.
+    If user has been successfully registered
+    send confirmation mail to the passed email.
     """
 
     try:
@@ -144,6 +147,7 @@ async def register(
     responses={
         HTTP_200_OK: {
             'model': AuthenticationResult,
+            'description': 'User has been successfully logged in.',
             'headers': {
                 'Set-Cookie': SetRefreshTokenCookieAsOpenAPIHeader
             }
@@ -158,12 +162,7 @@ async def login(
         user_in_login: UserInLogin,
         authentication_service: AuthenticationService = Depends(),
 ) -> AuthenticationResult:
-    """
-    # User login
-
-    Login a user by the given credentials.
-    """
-
+    """ Login the user. """
     try:
         authentication_result = await authentication_service.login(user_in_login)
     except LoginError as error:
@@ -183,6 +182,7 @@ async def login(
     responses={
         HTTP_200_OK: {
             'model': UserInResponse,
+            'description': 'User has been successfully confirmed.'
         },
         HTTP_400_BAD_REQUEST: {
             'model': HTTPExceptionSchema,
@@ -198,19 +198,15 @@ async def confirm(
         ),
         users_repo: UsersRepo = Depends()
 ) -> User:
-    """
-    # User's email confirmation
-
-    Confirm the user email.
-    """
+    """ Confirm the user`s email. """
 
     try:
         user = await users_repo.confirm_by_token(email_confirmation_token)
-    except EntityDoesNotExistError as error:
+    except EntityDoesNotExistError:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
             detail=CONFIRMATION_LINK_IS_INVALID
-        ) from error
+        )
     else:
         return user
 
@@ -222,6 +218,7 @@ async def confirm(
     responses={
         HTTP_200_OK: {
             'model': None,
+            'description': 'User has been successfully logged out.',
             'headers': {
                 'Set-Cookie': UnsetRefreshTokenCookieAsOpenAPIHeader
             }
@@ -233,14 +230,13 @@ async def confirm(
     }
 )
 async def logout(
-        refresh_token: str = Cookie(..., alias=REFRESH_TOKEN_COOKIE_KEY),
+        refresh_token: str = Cookie(
+            ...,
+            alias=REFRESH_TOKEN_COOKIE_KEY
+        ),
         authenticator: Authenticator = Depends()
 ) -> None:
-    """
-    # User logout
-
-    Actually, terminate the refresh session and delete refresh token cookie.
-    """
+    """ Logout the user. """
 
     try:
         await authenticator.deauthenticate(refresh_token)
@@ -259,6 +255,7 @@ async def logout(
     responses={
         HTTP_200_OK: {
             'model': AuthenticationResult,
+            'description': 'The user`s session has been successfully refreshed.',
             'headers': {
                 'Set-Cookie': SetRefreshTokenCookieAsOpenAPIHeader
             }
@@ -266,8 +263,8 @@ async def logout(
         HTTP_401_UNAUTHORIZED: {
             'model': HTTPExceptionSchema,
             'description': (
-                    '- The current refresh session has expired;\n'
-                    '- The refresh session with the given refresh token does not exist.'
+                '- The current refresh session has expired;\n'
+                '- The refresh session with the given refresh token does not exist.'
             )
         }
     }
@@ -279,11 +276,7 @@ async def refresh(
         ),
         authentication_service: AuthenticationService = Depends()
 ) -> AuthenticationResult:
-    """
-    # User session refresh
-
-    Refresh user session.
-    """
+    """ Refresh the user`s session. """
 
     try:
         authentication_result = await authentication_service.refresh(refresh_token)

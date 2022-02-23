@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import cast
 
 from fastapi import Request
 
@@ -12,7 +13,7 @@ class RequestAnalyzer:
 
     @property
     def client_ip_address(self) -> str:
-        return self.request.client.host
+        return cast(str, self.request.client.host)
 
     @property
     def client_user_agent(self) -> str:

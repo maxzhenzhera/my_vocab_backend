@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+fastapi-mail = "*"
 python-dotenv = "*"
 pyyaml = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
@@ -15,15 +16,19 @@ fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 python-freedictionaryapi = {extras = ["async-client"], version = "*"}
 alembic = "*"
-fastapi-mail = "*"
 authlib = "*"
 itsdangerous = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-asyncio = "*"
-flake8 = "*"
 pytest-mock = "*"
+flake8 = "*"
+coverage = "*"
+mypy = "*"
+types-pyyaml = "*"
+sqlalchemy2-stubs = "*"
+asgi-lifespan = "*"
 
 [requires]
 python_version = "3.10"

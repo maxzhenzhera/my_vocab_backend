@@ -74,7 +74,7 @@ class MailService:
         }
 
     def _make_email_confirmation_url(self) -> str:
-        return self.request.app.url_path_for(name='auth:confirm')
+        return self.request.url_for(name='auth:confirm')
 
     def send_credentials_mail(self, credentials: OAuthUserCredentials) -> None:
         self.background_tasks.add_task(

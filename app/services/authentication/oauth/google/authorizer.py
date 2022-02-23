@@ -1,11 +1,10 @@
-from typing import ClassVar
-
-from ..base.authorizer import BaseAuthorizer
-from ..client import GOOGLE_OAUTH_NAME
+from ..base import BaseAuthorizer
 
 
 __all__ = ['GoogleAuthorizer']
 
 
 class GoogleAuthorizer(BaseAuthorizer):
-    oauth_service_name: ClassVar[str] = GOOGLE_OAUTH_NAME
+    @property
+    def oauth_provider_name(self) -> str:
+        return self.settings.oauth.google.name

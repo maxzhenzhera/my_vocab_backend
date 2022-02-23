@@ -1,5 +1,5 @@
 from .authorizer import BaseAuthorizer
-from .oauth import BaseOAuthService
+from .service import BaseOAuthService
 
 
 __all__ = [

@@ -1,25 +1,39 @@
 """
 AuthenticationError
-    +-- UserWithSuchEmailDoesNotExistError
-    +-- IncorrectPasswordError
-    +-- OAuthLoginError
-        +-- OAuthConnectionDoesNotExistError
-RegistrationError
-    +-- EmailIsAlreadyTakenRegistrationError
-RefreshError
-    +-- RefreshSessionDoesNotExistError
-    +-- RefreshSessionExpiredError
+    +-- LoginError
+        +-- UserWithSuchEmailDoesNotExistError
+        +-- ServerLoginError
+            +-- IncorrectPasswordError
+        +-- OAuthLoginError
+            +-- OAuthConnectionDoesNotExistError
+    +-- RegistrationError
+        +-- EmailIsAlreadyTakenError
+    +-- RefreshError
+        +-- RefreshSessionDoesNotExistError
+        +-- RefreshSessionExpiredError
 """
+
+from dataclasses import dataclass
+from typing import ClassVar
+
+from ...resources.strings.authentication import (
+    EMAIL_IS_ALREADY_TAKEN,
+    LOGIN_FAILED,
+    REFRESH_SESSION_DOES_NOT_EXIST,
+    REFRESH_SESSION_EXPIRED
+)
 
 
 __all__ = [
     'AuthenticationError',
+    'LoginError',
     'UserWithSuchEmailDoesNotExistError',
+    'ServerLoginError',
     'IncorrectPasswordError',
     'OAuthLoginError',
     'OAuthConnectionDoesNotExistError',
     'RegistrationError',
-    'EmailIsAlreadyTakenRegistrationError',
+    'EmailIsAlreadyTakenError',
     'RefreshError',
     'RefreshSessionDoesNotExistError',
     'RefreshSessionExpiredError'
@@ -29,65 +43,83 @@ __all__ = [
 class AuthenticationError(Exception):
     """ Common authentication exception. """
 
-    @property
-    def detail(self) -> str:
-        return 'The incorrect credentials.'
+    detail: ClassVar[str] = 'Authentication error.'
 
 
-class UserWithSuchEmailDoesNotExistError(AuthenticationError):
-    """ Raised if the searched user with given email has not been found. """
+class LoginError(AuthenticationError):
+    """ Common login exception. """
+
+    detail: ClassVar[str] = LOGIN_FAILED
 
 
-class IncorrectPasswordError(AuthenticationError):
-    """ Raised if the given password has not been verified. """
+class UserWithSuchEmailDoesNotExistError(LoginError):
+    """
+    Raised on login process
+    if the searched user with the given email has not been found.
+    """
 
 
-class OAuthLoginError(AuthenticationError):
-    """ Common authentication exception on OAuth login. """
+class ServerLoginError(LoginError):
+    """ Common server login exception. """
+
+
+class IncorrectPasswordError(ServerLoginError):
+    """
+    Raised on login (app auth service) process
+    if the given password has not been verified.
+    """
+
+
+class OAuthLoginError(LoginError):
+    """ Common OAuth login exception. """
 
 
 class OAuthConnectionDoesNotExistError(OAuthLoginError):
-    """ Raised if the OAuth connection does not exist. """
+    """
+    Raised on OAuth login process
+    if the OAuth connection does not exist.
+    """
 
 
-class RegistrationError(Exception):
+class RegistrationError(AuthenticationError):
     """ Common registration exception. """
 
+    detail: ClassVar[str] = 'Registration error.'
+
+
+@dataclass
+class EmailIsAlreadyTakenError(RegistrationError):
+    """
+    Raised on the registration process
+    if the email is already used by the other user.
+    """
+
+    email: str
+
     @property
-    def detail(self) -> str:
-        return 'Given credentials for registration are invalid.'
+    def detail(self) -> str:  # type: ignore[override]
+        return EMAIL_IS_ALREADY_TAKEN.format(email=self.email)
 
 
-class EmailIsAlreadyTakenRegistrationError(RegistrationError):
-    """ Raised on the registration process if the email is already used by the other user. """
-
-    def __init__(self, email: str) -> None:
-        self.email = email
-
-    @property
-    def detail(self) -> str:
-        return f"Email '{self.email}' is busy. Please, use another email!"
-
-
-class RefreshError(Exception):
+class RefreshError(AuthenticationError):
     """ Common refresh exception. """
 
-    @property
-    def detail(self) -> str:
-        return 'Refresh is impossible.'
+    detail: ClassVar[str] = 'Refresh error.'
 
 
 class RefreshSessionDoesNotExistError(RefreshError):
-    """ Raised if the refresh session with the given refresh token does not exist. """
+    """
+    Raised on refresh (app auth service) process
+    if the refresh session with the given refresh token does not exist.
+    """
 
-    @property
-    def detail(self) -> str:
-        return 'The refresh session with the given refresh token does not exist.'
+    detail: ClassVar[str] = REFRESH_SESSION_DOES_NOT_EXIST
 
 
 class RefreshSessionExpiredError(RefreshError):
-    """ Raised if the refresh session has expired. """
+    """
+    Raised on refresh (app auth service) process
+    if the refresh session has expired.
+    """
 
-    @property
-    def detail(self) -> str:
-        return 'The refresh session has expired. Please, login again!'
+    detail: ClassVar[str] = REFRESH_SESSION_EXPIRED

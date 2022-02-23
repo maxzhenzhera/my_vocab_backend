@@ -3,26 +3,26 @@ from abc import (
     abstractmethod
 )
 from dataclasses import dataclass
+from typing import Any
 
 from fastapi import Depends
 
 from .authenticator import Authenticator
-from ...db.repos import UsersRepo
-from ...schemas.auth import AuthenticationResult
+from .user_account import UserAccountService
 
 
 __all__ = ['BaseAuthenticationService']
 
 
-@dataclass
+@dataclass  # type: ignore[misc]
 class BaseAuthenticationService(ABC):
     authenticator: Authenticator = Depends()
-    users_repo: UsersRepo = Depends()
+    user_account_service: UserAccountService = Depends()
 
     @abstractmethod
-    async def register(self, *args, **kwargs) -> AuthenticationResult:
+    async def register(self, *args: Any, **kwargs: Any) -> Any:
         """ Register a new user. """
 
     @abstractmethod
-    async def login(self, *args, **kwargs) -> AuthenticationResult:
+    async def login(self, *args: Any, **kwargs: Any) -> Any:
         """ Login the existed user. """

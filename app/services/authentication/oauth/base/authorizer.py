@@ -2,42 +2,54 @@ from abc import (
     ABC,
     abstractmethod
 )
-from dataclasses import dataclass
+from dataclasses import (
+    dataclass
+)
 
-from authlib.integrations.starlette_client import StarletteRemoteApp
+from authlib.integrations.starlette_client import (
+    OAuth,
+    StarletteRemoteApp
+)
 from authlib.oidc.core.claims import UserInfo
-from fastapi import Request
+from fastapi import (
+    Depends,
+    Request
+)
 
-from ..client import oauth
-from .....schemas.authentication.oauth.user import OAuthUser
+from ..dataclasses_ import OAuthUser
+from .....api.dependencies.oauth import OAuthClientMarker
+from .....api.dependencies.settings import AppSettingsMarker
+from .....core.settings import AppSettings
 
 
 __all__ = ['BaseAuthorizer']
 
 
-@dataclass
+@dataclass  # type: ignore[misc]
 class BaseAuthorizer(ABC):
     request: Request
+    settings: AppSettings = Depends(AppSettingsMarker)
+    oauth_client: OAuth = Depends(OAuthClientMarker)
 
     @property
     @abstractmethod
-    def oauth_service_name(self) -> str:
-        """
-        Get the oauth service name passed on the oauth registration.
-
-        .. code-block:: python
-
-            oauth.register(
-                name=service_name,      # <--------------------
-                ...
-            )
-        """
+    def oauth_provider_name(self) -> str:
+        """ The name of the registered OAuth provider. """
 
     @property
-    def oauth_service(self) -> StarletteRemoteApp:
-        return getattr(oauth, self.oauth_service_name)
+    def oauth_provider(self) -> StarletteRemoteApp:
+        return getattr(self.oauth_client, self.oauth_provider_name)
 
     async def get_oauth_user(self) -> OAuthUser:
+        """
+        Implement default building
+        of the OAuth user (model with OAuth user info).
+
+        Have to be overridden
+        if claims in the provider response
+        do not repeat the default behaviour.
+        """
+
         user_info = await self._extract_user_info_from_request()
         return OAuthUser(
             id=user_info.sub,
@@ -45,5 +57,5 @@ class BaseAuthorizer(ABC):
         )
 
     async def _extract_user_info_from_request(self) -> UserInfo:
-        token = await self.oauth_service.authorize_access_token(self.request)
-        return await self.oauth_service.parse_id_token(self.request, token)
+        token = await self.oauth_provider.authorize_access_token(self.request)
+        return await self.oauth_provider.parse_id_token(self.request, token)

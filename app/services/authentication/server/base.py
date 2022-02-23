@@ -1,7 +1,7 @@
 from abc import abstractmethod
+from typing import Any
 
 from ..base import BaseAuthenticationService
-from ....schemas.authentication import AuthenticationResult
 
 
 __all__ = ['BaseServerAuthenticationService']
@@ -9,5 +9,5 @@ __all__ = ['BaseServerAuthenticationService']
 
 class BaseServerAuthenticationService(BaseAuthenticationService):
     @abstractmethod
-    async def refresh(self, *args, **kwargs) -> AuthenticationResult:
+    async def refresh(self, *args: Any, **kwargs: Any) -> Any:
         """ Refresh the user`s session. """

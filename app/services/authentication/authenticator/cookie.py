@@ -1,10 +1,13 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from fastapi import Response
+from fastapi import (
+    Depends,
+    Response
+)
 
-from ....core.config import get_app_settings
-from ....core.settings.dataclasses_.components import RefreshSessionSettings
+from ....api.dependencies.settings import AppSettingsMarker
+from ....core.settings import AppSettings
 
 
 __all__ = [
@@ -18,17 +21,14 @@ REFRESH_TOKEN_COOKIE_KEY = 'refresh_token'
 
 @dataclass
 class CookieService:
-    SETTINGS: ClassVar[RefreshSessionSettings] = get_app_settings().REFRESH_SESSION
+    refresh_token_path: ClassVar[str] = '/api/auth'
 
     response: Response
-
-    @property
-    def refresh_token_path(self) -> str:
-        return '/api/auth'
+    settings: AppSettings = Depends(AppSettingsMarker)
 
     @property
     def refresh_token_cookie_max_age(self) -> int:
-        return self.SETTINGS.REFRESH_TOKEN_EXPIRE_IN_SECONDS
+        return self.settings.refresh_token.expire_in_seconds
 
     def set_refresh_token(self, refresh_token: str) -> None:
         self.response.set_cookie(

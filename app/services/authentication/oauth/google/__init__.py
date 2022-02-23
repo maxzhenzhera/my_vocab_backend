@@ -1,5 +1,5 @@
 from .authorizer import GoogleAuthorizer
-from .oauth import GoogleOAuthService
+from .service import GoogleOAuthService
 
 
 __all__ = [

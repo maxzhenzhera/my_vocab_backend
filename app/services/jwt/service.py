@@ -3,7 +3,10 @@ from dataclasses import (
     dataclass
 )
 from datetime import datetime
-from typing import TypeAlias
+from typing import (
+    TypeAlias,
+    cast
+)
 
 from jose import jwt
 
@@ -45,17 +48,23 @@ class JWTService:
         return to_dataclass(JWTUser, self._verify(token))
 
     def _verify(self, token: str) -> ClaimsFromToken:
-        return jwt.decode(
-            token=token,
-            key=self.jwt_settings.secret,
-            algorithms=self.jwt_settings.algorithm
+        return cast(
+            ClaimsFromToken,
+            jwt.decode(
+                token=token,
+                key=self.jwt_settings.secret,
+                algorithms=self.jwt_settings.algorithm
+            )
         )
 
     def generate(self, user: User) -> str:
-        return jwt.encode(
-            claims=self._prepare_claims(user),
-            key=self.jwt_settings.secret,
-            algorithm=self.jwt_settings.algorithm
+        return cast(
+            str,
+            jwt.encode(
+                claims=self._prepare_claims(user),
+                key=self.jwt_settings.secret,
+                algorithm=self.jwt_settings.algorithm
+            )
         )
 
     def _prepare_claims(self, user: User) -> ClaimsToToken:

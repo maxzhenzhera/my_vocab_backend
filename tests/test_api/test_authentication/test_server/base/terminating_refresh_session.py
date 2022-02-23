@@ -2,45 +2,48 @@ from abc import (
     ABC,
     abstractmethod
 )
+from typing import Any
 
 import pytest
-from httpx import Response
+from httpx import (
+    AsyncClient,
+    Response
+)
 
-from app.db.errors import EntityDoesNotExistError
-from app.db.repositories import RefreshSessionsRepository
-from ....base import BaseTestRoute
+from app.db.repos import RefreshSessionsRepo
+from app.services.authentication.authenticator.cookie import REFRESH_TOKEN_COOKIE_KEY
+from ....base import BaseTestRouteCase
 
 
-__all__ = ['BaseTestTerminatingRefreshSessionRoute']
+__all__ = ['BaseTestTerminatingRefreshSessionRouteCase']
 
 
-class BaseTestTerminatingRefreshSessionRoute(BaseTestRoute, ABC):
-    @pytest.fixture(name='old_refresh_token')
+class BaseTestTerminatingRefreshSessionRouteCase(BaseTestRouteCase, ABC):
+    @pytest.fixture(name='refresh_token_before_request')
     @abstractmethod
-    async def fixture_old_refresh_token(self, *args, **kwargs) -> str:
+    async def fixture_refresh_token_before_request(self, *args: Any):
         """
-        Abstract fixture that must return the refresh token from the authenticated user cookie
+        Return the refresh token from the authenticated user`s cookie
         before that client execute logout/refresh (terminating refresh session) route.
-
-            .. code-block:: python
-
-                return authenticated_test_client.cookies[REFRESH_TOKEN_COOKIE_KEY]
         """
 
-    async def test_deleting_refresh_session_from_db(        # noqa Method may be 'static'
+    def test_deleting_issued_refresh_token_from_cookies(
             self,
-            old_refresh_token: str,
-            response: Response,
-            test_refresh_sessions_repository: RefreshSessionsRepository
+            refresh_token_before_request: str,
+            success_client: AsyncClient
     ):
-        """
-        The order of the used fixtures is important.
-        If put
-            < old_refresh_token >
-        after
-            < response >
-        than it would try to get the cookie from the changed (by route execution) user.
-        """
+        refresh_token_after_request = success_client.cookies.get(
+            name=REFRESH_TOKEN_COOKIE_KEY,
+            default=''
+        )
+        assert refresh_token_before_request != refresh_token_after_request
 
-        with pytest.raises(EntityDoesNotExistError):
-            await test_refresh_sessions_repository.fetch_by_refresh_token(old_refresh_token)
+    async def test_deleting_issued_refresh_session_from_db(
+            self,
+            refresh_token_before_request: str,
+            success_response: Response,
+            refresh_sessions_repo: RefreshSessionsRepo
+    ):
+        assert not await refresh_sessions_repo.exists_by_token(
+            refresh_token_before_request
+        )

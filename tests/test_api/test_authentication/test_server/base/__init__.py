@@ -1,8 +1,8 @@
-from .terminating_refresh_session_route import BaseTestTerminatingRefreshSessionRoute
-from .user_creation_route import BaseTestUserCreationRoute
+from .terminating_refresh_session import BaseTestTerminatingRefreshSessionRouteCase
+from .user_creation import BaseTestUserServerCreationRouteCase
 
 
 __all__ = [
-    'BaseTestTerminatingRefreshSessionRoute',
-    'BaseTestUserCreationRoute'
+    'BaseTestTerminatingRefreshSessionRouteCase',
+    'BaseTestUserServerCreationRouteCase'
 ]

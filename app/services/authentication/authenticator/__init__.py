@@ -1,10 +1,4 @@
-from .authenticator import (
-    Authenticator,
-    RefreshToken
-)
+from .authenticator import (Authenticator)
 
 
-__all__ = [
-    'Authenticator',
-    'RefreshToken'
-]
+__all__ = ['Authenticator']

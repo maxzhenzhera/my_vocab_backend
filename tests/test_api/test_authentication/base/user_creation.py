@@ -2,36 +2,42 @@ from abc import (
     ABC,
     abstractmethod
 )
+from typing import Any
 
-from httpx import (
-    AsyncClient,
-    Response
-)
+import pytest
+from httpx import Response
 
+from app.db.models import User
 from app.db.repos import UsersRepo
-from ...base import BaseTestRoute
+from ...base import BaseTestRouteCase
 
 
-__all__ = ['BaseTestUserCreationRoute']
+__all__ = ['BaseTestUserCreationRouteCase']
 
 
-class BaseTestUserCreationRoute(BaseTestRoute, ABC):
-    @property
+class BaseTestUserCreationRouteCase(BaseTestRouteCase, ABC):
+    @pytest.fixture(name='created_user_email')
     @abstractmethod
-    def created_user_email(self) -> str:
-        """
-        The created user email.
-
-        Abstract *class* attribute:
-            created_user_email: ClassVar[str] = TestUserInCreate.email
-        """
+    def fixture_created_user_email(self) -> str:
+        """ The created user email. """
 
     @abstractmethod
-    async def test_creating_user_in_db(self):
+    def test_return_400_error_on_passing_already_used_credentials(self, *args: Any):
+        """
+        On user creation route has been passed already used credentials.
+
+        Must return 400 Bad Request.
+        """
+
+    @abstractmethod
+    def _test_created_user_claims(
+            self,
+            user: User
+    ):
         """
         On route execution new user must be created in db.
 
-        User might be created throgough:
+        User might be created through:
             1. server (own authentication system);
             2. oauth.
 
@@ -44,14 +50,13 @@ class BaseTestUserCreationRoute(BaseTestRoute, ABC):
             2. email_confirmed_at == date of creating
         """
 
-    @abstractmethod
-    async def test_return_400_error_on_passing_already_used_credentials(
+    async def test_creating_user_in_db(
             self,
-            client: AsyncClient
+            created_user_email: str,
+            success_response: Response,
+            users_repo: UsersRepo
     ):
-        """
-        On creation has been passed the same credentials
-        (client fixture - client that already sent the same request).
+        user = await users_repo.fetch_by_email(created_user_email)
 
-        Must return 400 Bad Request.
-        """
+        assert created_user_email == user.email
+        self._test_created_user_claims(user)

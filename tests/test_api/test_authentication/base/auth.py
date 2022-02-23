@@ -6,13 +6,13 @@ from starlette.status import HTTP_200_OK
 from app.db.repos import RefreshSessionsRepo
 from app.schemas.authentication import AuthenticationResult
 from app.services.authentication.authenticator.cookie import REFRESH_TOKEN_COOKIE_KEY
-from ...base import BaseTestRoute
+from ...base import BaseTestRouteCase
 
 
-__all__ = ['BaseTestAuthRoute']
+__all__ = ['BaseTestAuthRouteCase']
 
 
-class BaseTestAuthRoute(BaseTestRoute, ABC):
+class BaseTestAuthRouteCase(BaseTestRouteCase, ABC):
     def test_success_response(self, success_response: Response):
         response_json = success_response.json()
 
@@ -35,4 +35,4 @@ class BaseTestAuthRoute(BaseTestRoute, ABC):
     ):
         refresh_token = success_response.cookies[REFRESH_TOKEN_COOKIE_KEY]
 
-        assert await refresh_sessions_repo.fetch_by_token(refresh_token)
+        assert await refresh_sessions_repo.exists_by_token(refresh_token)

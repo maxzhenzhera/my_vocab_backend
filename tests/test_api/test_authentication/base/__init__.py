@@ -1,10 +1,8 @@
-from .auth_route import BaseTestAuthRoute
-from .user_creation_route import BaseTestUserCreationRoute
-from .email_sending_route import BaseTestEmailSendingRoute
+from .auth import BaseTestAuthRouteCase
+from .user_creation import BaseTestUserCreationRouteCase
 
 
 __all__ = [
-    'BaseTestAuthRoute',
-    'BaseTestUserCreationRoute',
-    'BaseTestEmailSendingRoute'
+    'BaseTestAuthRouteCase',
+    'BaseTestUserCreationRouteCase'
 ]

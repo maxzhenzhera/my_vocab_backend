@@ -69,7 +69,7 @@ class Vocab(Base, TimestampMixin):
     )
     words: Mapped[list['Word']] = relationship(
         'Word',
-        backref='vocab', passive_deletes=True
+        back_populates='vocab', passive_deletes=True
     )
 
     def __repr__(self) -> str:

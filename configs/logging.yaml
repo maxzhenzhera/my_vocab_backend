@@ -1,11 +1,8 @@
-# common settings
 version: 1
 disable_existing_loggers: false
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-
-# formatters
 formatters:
     standard:
         format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -15,24 +12,20 @@ formatters:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-# filters
 filters:
-    # catches logs !only! with DEBUG level
+    # only DEBUG
     DEBUGFilter:
-        # path to filter from the core package
         (): app.utils.logging_.filters.LevelFilter
         level: DEBUG
 
-    # catches logs !only! with INFO level
+    # only INFO
     INFOFilter:
-        # path to filter from the core package
         (): app.utils.logging_.filters.LevelFilter
         level: INFO
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-# handlers
 handlers:
-    # only DEBUG
     debug_console:
         class: logging.StreamHandler
         level: DEBUG
@@ -40,7 +33,6 @@ handlers:
         stream: ext://sys.stdout
         filters: [DEBUGFilter]
 
-    # only INFO
     info_console:
         class: logging.StreamHandler
         level: INFO
@@ -48,46 +40,25 @@ handlers:
         stream: ext://sys.stdout
         filters: [INFOFilter]
 
-    # WARN and higher logs
     error_console:
         class: logging.StreamHandler
         level: WARN
         formatter: detailed
         stream: ext://sys.stderr
-
-    # INFO and higher logs in file
-    info_file_handler:
-        class: logging.handlers.RotatingFileHandler
-        level: INFO
-        formatter: detailed
-        filename: /var/log/my_vocab_backend/info.log
-        maxBytes: 10000000 # 10MB
-        backupCount: 5
-        encoding: utf8
-
-    # WARN and higher logs in file
-    error_file_handler:
-        class: logging.handlers.RotatingFileHandler
-        level: WARN
-        formatter: detailed
-        filename: /var/log/my_vocab_backend/error.log
-        maxBytes: 10000000 # 10MB
-        backupCount: 5
-        encoding: utf8
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
 # root logger
 root:
     level: INFO
-    handlers: [debug_console, info_console, error_console, info_file_handler, error_file_handler]
+    handlers: [debug_console, info_console, error_console]
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
 # loggers
 loggers:
     # sqlalchemy namespace
-    sqlalchemy:
+    sqlalchemy.engine:
         level: INFO
         propagate: True
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

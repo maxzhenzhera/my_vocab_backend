@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from typing import (
     Generic,
     Type,
-    TypeVar
+    TypeVar,
+    cast
 )
 
 from fastapi import Depends
@@ -63,6 +64,15 @@ class BaseRepo(ABC, Generic[SQLAlchemyModel]):
             )
             result = await self.session.execute(orm_stmt)
         return result
+
+    async def _exists_where(self, where_stmt: ColumnElement[Boolean]) -> bool:
+        stmt = (
+            sa_select(self.model)
+            .where(where_stmt)
+            .exists().select()
+        )
+        result = await self.session.execute(stmt)
+        return cast(bool, result.scalar())
 
     async def _fetch_where(self, where_stmt: ColumnElement[Boolean]) -> SQLAlchemyModel:
         stmt = (

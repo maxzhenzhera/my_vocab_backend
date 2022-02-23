@@ -15,18 +15,26 @@ from starlette.status import (
 from app.db.models import User
 from app.db.repos import UsersRepo
 from app.schemas.entities.user import UserInResponse
-from ....base import BaseTestRoute
-from ....fakers import fake_email_confirmation_token
-from ....mixins.response_and_client import ResponseAndClient
-from .....utils.datetime_ import assert_datetime
+from ...base import (
+    BaseTestRoute,
+    BaseTestRouteCase
+)
+from ...fakers import fake_email_confirmation_token
+from ...mixins.response_and_client import ResponseAndClient
+from ....utils.datetime_ import assert_datetime
 
 
 pytestmark = pytest.mark.asyncio
 
 
-class TestConfirmRoute(BaseTestRoute):
+class ConfirmRouteNameMixin:
     route_name: ClassVar[str] = 'auth:confirm'
 
+
+class TestConfirmRouteSingleCase(
+    ConfirmRouteNameMixin,
+    BaseTestRouteCase
+):
     @property
     def computational_interference(self) -> timedelta:
         """ DB timestamps might slowly differ. """
@@ -39,12 +47,6 @@ class TestConfirmRoute(BaseTestRoute):
     ) -> dict[str, str]:
         return {
             'token': user_1.email_confirmation_token
-        }
-
-    @pytest.fixture(name='bad_params')
-    def fixture_bad_params(self) -> dict[str, str]:
-        return {
-            'token': fake_email_confirmation_token()
         }
 
     @pytest.fixture(name='response_and_client_on_success')
@@ -84,6 +86,17 @@ class TestConfirmRoute(BaseTestRoute):
             actual=user.email_confirmed_at,
             delta=self.computational_interference
         )
+
+
+class TestCommonErrorsOfConfirmRoute(
+    ConfirmRouteNameMixin,
+    BaseTestRoute
+):
+    @pytest.fixture(name='bad_params')
+    def fixture_bad_params(self) -> dict[str, str]:
+        return {
+            'token': fake_email_confirmation_token()
+        }
 
     async def test_return_400_error_on_passing_false_link(
             self,

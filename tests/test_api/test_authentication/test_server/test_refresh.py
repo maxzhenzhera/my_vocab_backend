@@ -5,70 +5,53 @@ from httpx import AsyncClient
 from starlette.datastructures import URLPath
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from app.db.repositories import RefreshSessionsRepository
-from app.__main__ import app
-from app.services.authentication.refresh_session.cookie import REFRESH_TOKEN_COOKIE_KEY
-from ..base import BaseTestTerminatingRefreshSessionRoute
-from ...base import BaseTestAuthRoute
-from ....mixins.response_and_client import ResponseAndClient
-from tests.test_api.helpers import generate_fake_refresh_token
+from app.db.repos import RefreshSessionsRepo
+from app.services.authentication.authenticator.cookie import REFRESH_TOKEN_COOKIE_KEY
+from .base import BaseTestTerminatingRefreshSessionRouteCase
+from ..base import BaseTestAuthRouteCase
+from ...base import BaseTestRoute
+from ...fakers import fake_refresh_token
+from ...mixins.response_and_client import ResponseAndClient
 
 
 pytestmark = pytest.mark.asyncio
 
 
-class TestRefreshRoute(BaseTestAuthRoute, BaseTestTerminatingRefreshSessionRoute):
-    url: ClassVar[URLPath] = app.url_path_for('auth:refresh')
+class RefreshRouteNameMixin:
+    route_name: ClassVar[str] = 'auth:refresh'
 
-    @pytest.fixture(name='response_and_client')
-    async def fixture_response_and_client(
+
+class TestRefreshRouteSingleCase(
+    RefreshRouteNameMixin,
+    BaseTestAuthRouteCase,
+    BaseTestTerminatingRefreshSessionRouteCase
+):
+    @pytest.fixture(name='refresh_token_before_request')
+    def fixture_refresh_token_before_request(self, client_1: AsyncClient) -> str:
+        return client_1.cookies[REFRESH_TOKEN_COOKIE_KEY]
+
+    @pytest.fixture(name='response_and_client_on_success')
+    async def fixture_response_and_client_on_success(
             self,
-            test_client_user_1: AsyncClient
+            route_url: URLPath,
+            client_1: AsyncClient
     ) -> ResponseAndClient:
-        return await test_client_user_1.get(self.url), test_client_user_1
+        return (
+            await client_1.get(
+                url=route_url,
+            ),
+            client_1
+        )
 
-    @pytest.fixture(name='old_refresh_token')
-    def fixture_old_refresh_token(self, test_client_user_1: AsyncClient) -> str:
-        return test_client_user_1.cookies[REFRESH_TOKEN_COOKIE_KEY]
 
-    def test_deleting_old_refresh_token_cookie(
+class TestCommonErrorsOfRefreshRoute(
+    RefreshRouteNameMixin,
+    BaseTestRoute
+):
+    async def test_return_401_error_on_passing_nonexistent_refresh_token(
             self,
-            old_refresh_token: str,
+            route_url: URLPath,
             client: AsyncClient
-    ):
-        """
-        The order of the used fixtures is important.
-        If put
-            < old_refresh_token >
-        after
-            < client >
-        than it would try to get the cookie from the refreshed user.
-        """
-
-        assert client.cookies[REFRESH_TOKEN_COOKIE_KEY] != old_refresh_token
-
-    async def test_return_401_error_on_expired_session(
-            self,
-            old_refresh_token: str,
-            test_client_user_1: AsyncClient,
-            test_refresh_sessions_repository: RefreshSessionsRepository
-    ):
-        """
-        On refresh has been passed refresh token which session has been manually expired.
-
-        Must return 401 Unauthorized.
-        """
-
-        async with test_refresh_sessions_repository.session.begin():
-            await test_refresh_sessions_repository.expire(old_refresh_token)
-
-        response = await test_client_user_1.get(self.url)
-
-        assert response.status_code == HTTP_401_UNAUTHORIZED
-
-    async def test_return_401_error_on_passing_false_refresh_token(
-            self,
-            test_client_user_1: AsyncClient
     ):
         """
         On refresh has been passed fake refresh token which session does not exist.
@@ -76,7 +59,30 @@ class TestRefreshRoute(BaseTestAuthRoute, BaseTestTerminatingRefreshSessionRoute
         Must return 401 Unauthorized.
         """
 
-        test_client_user_1.cookies[REFRESH_TOKEN_COOKIE_KEY] = generate_fake_refresh_token()
-        response = await test_client_user_1.get(self.url)
+        unauthorized_response = await client.get(
+            url=route_url,
+            cookies={REFRESH_TOKEN_COOKIE_KEY: fake_refresh_token()}
+        )
 
-        assert response.status_code == HTTP_401_UNAUTHORIZED
+        assert unauthorized_response.status_code == HTTP_401_UNAUTHORIZED
+
+    async def test_return_401_error_on_expired_session(
+            self,
+            route_url: URLPath,
+            client_1: AsyncClient,
+            refresh_sessions_repo: RefreshSessionsRepo
+    ):
+        """
+        On refresh has been passed refresh token
+        which session has been manually expired.
+
+        Must return 401 Unauthorized.
+        """
+
+        refresh_token = client_1.cookies[REFRESH_TOKEN_COOKIE_KEY]
+        async with refresh_sessions_repo.session.begin():
+            await refresh_sessions_repo.expire(refresh_token)
+
+        unauthorized_response = await client_1.get(route_url)
+
+        assert unauthorized_response.status_code == HTTP_401_UNAUTHORIZED

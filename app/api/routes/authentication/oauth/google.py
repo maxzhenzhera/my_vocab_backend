@@ -53,7 +53,7 @@ async def google_signup(
         provider: StarletteRemoteApp = Depends(GoogleProviderMarker)
 ) -> RedirectResponse:
     """ Redirect to the registration through Google OAuth. """
-    return await provider.authorize_redirect(
+    return await provider.authorize_redirect(  # type: ignore[no-any-return]
         request=request,
         redirect_uri=request.url_for('oauth:google:register')
     )
@@ -72,7 +72,7 @@ async def google_signin(
         provider: StarletteRemoteApp = Depends(GoogleProviderMarker)
 ) -> RedirectResponse:
     """ Redirect to the login through Google OAuth. """
-    return await provider.authorize_redirect(
+    return await provider.authorize_redirect(  # type: ignore[no-any-return]
         request=request,
         redirect_uri=request.url_for('oauth:google:login')
     )

@@ -18,6 +18,7 @@ T = TypeVar('T', int, str)
             ('google.com,github.com', str, ['google.com', 'github.com']),
             ('1', int, [1]),
             ('1,2', int, [1, 2]),
+            ('aaa, bbb, ccc', str, ['aaa', 'bbb', 'ccc']),
     )
 )
 def test_result(string: str, part_type: Type[T], result: list[T]):

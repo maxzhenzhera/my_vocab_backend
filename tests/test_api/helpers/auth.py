@@ -25,7 +25,7 @@ def set_user_in_client(
 
 
 def get_user_from_client(client: AsyncClient) -> UserInResponse:
-    return getattr(client, _USER_ATTRIBUTE_NAME)
+    return getattr(client, _USER_ATTRIBUTE_NAME)  # type: ignore[no-any-return]
 
 
 async def make_unauthenticated_client(

@@ -2,7 +2,11 @@ from abc import (
     ABC,
     abstractmethod
 )
-from datetime import timedelta
+from datetime import (
+    datetime,
+    timedelta
+)
+from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -66,7 +70,7 @@ class BaseTestOAuthRouteCaseWhenConnectionCreating(
         )
 
         assert_datetime(
-            actual=oauth_connection.updated_at,
+            actual=cast(datetime, oauth_connection.updated_at),
             delta=timedelta(seconds=5)
         )
 

@@ -87,7 +87,7 @@ def fixture_app_settings() -> AppSettings:
 
 @pytest.fixture(name='alembic_config', scope='session')
 def fixture_alembic_config(app_settings: AppSettings) -> AlembicConfig:
-    config = AlembicConfig(ALEMBIC_CONFIG_PATH)
+    config = AlembicConfig(str(ALEMBIC_CONFIG_PATH))
     config.set_main_option('sqlalchemy.url', app_settings.db.sqlalchemy_url)
     return config
 
@@ -242,13 +242,13 @@ def fixture_mail_sender(initialized_app: FastAPI) -> FastMail:
 
 
 @pytest.fixture(name='db_sessionmaker')
-def fixture_sessionmaker(initialized_app: FastAPI) -> sessionmaker:
-    return initialized_app.state.db.sessionmaker
+def fixture_sessionmaker(initialized_app: FastAPI) -> sessionmaker[AsyncSession]:
+    return initialized_app.state.db.sessionmaker  # type: ignore[no-any-return]
 
 
 @pytest.fixture(name='db_session')
 async def fixture_db_session(
-        db_sessionmaker: sessionmaker
+        db_sessionmaker: sessionmaker[AsyncSession]
 ) -> AsyncGenerator[AsyncSession, None]:
     async with db_sessionmaker() as session:
         yield session

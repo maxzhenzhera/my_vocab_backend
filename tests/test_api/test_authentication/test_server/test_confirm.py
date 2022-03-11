@@ -1,5 +1,11 @@
-from datetime import timedelta
-from typing import ClassVar
+from datetime import (
+    datetime,
+    timedelta
+)
+from typing import (
+    ClassVar,
+    cast
+)
 
 import pytest
 from httpx import (
@@ -83,7 +89,7 @@ class TestConfirmRouteSingleCase(
     def _test_email_confirmation_claims(self, user: User | UserInResponse):
         assert user.is_email_confirmed
         assert_datetime(
-            actual=user.email_confirmed_at,
+            actual=cast(datetime, user.email_confirmed_at),
             delta=self.computational_interference
         )
 

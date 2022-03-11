@@ -2,6 +2,7 @@ from datetime import (
     datetime,
     timedelta
 )
+from typing import cast
 
 import pytest
 from jose.jwt import ALGORITHMS
@@ -134,7 +135,7 @@ class TestJWTService:
             token_settings: TokenSettings,
             verified_token_claims: ClaimsFromToken
     ):
-        exp: int = verified_token_claims['exp']
+        exp = cast(int, verified_token_claims['exp'])
 
         expected = datetime.utcnow() + token_settings.expire_timedelta
         actual = datetime.utcfromtimestamp(exp)

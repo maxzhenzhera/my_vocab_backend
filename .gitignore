@@ -142,5 +142,8 @@ cython_debug/
 # PyCharm files
 .idea/
 
+# Certificates
+nginx/certs
+
 # test file for playing around
 tests/~sandbox.py

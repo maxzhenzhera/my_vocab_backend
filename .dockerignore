@@ -146,5 +146,8 @@ cython_debug/
 # Github configs
 .github/
 
+# Certificates
+nginx/certs
+
 # test file for playing around
 tests/~sandbox.py

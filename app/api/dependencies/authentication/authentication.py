@@ -56,7 +56,7 @@ def _get_jwt_user(
     try:
         jwt_user = JWTService(
             jwt_settings=settings.jwt,
-            token_settings=settings.access_token
+            token_settings=settings.tokens.access
         ).verify(access_token)
     except ExpiredSignatureError:
         raise HTTPException(

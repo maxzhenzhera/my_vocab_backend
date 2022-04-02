@@ -60,7 +60,7 @@ class Authenticator:
         )
 
     def _compute_expire(self) -> datetime:
-        return datetime.utcnow() + self.settings.refresh_token.expire_timedelta
+        return datetime.utcnow() + self.settings.tokens.refresh.expire_timedelta
 
     def _form_tokens(self, user: User, session: RefreshSession) -> TokensInResponse:
         return TokensInResponse(
@@ -69,20 +69,18 @@ class Authenticator:
         )
 
     def _form_access_token(self, user: User) -> TokenInResponse:
-        return TokenInResponse(
+        return TokenInResponse.from_settings(
             token=JWTService(
                 jwt_settings=self.settings.jwt,
-                token_settings=self.settings.access_token
+                token_settings=self.settings.tokens.access
             ).generate(user),
-            token_type=self.settings.access_token.type,
-            ttl=self.settings.access_token.expire_in_seconds
+            settings=self.settings.tokens.access
         )
 
     def _form_refresh_token(self, session: RefreshSession) -> TokenInResponse:
-        return TokenInResponse(
+        return TokenInResponse.from_settings(
             token=session.token,
-            token_type=self.settings.refresh_token.type,
-            ttl=self.settings.refresh_token.expire_in_seconds
+            settings=self.settings.tokens.refresh
         )
 
     async def deauthenticate(self, token: str) -> None:

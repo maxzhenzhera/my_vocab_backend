@@ -28,7 +28,7 @@ class CookieService:
 
     @property
     def refresh_token_cookie_max_age(self) -> int:
-        return self.settings.refresh_token.expire_in_seconds
+        return self.settings.tokens.refresh.expire_in_seconds
 
     def set_refresh_token(self, refresh_token: str) -> None:
         self.response.set_cookie(

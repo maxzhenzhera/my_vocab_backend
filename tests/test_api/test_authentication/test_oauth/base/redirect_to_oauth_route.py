@@ -47,7 +47,7 @@ class BaseTestRedirectToOAuthRouteCase(
         return (
             await client.get(
                 url=route_url,
-                allow_redirects=False
+                follow_redirects=False
             ),
             client
         )

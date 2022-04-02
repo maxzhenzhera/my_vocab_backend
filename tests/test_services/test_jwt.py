@@ -8,10 +8,8 @@ import pytest
 from jose.jwt import ALGORITHMS
 from pytest_mock import MockerFixture
 
-from app.core.settings.dataclasses_.components import (
-    JWTSettings,
-    TokenSettings
-)
+from app.core.settings.dataclasses_.components import JWTSettings
+from app.core.settings.dataclasses_.components.tokens import TokenSettings
 from app.db.models import User
 from app.services.jwt import JWTService
 from app.services.jwt.dataclasses_ import JWTUser

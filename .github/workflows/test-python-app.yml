@@ -14,9 +14,9 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: my_vocab_backend_user
+          POSTGRES_USER: my_vocab_db_user
+          POSTGRES_PASSWORD: my_vocab_db_password
           POSTGRES_DB: my_vocab
-          POSTGRES_PASSWORD: my_vocab_backend_password
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

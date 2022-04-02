@@ -17,14 +17,12 @@ jobs:
           POSTGRES_USER: my_vocab_backend_user
           POSTGRES_DB: my_vocab
           POSTGRES_PASSWORD: my_vocab_backend_password
-        # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps tcp port 5432 on service container to the host
           - 5432:5432
 
     steps:
@@ -54,4 +52,4 @@ jobs:
           pipenv run pytest
         env:
           APP_ENV: test
-          DB_URI: postgresql://my_vocab_db_user:my_vocab_db_password@postgres:5432/my_vocab
+          DB_URI: postgresql://my_vocab_db_user:my_vocab_db_password@localhost:5432/my_vocab

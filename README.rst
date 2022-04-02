@@ -2,7 +2,7 @@
 My Vocab Backend
 ****************
 | Before: investigate ``.env.example`` and fill ``.env.[prod/dev/test]``.
-| Note: for ``prod`` you have to generate local SSL certs and tweak *hosts* for local running (will describe it's later).
+| Note: for ``prod`` you have to generate local SSL cert and tweak *hosts* to local run (will describe it's later).
 
 Run in Docker
 =============
@@ -64,7 +64,7 @@ Full Prod setup
     $ mkcert backend.myvocab.com localhost 127.0.0.1 ::1
 
 | Put this cert under *./nginx/certs*. [Use other domains? Substitute all occurrences]
-| Link cert to nginx conf.d (for local running):
+| Link cert to nginx conf.d (to local run):
 
 .. code-block:: bash
 
@@ -80,8 +80,8 @@ Full Prod setup
     127.0.0.1       gunicorn_host
     127.0.0.1       backend.myvocab.com
 
-| You're ready to run both locally as in Docker.
-| Serve **nginx** for local running.
+| You're ready to run both as locally as in Docker.
+| Serve **nginx** to local run.
 
 Afterwords
 ==========

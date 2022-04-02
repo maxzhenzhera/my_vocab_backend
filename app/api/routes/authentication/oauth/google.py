@@ -2,7 +2,7 @@ import logging
 
 from authlib.integrations.starlette_client import (
     OAuthError,
-    StarletteRemoteApp
+    StarletteOAuth2App
 )
 from fastapi import (
     APIRouter,
@@ -50,7 +50,7 @@ router = APIRouter()
 )
 async def google_signup(
         request: Request,
-        provider: StarletteRemoteApp = Depends(GoogleProviderMarker)
+        provider: StarletteOAuth2App = Depends(GoogleProviderMarker)
 ) -> RedirectResponse:
     """ Redirect to the registration through Google OAuth. """
     return await provider.authorize_redirect(  # type: ignore[no-any-return]
@@ -69,7 +69,7 @@ async def google_signup(
 )
 async def google_signin(
         request: Request,
-        provider: StarletteRemoteApp = Depends(GoogleProviderMarker)
+        provider: StarletteOAuth2App = Depends(GoogleProviderMarker)
 ) -> RedirectResponse:
     """ Redirect to the login through Google OAuth. """
     return await provider.authorize_redirect(  # type: ignore[no-any-return]

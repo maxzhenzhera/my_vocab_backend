@@ -4,7 +4,7 @@ from abc import (
 )
 from dataclasses import dataclass
 
-from authlib.integrations.starlette_client import StarletteRemoteApp
+from authlib.integrations.starlette_client import StarletteOAuth2App
 from authlib.oidc.core.claims import UserInfo
 from fastapi import Request
 
@@ -20,10 +20,10 @@ class BaseAuthorizer(ABC):
 
     @property
     @abstractmethod
-    def oauth_provider(self) -> StarletteRemoteApp:
+    def oauth_provider(self) -> StarletteOAuth2App:
         """
         OAuth provider of authorizer
-        that have to declared in provider authorizer subclass
+        that have to be declared in subclass
         as dependency.
         """
 

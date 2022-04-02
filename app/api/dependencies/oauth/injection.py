@@ -1,6 +1,6 @@
 from authlib.integrations.starlette_client import (
     OAuth,
-    StarletteRemoteApp
+    StarletteOAuth2App
 )
 from fastapi import Depends
 
@@ -9,7 +9,6 @@ from .markers import (
     OAuthClientMarker
 )
 from ....builder import AppBuilder
-from ....core.settings.constants.oauth import GOOGLE_OAUTH_NAME
 
 
 __all__ = ['inject_oauth']
@@ -21,8 +20,8 @@ def inject_oauth(builder: AppBuilder) -> None:
 
     def depend_on_google(
             oauth_client: OAuth = Depends(OAuthClientMarker)
-    ) -> StarletteRemoteApp:
-        return getattr(oauth_client, GOOGLE_OAUTH_NAME)
+    ) -> StarletteOAuth2App:
+        return getattr(oauth_client, builder.settings.oauth.google.name)
 
     builder.app.dependency_overrides[OAuthClientMarker] = depend_on_oauth
     builder.app.dependency_overrides[GoogleProviderMarker] = depend_on_google

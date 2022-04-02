@@ -1,50 +1,65 @@
-# Constants ---------------------------------------------------------------------------------------
-TEST_PROJECT_NAME := my_vocab_backend_test
-TEST_DC_CONFIG_FILENAME := docker-compose.test.yaml
-# -------------------------------------------------------------------------------------------------
+DC := "docker-compose"
 
-# Shortcuts ---------------------------------------------------------------------------------------
-DC := docker-compose
-# -------------------------------------------------------------------------------------------------
+PROD="prod"
+DEV="dev"
+TEST="test"
 
-# invoke scripts ----------------------------------------------------------------------------------
-log-dirs:
-	python ./scripts/make_directories_for_logs.py
+PROJECT_NAME := "my_vocab_backend"
+PROD_PROJECT_NAME := "${PROJECT_NAME}_${PROD}"
+DEV_PROJECT_NAME := "${PROJECT_NAME}_${DEV}"
+TEST_PROJECT_NAME := "${PROJECT_NAME}_${TEST}"
 
-prepare:
-	python ./scripts/prepare.py
-# -------------------------------------------------------------------------------------------------
+PROD_COMPOSE := "${DC}.${PROD}.yaml"
+DEV_COMPOSE := "${DC}.${DEV}.yaml"
+TEST_COMPOSE := "${DC}.${TEST}.yaml"
 
-# run linter --------------------------------------------------------------------------------------
-lint:
-	python -m flake8
-# -------------------------------------------------------------------------------------------------
+MIGRATIONS_DIR := "./app/db/migrations/versions"
 
-# docker compose for deployment -------------------------------------------------------------------
-up:
-	${DC} up
 
-down:
-	${DC} down -v --rmi local
+prod:
+	${DC} -f ${PROD_COMPOSE} --project-name ${PROD_PROJECT_NAME} up
+prod-down:
+	${DC} -f ${PROD_COMPOSE} --project-name ${PROD_PROJECT_NAME} down -v --rmi local
 
-start:
-	${DC} start
+dev:
+	${DC} -f ${DEV_COMPOSE} --project-name ${DEV_PROJECT_NAME} up
+dev-down:
+	${DC} -f ${DEV_COMPOSE} --project-name ${DEV_PROJECT_NAME} down -v --rmi local
 
-stop:
-	${DC} stop
-# -------------------------------------------------------------------------------------------------
-
-# docker compose for testing ----------------------------------------------------------------------
 test:
-	make down-test
-	${DC} -f ${TEST_DC_CONFIG_FILENAME} --project-name ${TEST_PROJECT_NAME} up --abort-on-container-exit
+	${DC} -f ${TEST_COMPOSE} --project-name ${TEST_PROJECT_NAME} up
+test-down:
+	${DC} -f ${TEST_COMPOSE} --project-name ${TEST_PROJECT_NAME} down -v --rmi local
 
-down-test:
-	${DC} --project-name ${TEST_PROJECT_NAME} down --rmi local
-# -------------------------------------------------------------------------------------------------
+lint:
+	flake8 app && \
+	flake8 tests && \
+	mypy app && \
+	mypy tests --disable-error-code=override --disable-error-code=misc --disable-error-code=no-untyped-def
 
-# docker compose common ---------------------------------------------------------------------------
+rm-mypy-cache:
+	rm -rf .mypy_cache
+
 clean:
-	make down
-	make down-test
-# -------------------------------------------------------------------------------------------------
+	make prod-down
+	make dev-down
+	make test-down
+	make rm-mypy-cache
+
+migration:  # arguments: message: str;
+	alembic revision --autogenerate -m ${message}
+
+migrate:
+	alembic upgrade head
+
+downgrade:
+	alembic downgrade base
+
+rm-migrations:
+	rm ${MIGRATIONS_DIR}/*
+
+dangerous-remigrate:
+	make downgrade
+	make rm-migrations
+	make migration message="init"
+	make migrate

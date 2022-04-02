@@ -1,27 +1,52 @@
-"""
-Development environment entrypoint.
-"""
+import multiprocessing
 
-import uvicorn
-from fastapi import FastAPI
+import gunicorn.app.base
 
-from app.builder import AppBuilder
 from app.core.config import get_app_settings
-from app.core.settings import AppSettings
+from app.factory import get_app
 
 
-__all__ = ['get_app']
+settings = get_app_settings()
+app = get_app(settings)
 
 
-def get_app(settings: AppSettings | None = None) -> FastAPI:
-    settings = settings or get_app_settings()
-    return AppBuilder(settings).build_app()
+def number_of_workers():
+    return (multiprocessing.cpu_count() * 2) + 1
+
+
+def handler_app(environ, start_response):
+    response_body = b'Works fine'
+    status = '200 OK'
+
+    response_headers = [
+        ('Content-Type', 'text/plain'),
+    ]
+
+    start_response(status, response_headers)
+
+    return [response_body]
+
+
+class StandaloneApplication(gunicorn.app.base.BaseApplication):
+
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        config = {key: value for key, value in self.options.items()
+                  if key in self.cfg.settings and value is not None}
+        for key, value in config.items():
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
 
 
 if __name__ == '__main__':
-    uvicorn_settings = get_app_settings().uvicorn
-    uvicorn.run(
-        app='__main__:get_app',
-        factory=True,
-        **uvicorn_settings.kwargs
-    )
+    options = {
+        'bind': '%s:%s' % ('127.0.0.1', '8080'),
+        'workers': number_of_workers(),
+    }
+    StandaloneApplication(handler_app, options).run()

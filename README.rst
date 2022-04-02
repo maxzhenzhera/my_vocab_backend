@@ -32,7 +32,7 @@ Run in Docker
 Run locally
 =============
 | Serve **postgres** DB for app. [I'm sure You understand that you have to put **DB URI** to that **DB** in *.env* files.]
-| Put ``APP_ENV`` in *.env*./*environment*.
+| Put ``APP_ENV`` in **.env/environment**.
 
 | ``Test``:
 .. code-block:: bash

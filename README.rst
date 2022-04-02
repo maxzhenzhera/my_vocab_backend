@@ -1,6 +1,8 @@
 ****************
 My Vocab Backend
 ****************
+| **Stack**: ``FastAPI Uvicorn Gunicorn``.
+
 | Before: investigate ``.env.example`` and fill ``.env.[prod/dev/test]``.
 | Note: for ``prod`` you have to generate local SSL cert and tweak *hosts* to local run (will describe it's later).
 

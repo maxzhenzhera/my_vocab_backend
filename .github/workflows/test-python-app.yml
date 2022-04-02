@@ -1,4 +1,4 @@
-name: Python application
+name: Testing / Type-checking / Linting
 
 on:
   push:

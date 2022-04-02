@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      db_service:
+      postgres:
         image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: test_my_vocab
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: my_vocab_backend_user
+          POSTGRES_DB: my_vocab
+          POSTGRES_PASSWORD: my_vocab_backend_password
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -53,37 +53,4 @@ jobs:
         run: |
           pipenv run pytest
         env:
-          TEST_MAIL_USERNAME: test@gmail.com
-          TEST_MAIL_PASSWORD: password
-          TEST_MAIL_PORT: 587
-          TEST_MAIL_SERVER: smtp.gmail.com
-          TEST_MAIL_FROM: test@gmail.com
-          TEST_MAIL_FROM_NAME: My Vocab App
-          TEST_MAIL_TLS: True
-          TEST_MAIL_SSL: False
-
-          TEST_DB_HOST: localhost
-          TEST_DB_PORT: 5432
-          TEST_DB_USER: postgres
-          TEST_DB_PASSWORD: postgres
-          TEST_DB_NAME: test_my_vocab
-
-          # just plugs in required production environment variables
-          CORS_ORIGINS: "*"
-          SESSION_MIDDLEWARE_SECRET_KEY: secret
-          SERVER_HOST: 0.0.0.0
-          SERVER_PORT: 8000
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: postgres
-          DB_PASSWORD: password
-          DB_NAME: my_vocab
-          MAIL_USERNAME: example@gmail.com
-          MAIL_PASSWORD: password
-          MAIL_SERVER: smtp.gmail.com
-          MAIL_PORT: 587
-          MAIL_FROM: example@gmail.com
-          MAIL_FROM_NAME: My Vocab App
-          MAIL_TLS: True
-          MAIL_SSL: False
-          JWT_ACCESS_TOKEN_SECRET_KEY: secret
+          DB_URI: postgresql://my_vocab_db_user:my_vocab_db_password@postgres:5432/my_vocab

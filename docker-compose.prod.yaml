@@ -5,6 +5,8 @@ services:
 
   postgres:
     image: postgres
+    networks:
+      - backend_network
     volumes:
       - postgres_volume:/var/lib/postgresql/data/
     environment:
@@ -17,33 +19,54 @@ services:
     build:
       context: .
       target: main
+    networks:
+      - backend_network
     env_file:
-      - .env.dev
+      - .env.prod
     environment:
-      APP_ENV: dev
+      APP_ENV: prod
       DB_URI: postgresql://my_vocab_db_user:my_vocab_db_password@postgres:5432/my_vocab
     depends_on:
       - postgres
     command: alembic upgrade head
     restart: on-failure
 
-  uvicorn:
+  gunicorn:
     build:
       context: .
       target: main
-    ports:
-      - "8000:8000"
+    networks:
+      backend_network:
+        aliases:
+          - gunicorn_host
+    expose:
+      - 8000
     env_file:
-      - .env.dev
+      - .env.prod
     environment:
-      APP_ENV: dev
+      APP_ENV: prod
       APP_HOST: 0.0.0.0
       APP_PORT: 8000
-      UVICORN_RELOAD: "False"
       DB_URI: postgresql://my_vocab_db_user:my_vocab_db_password@postgres:5432/my_vocab
     depends_on:
       - migration
     restart: always
+
+  nginx:
+    build:
+      context: ./nginx
+    networks:
+      - backend_network
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - gunicorn
+    restart: always
+
+
+networks:
+  backend_network: {}
 
 volumes:
   postgres_volume: {}

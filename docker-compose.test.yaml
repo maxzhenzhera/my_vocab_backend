@@ -6,18 +6,32 @@ services:
   postgres:
     image: postgres
     environment:
-      - POSTGRES_USER=$TEST_DB_USER
-      - POSTGRES_PASSWORD=$TEST_DB_PASSWORD
-      - POSTGRES_DB=$TEST_DB_NAME
-    command: -p $TEST_DB_PORT
+      - POSTGRES_USER=my_vocab_db_user
+      - POSTGRES_PASSWORD=my_vocab_db_password
+      - POSTGRES_DB=test_my_vocab
+    restart: on-failure
 
-  app:
+  pytest:
     build:
       context: .
       target: test
     env_file:
-      - .env
+      - .env.test
     environment:
-      TEST_DB_HOST: postgres
+      APP_ENV: test
+      DB_URI: postgresql://my_vocab_db_user:my_vocab_db_password@postgres:5432/test_my_vocab
     depends_on:
       - postgres
+
+  lint:
+    build:
+      context: .
+      target: test
+    environment:
+      MYPY_CACHE_DIR: /dev/null
+    command: bash -c "
+        flake8 app &&
+        flake8 tests &&
+        mypy app &&
+        mypy tests --disable-error-code=override --disable-error-code=misc --disable-error-code=no-untyped-def
+      "

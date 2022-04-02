@@ -51,9 +51,10 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from app.__main__ import get_app
+from app.factory import get_app
 from app.core.config import get_app_settings
 from app.core.settings import AppSettings
+from app.core.settings.environment import AppEnvType
 from app.core.settings.paths import ALEMBIC_CONFIG_PATH
 from app.db.repos import (
     OAuthConnectionsRepo,
@@ -76,11 +77,7 @@ from .helpers.oauth import link_oauth_connections
 
 @pytest.fixture(name='app_settings', scope='session')
 def fixture_app_settings() -> AppSettings:
-    settings = get_app_settings()
-
-    settings.mail.SUPPRESS_SEND = 1
-
-    return settings
+    return get_app_settings(AppEnvType.TEST)
 
 
 # ////////////////////////////////////////////////////////////////////////////////////////

@@ -34,6 +34,8 @@ Fixtures:
             +-- UsersRepo
 """
 
+from __future__ import annotations  # https://github.com/sqlalchemy/sqlalchemy/issues/7656
+
 from collections.abc import AsyncGenerator
 
 import pytest

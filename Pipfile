@@ -6,8 +6,9 @@ name = "pypi"
 [packages]
 fastapi-mail = "*"
 fastapi = "*"
-uvicorn = {extras = ["standard"], version = "*"}
 pydantic = {extras = ["email"], version = "*"}
+uvicorn = {extras = ["standard"], version = "*"}
+gunicorn = "*"
 alembic = "*"
 sqlalchemy = "*"
 asyncpg = "*"
@@ -17,6 +18,7 @@ passlib = {extras = ["bcrypt"], version = "*"}
 itsdangerous = "*"
 python-dotenv = "*"
 pyyaml = "*"
+httpx = "*"
 python-freedictionaryapi = {extras = ["async-client"], version = "*"}
 
 [dev-packages]

@@ -14,10 +14,9 @@ from .dataclasses_ import (
     JWTMeta,
     JWTUser
 )
-from ...core.settings.dataclasses_.components import (
-    JWTSettings,
-    TokenSettings
-)
+from ...core.settings.dataclasses_.components import JWTSettings
+from ...core.settings.dataclasses_.components.tokens import TokenSettings
+
 from ...db.models import User
 from ...utils.casts import to_dataclass
 

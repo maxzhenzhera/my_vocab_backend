@@ -4,11 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi-mail = "*"
-fastapi = "*"
+fastapi-mail = "*"  # already depends on `fastapi`
 pydantic = {extras = ["email"], version = "*"}
 uvicorn = {extras = ["standard"], version = "*"}
-gunicorn = "*"
 alembic = "*"
 sqlalchemy = "*"
 asyncpg = "*"
@@ -20,6 +18,8 @@ python-dotenv = "*"
 pyyaml = "*"
 httpx = "*"
 python-freedictionaryapi = {extras = ["async-client"], version = "*"}
+# prod
+gunicorn = "*"
 
 [dev-packages]
 pytest = "*"

@@ -146,4 +146,4 @@ cython_debug/
 nginx/certs
 
 # test file for playing around
-tests/~sandbox.py
+sandbox.py

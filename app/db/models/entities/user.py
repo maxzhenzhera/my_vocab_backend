@@ -48,10 +48,6 @@ class User(Base, TimestampMixin):
         String(128),
         nullable=False
     )
-    salt: Mapped[str] = Column(
-        String(128),
-        nullable=False
-    )
     email_confirmation_token: Mapped[str] = Column(
         UUID,
         server_default=gen_random_uuid(), nullable=False

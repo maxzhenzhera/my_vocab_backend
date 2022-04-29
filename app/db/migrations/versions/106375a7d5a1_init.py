@@ -1,8 +1,8 @@
 """init
 
-Revision ID: ee58723b9135
+Revision ID: 106375a7d5a1
 Revises: 
-Create Date: 2022-02-22 21:09:55.202470
+Create Date: 2022-04-29 15:32:11.418859
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'ee58723b9135'
+revision = '106375a7d5a1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,7 +22,6 @@ def upgrade():
     sa.Column('id', sa.BigInteger(), nullable=False),
     sa.Column('email', sa.String(length=256), nullable=False),
     sa.Column('hashed_password', sa.String(length=128), nullable=False),
-    sa.Column('salt', sa.String(length=128), nullable=False),
     sa.Column('email_confirmation_token', postgresql.UUID(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
     sa.Column('is_email_confirmed', sa.Boolean(), server_default=sa.text('false'), nullable=False),
@@ -109,6 +108,3 @@ def downgrade():
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     # ### end Alembic commands ###
-
-    # drop custom types
-    sa.Enum(name='language').drop(op.get_bind(), checkfirst=False)

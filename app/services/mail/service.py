@@ -41,10 +41,10 @@ class MailService:
     background_tasks: BackgroundTasks
     mail_sender: FastMail = Depends(MailSenderMarker)
 
-    def send_confirmation_mail(self, user: UserInResponse) -> None:
+    def send_confirmation(self, user: UserInResponse) -> None:
         self.background_tasks.add_task(
             self.mail_sender.send_message,
-            message=self._make_confirmation_mail(user),
+            message=self._form_confirmation(user),
             template_name='confirmation.html'
         )
         logger.info(
@@ -52,34 +52,29 @@ class MailService:
             'has been pushed in background tasks.'
         )
 
-    def _make_confirmation_mail(self, user: UserInResponse) -> MessageSchema:
+    def _form_confirmation(self, user: UserInResponse) -> MessageSchema:
         return MessageSchema(
             subject=CONFIRMATION_MAIL_SUBJECT,
             recipients=[user.email],
-            template_body=self._make_body_for_confirmation_mail(user)
+            template_body=self._form_confirmation_body(user)
         )
 
-    def _make_body_for_confirmation_mail(
+    def _form_confirmation_body(
             self,
             user: UserInResponse
     ) -> dict[str, str | UserInResponse]:
         return {
             'user': user,
-            'email_confirmation_url': ''.join(
-                (
-                    self._make_email_confirmation_url(),
-                    f'?token={user.email_confirmation_token}'
-                )
-            )
+            'confirmation_url': self._form_confirmation_url(user.email_confirmation_token)
         }
 
-    def _make_email_confirmation_url(self) -> str:
-        return self.request.url_for(name='auth:confirm')
+    def _form_confirmation_url(self, token: str) -> str:
+        return f'{self.request.url_for(name="auth:confirm")}?token={token}'
 
-    def send_credentials_mail(self, credentials: OAuthUserCredentials) -> None:
+    def send_credentials(self, credentials: OAuthUserCredentials) -> None:
         self.background_tasks.add_task(
             self.mail_sender.send_message,
-            self._make_credentials_mail(credentials),
+            message=self._form_credentials(credentials),
             template_name='credentials.html'
         )
         logger.info(
@@ -88,7 +83,7 @@ class MailService:
         )
 
     @staticmethod
-    def _make_credentials_mail(credentials: OAuthUserCredentials) -> MessageSchema:
+    def _form_credentials(credentials: OAuthUserCredentials) -> MessageSchema:
         return MessageSchema(
             subject=CREDENTIALS_MAIL_SUBJECT,
             recipients=[credentials.email],

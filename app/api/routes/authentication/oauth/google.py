@@ -127,7 +127,7 @@ async def google_register(
                 detail=error.detail
             )
         else:
-            mail_service.send_credentials_mail(credentials)
+            mail_service.send_credentials(credentials)
             return authentication_result
 
 

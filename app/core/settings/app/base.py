@@ -13,7 +13,6 @@ from ..dataclasses_.components import (
     DBSettings,
     JWTSettings,
     OAuthSettings,
-    PasswordSettings,
     TokensSettings
 )
 from ..dataclasses_.components.oauth import OAuthProviderSettings
@@ -77,8 +76,6 @@ class AppSettings(BaseSettings):
     }
     oauth_google_client_id: SecretStr = Field(..., env='GOOGLE_CLIENT_ID')
     oauth_google_client_secret: SecretStr = Field(..., env='GOOGLE_CLIENT_SECRET')
-
-    password_pepper: SecretStr = Field(..., env='PASSWORD_PEPPER')
 
     access_token_type: ClassVar[str] = 'Bearer'
     access_token_expire_in_seconds: int = Field(
@@ -170,12 +167,6 @@ class AppSettings(BaseSettings):
             client_kwargs=self.oauth_google_client_kwargs,
             client_id=self.oauth_google_client_id.get_secret_value(),
             client_secret=self.oauth_google_client_secret.get_secret_value()
-        )
-
-    @property
-    def password(self) -> PasswordSettings:
-        return PasswordSettings(
-            pepper=self.password_pepper.get_secret_value()
         )
 
     @property

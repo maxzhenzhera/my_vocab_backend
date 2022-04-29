@@ -45,4 +45,4 @@ class BaseAuthorizer(ABC):
 
     async def _extract_user_info_from_request(self) -> UserInfo:
         token = await self.oauth_provider.authorize_access_token(self.request)
-        return await self.oauth_provider.parse_id_token(self.request, token)
+        return token['userinfo']

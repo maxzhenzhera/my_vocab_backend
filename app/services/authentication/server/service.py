@@ -37,8 +37,7 @@ class AuthenticationService(BaseServerAuthenticationService):
             user_in_login: UserInLogin
     ) -> AuthenticationResult:
         user = await self.user_account_service.fetch_by_email(user_in_login.email)
-        password_service = PasswordService(self.settings.password, user)
-        if not password_service.verify_password(user_in_login.password):
+        if not PasswordService(user).verify(user_in_login.password):
             raise IncorrectPasswordError
         return await self.authenticator.authenticate(user)
 

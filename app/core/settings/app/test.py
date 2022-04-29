@@ -37,8 +37,6 @@ class AppTestSettings(AppSettings):
         env='GOOGLE_CLIENT_SECRET'
     )
 
-    password_pepper: SecretStr = Field('fakePasswordPepper', env='PASSWORD_PEPPER')
-
     access_token_expire_in_seconds: int = Field(
         6_000,
         env='ACCESS_TOKEN_EXPIRE_IN_SECONDS'

@@ -56,7 +56,7 @@ downgrade:
 	alembic downgrade base
 
 rm-migrations:
-	rm ${MIGRATIONS_DIR}/*
+	rm ${MIGRATIONS_DIR}/*.py
 
 dangerous-remigrate:
 	make downgrade

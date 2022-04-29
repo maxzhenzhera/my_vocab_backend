@@ -61,7 +61,7 @@ class UserAccountService:
     async def _create_user(self, user: User, password: str) -> User:
         if await self.users_repo.check_email_is_taken(user.email):
             raise EmailIsAlreadyTakenError(user.email)
-        PasswordService(self.settings.password, user).set_password(password)
+        PasswordService(user).set(password)
         return await self.users_repo.create_by_entity(user)
 
     async def fetch_by_email(self, email: str) -> User:

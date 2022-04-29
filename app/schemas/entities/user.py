@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import (
     BaseModel,
@@ -30,8 +29,8 @@ class UserInLogin(UserInCreate):
 
 
 class UserInUpdate(BaseModel):
-    email: Optional[EmailStr]
-    password: Optional[str]
+    email: EmailStr | None
+    password: str | None
 
 
 class UserInResponse(IDModelMixin, ModelWithOrmMode):
@@ -40,4 +39,4 @@ class UserInResponse(IDModelMixin, ModelWithOrmMode):
     is_active: bool
     is_email_confirmed: bool
     is_superuser: bool
-    email_confirmed_at: Optional[datetime]
+    email_confirmed_at: datetime | None

@@ -136,7 +136,7 @@ async def register(
             detail=error.detail
         )
     else:
-        mail_service.send_confirmation_mail(authentication_result.user)
+        mail_service.send_confirmation(authentication_result.user)
         return authentication_result
 
 

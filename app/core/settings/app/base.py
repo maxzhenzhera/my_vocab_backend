@@ -72,7 +72,7 @@ class AppSettings(BaseSettings):
         'https://accounts.google.com/.well-known/openid-configuration'
     )
     oauth_google_client_kwargs: ClassVar[dict[str, str]] = {
-        'scope': 'email'
+        'scope': 'openid email profile'
     }
     oauth_google_client_id: SecretStr = Field(..., env='GOOGLE_CLIENT_ID')
     oauth_google_client_secret: SecretStr = Field(..., env='GOOGLE_CLIENT_SECRET')
